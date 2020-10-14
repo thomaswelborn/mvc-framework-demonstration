@@ -11,7 +11,7 @@ export default class extends Model {
       defaults: {
         isAuthenticated: Boolean(),
         subID: String(),
-        apiKey: String(),
+        apiKey: String('f71d7df0-dbea-4538-8c74-7617cbd19172'),
       },
     }, settings), options)
   }

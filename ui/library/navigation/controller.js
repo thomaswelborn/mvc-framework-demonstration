@@ -39,8 +39,8 @@ export default class extends Controller {
     Array.from(this.options.data.buttons).forEach((buttonOptions, buttonIndex) => {
       const buttonControllerName = `button-${buttonIndex}`
       if(
-        (buttonOptions._auth && this.models.user.get('isAuthenticated')) || 
-        (buttonOptions._no_auth && !this.models.user.get('isAuthenticated'))
+        (buttonOptions.auth && this.models.user.get('isAuthenticated')) || 
+        (buttonOptions.noAuth && !this.models.user.get('isAuthenticated'))
       ) {
         this.controllers[buttonControllerName] = new ButtonController({
           models: {

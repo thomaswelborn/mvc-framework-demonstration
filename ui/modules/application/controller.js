@@ -1,6 +1,7 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
 
+import Channels from 'modules/channels'
 import Router from './router'
 import {
   Library as LibraryModel,
@@ -27,22 +28,42 @@ export default class extends Controller {
         library: new LibraryModel(),
         user: new UserModel(),
       },
+      modelEvents: {
+        'user set:isAuthenticated': 'onUserModelSetIsAuthenticated',
+      },
+      modelCallbacks: {
+        onUserModelSetIsAuthenticated: (event, userModel) => this.onUserModelSetIsAuthenticated(event, userModel),
+      },
       views: {
         view: new View(),
       },
       controllers: {},
     }, settings), mergeDeep({}, options))
+    Channels.channel('Application').response('router', () => this.routers.application)
   }
   get currentModule() { return this._currentModule }
   set currentModule(currentModule) { this._currentModule = currentModule }
+  onUserModelSetIsAuthenticated(event, userModel) {
+    console.log(event)
+    if(event.data.value === false) {
+      this.routers.application.navigate('/account/login')
+    } else {
+      this.routers.application.navigate('/')
+    }
+    return this
+  }
   onApplicationRouterError(event, router) {
     return this
   }
   loadModule(route) {
-    this.currentModule = new Modules[route.route.name]({}, {})
+    this.currentModule = new Modules[route.route.name]({
+      models: {
+        user: this.models.user,
+      },
+    }, {})
     this.currentModule.start()
-    console.log(this.currentModule.views.view.element)
     this.views.view
+      .empty('main')
       .renderElement(
         'main',
         'afterbegin',

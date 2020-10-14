@@ -1,1 +1,14 @@
-<span>INDEX</span>
+<header>
+  <div class="form-group">
+    <div class="input-group">
+      <select>
+        <% locals.settings.header.select.options.forEach((headerSelectOption) => { %>
+          <option value="<%= headerSelectOption.value %>"><%= headerSelectOption.textContent %></option>
+        <% }) %>
+      </select>
+    </div>
+  </div>
+</header>
+<main>
+  
+</main>

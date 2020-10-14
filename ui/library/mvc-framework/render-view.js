@@ -21,8 +21,9 @@ export default class extends View {
     this.element.innerHTML = this.template(data)
     return this
   }
-  empty() {
-    this.element.innerHTML = ''
+  empty(target) {
+    target = target || '$element'
+    this.ui[target].innerHTML = ''
     return this
   }
 }
