@@ -1,0 +1,77 @@
+{
+  "header": {
+    "toggleNavigation": {
+      "toggle": {
+        "textContent": "",
+        "attributes": {
+          "id": "application-toggle-navigation-toggle-button",
+          "data-action": "toggle-visible",
+          "data-target": "#application-toggle-navigation-navigation"
+        }
+      },
+      "navigation": {
+        "attributes": {
+          "id": "application-toggle-navigation-navigation",
+          "data-visible": false
+        },
+        "buttons": [
+          {
+            "textContent": "Profile",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": "/account/profile"
+            }
+          },
+          {
+            "class": "application-toggle-navigation-navigation-button",
+            "textContent": "Photos",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": "/photos"
+            }
+          },
+          {
+            "class": "application-toggle-navigation-navigation-button",
+            "textContent": "Favorited",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": "/favorites"
+            }
+          },
+          {
+            "class": "application-toggle-navigation-navigation-button",
+            "textContent": "Voted",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": "/votes"
+            }
+          },
+          {
+            "class": "application-toggle-navigation-navigation-button",
+            "textContent": "Upload",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": "/upload"
+            }
+          },
+          {
+            "class": "application-toggle-navigation-navigation-button",
+            "textContent": "Login",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": ""
+            }
+          },
+          {
+            "class": "application-toggle-navigation-navigation-button",
+            "textContent": "Logout",
+            "attributes": {
+              "class": "application-toggle-navigation-navigation-button",
+              "data-href": ""
+            }
+          }
+        ]
+      }
+    }
+  }
+}
