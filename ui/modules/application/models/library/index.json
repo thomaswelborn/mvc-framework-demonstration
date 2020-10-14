@@ -1,73 +1,88 @@
 {
   "header": {
     "toggleNavigation": {
+      "attributes": {
+        "id": "application-toggle-navigation",
+        "class": "navigation toggle-navigation"
+      },
       "toggle": {
-        "textContent": "",
+        "textContent": "*",
         "attributes": {
           "id": "application-toggle-navigation-toggle-button",
+          "class": "button toggle-button",
           "data-action": "toggle-visible",
-          "data-target": "#application-toggle-navigation-navigation"
+          "data-target": "#application-toggle-navigation-subnavigation",
+          "data-secondary-action": "toggle-active",
+          "data-secondary-target": "#application-toggle-navigation-toggle-button"
         }
       },
-      "navigation": {
+      "subnavigation": {
         "attributes": {
-          "id": "application-toggle-navigation-navigation",
+          "id": "application-toggle-navigation-subnavigation",
+          "class": "navigation subnavigation",
           "data-visible": false
         },
         "buttons": [
           {
             "textContent": "Profile",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": "/account/profile"
+              "class": "button subnavigation-button",
+              "data-href": "/account/profile",
+              "data-target": "_self"
             }
           },
           {
-            "class": "application-toggle-navigation-navigation-button",
+            "class": "application-toggle-navigation-subnavigation-button",
             "textContent": "Photos",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": "/photos"
+              "class": "button subnavigation-button",
+              "data-href": "/photos",
+              "data-target": "_self"
             }
           },
           {
-            "class": "application-toggle-navigation-navigation-button",
+            "class": "application-toggle-navigation-subnavigation-button",
             "textContent": "Favorited",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": "/favorites"
+              "class": "button subnavigation-button",
+              "data-href": "/favorites",
+              "data-target": "_self"
             }
           },
           {
-            "class": "application-toggle-navigation-navigation-button",
+            "class": "application-toggle-navigation-subnavigation-button",
             "textContent": "Voted",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": "/votes"
+              "class": "button subnavigation-button",
+              "data-href": "/votes",
+              "data-target": "_self"
             }
           },
           {
-            "class": "application-toggle-navigation-navigation-button",
+            "class": "application-toggle-navigation-subnavigation-button",
             "textContent": "Upload",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": "/upload"
+              "class": "button subnavigation-button",
+              "data-href": "/upload",
+              "data-target": "_self"
             }
           },
           {
-            "class": "application-toggle-navigation-navigation-button",
+            "class": "application-toggle-navigation-subnavigation-button",
             "textContent": "Login",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": ""
+              "class": "button subnavigation-button",
+              "data-href": "/account/login",
+              "data-target": "_self"
             }
           },
           {
-            "class": "application-toggle-navigation-navigation-button",
+            "class": "application-toggle-navigation-subnavigation-button",
             "textContent": "Logout",
             "attributes": {
-              "class": "application-toggle-navigation-navigation-button",
-              "data-href": ""
+              "class": "button subnavigation-button",
+              "data-href": "account/logout",
+              "data-target": "_self"
             }
           }
         ]

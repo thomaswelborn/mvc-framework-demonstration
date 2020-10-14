@@ -5,19 +5,11 @@ import Template from './template.ejs'
 export default class extends RenderView {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
-      elementName: 'div',
+      elementName: 'section',
       attributes: {
-        id: 'application',
-      },
-      uiElements: {
-        header: ':scope > header',
-        main: ':scope > main',
+        id: 'index',
       },
       template: Template,
-      insert: {
-        parent: 'body',
-        method: 'afterbegin',
-      },
     }, settings), mergeDeep({}, options))
   }
 }

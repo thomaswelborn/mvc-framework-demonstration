@@ -5,6 +5,6 @@ module.exports = {
   "overwrite": true,
   "merge": false,
   "data": {
-    "files": "data/documents/**/*.json"
+    "files": "documents/data/**/*.json"
   }
 }

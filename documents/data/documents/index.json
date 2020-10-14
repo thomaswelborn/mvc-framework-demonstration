@@ -1,5 +1,5 @@
 {
-  "template": "documents/layouts/index.ejs",
+  "template": "documents/templates/layouts/index.ejs",
   "output": "localhost/index.html",
   "data": {
     "title": "MVC Framework Demonstration",
