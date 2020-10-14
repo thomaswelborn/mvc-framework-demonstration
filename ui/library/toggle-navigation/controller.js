@@ -33,8 +33,11 @@ export default class extends Controller {
     }
   }
   startToggleButtonController() {
-    this.controllers.toggleButton = new ButtonController({}, {
-      user: this.options.user,
+    this.controllers.toggleButton = new ButtonController({
+      models: {
+        user: this.settings.models.user,
+      },
+    }, {
       data: this.options.data.toggle,
     }).start()
     this.views.view.renderElement(
@@ -45,8 +48,11 @@ export default class extends Controller {
     return this
   }
   startSubnavigationController() {
-    this.controllers.subnavigation = new NavigationController({}, {
-      user: this.options.user,
+    this.controllers.subnavigation = new NavigationController({
+      models: {
+        user: this.settings.models.user,
+      },
+    }, {
       data: this.options.data.subnavigation,
     }).start()
     this.views.view.renderElement(

@@ -24,6 +24,8 @@
         },
         "buttons": [
           {
+            "_auth": true,
+            "_no_auth": false,
             "textContent": "Profile",
             "attributes": {
               "class": "button subnavigation-button",
@@ -32,7 +34,9 @@
             }
           },
           {
-            "class": "application-toggle-navigation-subnavigation-button",
+            "_auth": true,
+            "_no_auth": false,
+            "class": "subnavigation-button",
             "textContent": "Photos",
             "attributes": {
               "class": "button subnavigation-button",
@@ -41,7 +45,9 @@
             }
           },
           {
-            "class": "application-toggle-navigation-subnavigation-button",
+            "_auth": true,
+            "_no_auth": false,
+            "class": "subnavigation-button",
             "textContent": "Favorited",
             "attributes": {
               "class": "button subnavigation-button",
@@ -50,7 +56,9 @@
             }
           },
           {
-            "class": "application-toggle-navigation-subnavigation-button",
+            "_auth": true,
+            "_no_auth": false,
+            "class": "subnavigation-button",
             "textContent": "Voted",
             "attributes": {
               "class": "button subnavigation-button",
@@ -59,7 +67,9 @@
             }
           },
           {
-            "class": "application-toggle-navigation-subnavigation-button",
+            "_auth": true,
+            "_no_auth": false,
+            "class": "subnavigation-button",
             "textContent": "Upload",
             "attributes": {
               "class": "button subnavigation-button",
@@ -68,7 +78,9 @@
             }
           },
           {
-            "class": "application-toggle-navigation-subnavigation-button",
+            "_auth": false,
+            "_no_auth": true,
+            "class": "subnavigation-button",
             "textContent": "Login",
             "attributes": {
               "class": "button subnavigation-button",
@@ -77,7 +89,9 @@
             }
           },
           {
-            "class": "application-toggle-navigation-subnavigation-button",
+            "_auth": true,
+            "_no_auth": false,
+            "class": "subnavigation-button",
             "textContent": "Logout",
             "attributes": {
               "class": "button subnavigation-button",

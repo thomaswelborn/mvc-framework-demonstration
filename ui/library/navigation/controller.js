@@ -38,16 +38,24 @@ export default class extends Controller {
   startButtonControllers() {
     Array.from(this.options.data.buttons).forEach((buttonOptions, buttonIndex) => {
       const buttonControllerName = `button-${buttonIndex}`
-      this.controllers[buttonControllerName] = new ButtonController({}, {
-        user: this.options.user,
-        data: buttonOptions,
-      })
-      this.controllers[buttonControllerName].start()
-      this.views.view.renderElement(
-        '$element', 
-        'beforeend',
-        this.controllers[buttonControllerName].views.view.element,
-      )
+      if(
+        (buttonOptions._auth && this.models.user.get('isAuthenticated')) || 
+        (buttonOptions._no_auth && !this.models.user.get('isAuthenticated'))
+      ) {
+        this.controllers[buttonControllerName] = new ButtonController({
+          models: {
+            user: this.settings.models.user,
+          },
+        }, {
+          data: buttonOptions,
+        })
+        this.controllers[buttonControllerName].start()
+        this.views.view.renderElement(
+          '$element', 
+          'beforeend',
+          this.controllers[buttonControllerName].views.view.element,
+        )
+      }
     })
     return this
   }

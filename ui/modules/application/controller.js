@@ -65,8 +65,11 @@ export default class extends Controller {
     return this
   }
   startToggleNavigationController() {
-    this.controllers.toggleNavigation = new ToggleNavigationController({}, {
-      user: this.models.user.parse(),
+    this.controllers.toggleNavigation = new ToggleNavigationController({
+      models: {
+        user: this.models.user,
+      },
+    }, {
       data: this.models.library.get('header').toggleNavigation,
     }).start()
     this.views.view.renderElement(

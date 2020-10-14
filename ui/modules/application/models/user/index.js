@@ -9,8 +9,9 @@ export default class extends Model {
         endpoint: '/api/application/user',
       },
       defaults: {
-        sub_id: String(),
-        api_key: String(),
+        isAuthenticated: Boolean(),
+        subID: String(),
+        apiKey: String(),
       },
     }, settings), options)
   }
