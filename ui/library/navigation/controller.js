@@ -24,16 +24,26 @@ export default class extends Controller {
         }),
       },
       controllers: {},
+      controllerEvents: {
+        '[^button-] click': 'onButtonControllerClick',
+      },
+      controllerCallbacks: {
+        onButtonControllerClick: (event, view) => this.onButtonControllerClick(event, view),
+      },
     }, settings), mergeDeep({}, options))
   }
   onSettingsModelSetVisible(event, settingsModel) {
-    console.log(event)
     this.views.view.renderElementAttribute('$element', 'data-visible', event.data.value)
     return this
   }
-  toggleVisible() {
-    this.models.settings.set('visible', !this.models.settings.get('visible'))
+  onButtonControllerClick(event, view) {
     return this
+      .emit(
+        event.name,
+        event.data,
+        this,
+        view
+      )
   }
   startButtonControllers() {
     Array.from(this.options.data.buttons).forEach((buttonOptions, buttonIndex) => {
@@ -57,6 +67,7 @@ export default class extends Controller {
         )
       }
     })
+    this.resetEvents('controller')
     return this
   }
   start() {

@@ -1,14 +1,38 @@
 <header>
   <div class="form-group">
     <div class="input-group">
-      <select>
+      <select id="index-order-select">
         <% locals.settings.header.select.options.forEach((headerSelectOption) => { %>
-          <option value="<%= headerSelectOption.value %>"><%= headerSelectOption.textContent %></option>
+          <option
+            value="<%= headerSelectOption.value %>"
+            <% if(headerSelectOption.value === locals.settings.order) { %>
+              selected
+            <% } %>
+          >
+            <%= headerSelectOption.textContent %>
+          </option>
         <% }) %>
       </select>
     </div>
   </div>
+  <nav>
+    <% if(locals.settings.order === 'RANDOM') { %>
+      <button
+        type="button"
+        data-action="new"
+      >New</button>
+    <% } else if(locals.settings.order === 'DESC') { %>
+      <button
+        type="button"
+        data-action="previous"
+      >PREV</button>
+      <button
+        type="button"
+        data-action="next"
+      >NEXT</button>
+    <% } %>
+  </nav>
 </header>
 <main>
-  
+  <article class="content"></article>
 </main>

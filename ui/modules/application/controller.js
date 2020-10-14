@@ -1,6 +1,5 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-
 import Channels from 'modules/channels'
 import Router from './router'
 import {
@@ -37,19 +36,31 @@ export default class extends Controller {
       views: {
         view: new View(),
       },
-      controllers: {},
+      controllers: {
+        // navigation: Navigation,
+      },
+      controllerEvents: {
+        'navigation click': 'onNavigationControllerClick',
+      },
+      controllerCallbacks: {
+        onNavigationControllerClick: (event, navigationController, navigationView) => this.onNavigationControllerClick(event, navigationController, navigationView),
+      },
     }, settings), mergeDeep({}, options))
     Channels.channel('Application').response('router', () => this.routers.application)
+    Channels.channel('Application').response('models:user', () => this.models.user)
   }
   get currentModule() { return this._currentModule }
   set currentModule(currentModule) { this._currentModule = currentModule }
-  onUserModelSetIsAuthenticated(event, userModel) {
+  onNavigationControllerClick(event, navigationController, navigationView) {
     console.log(event)
-    if(event.data.value === false) {
-      this.routers.application.navigate('/account/login')
-    } else {
+    return this
+  }
+  onUserModelSetIsAuthenticated(event, userModel) {
+    console.log('onUserModelSetIsAuthenticated', event)
+    if(event.data.value === true) {
       this.routers.application.navigate('/')
     }
+    this.startToggleNavigationController()
     return this
   }
   onApplicationRouterError(event, router) {
@@ -62,13 +73,19 @@ export default class extends Controller {
       },
     }, {})
     this.currentModule.start()
-    this.views.view
-      .empty('main')
-      .renderElement(
-        'main',
-        'afterbegin',
-        this.currentModule.views.view.element,
-      )
+    if(
+      this.currentModule.views &&
+      this.currentModule.views.view &&
+      this.currentModule.views.view.element
+    ) {
+      this.views.view
+        .empty('main')
+        .renderElement(
+          'main',
+          'afterbegin',
+          this.currentModule.views.view.element,
+        )
+    }
     return this
   }
   startView() {
@@ -86,6 +103,7 @@ export default class extends Controller {
     return this
   }
   startToggleNavigationController() {
+    if(this.controllers.toggleNavigation) this.controllers.toggleNavigation.views.view.autoRemove()
     this.controllers.toggleNavigation = new ToggleNavigationController({
       models: {
         user: this.models.user,

@@ -8,13 +8,47 @@ export default class extends Model {
       services: {
         get: new GET({
           headers: {
-            'x-api': options.user.api_key,
+            'x-api-key': options.user.get('apiKey'),
           },
           parameters: {
-            'sub_id': options.user.sub_id,
+            'order': options.settings.get('order'),
           },
         }),
+        defaults: {
+          details: {
+            count: Number(),
+            total: Number(),
+            page: Number(),
+          },
+          images: Array(Object({
+            id: String(),
+            url: String(),
+            categories: Array(Object({
+              id: Number(),
+              name: String(),
+            })),
+            breeds: Array(Object({})),
+          })),
+        },
+      },
+      serviceEvents: {
+        'get ready': 'onGetServiceReady',
+      },
+      serviceCallbacks: {
+        onGetServiceReady: (event, getService) => this.onGetServiceReady(event, getService),
       },
     }, settings), mergeDeep({}, options))
+  }
+  get currentImage() { return this.get('images')[0] }
+  onGetServiceReady(event, getService) {
+    this.set({
+      details: {
+        count: event.data.length,
+        total: this.services.get.response.headers.get('pagination-count'),
+        page: this.services.get.response.headers.get('pagination-page'),
+      },
+      images: event.data,
+    })
+    return this
   }
 }

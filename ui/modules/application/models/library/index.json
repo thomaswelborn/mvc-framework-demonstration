@@ -36,7 +36,6 @@
           {
             "auth": true,
             "noAuth": false,
-            "class": "subnavigation-button",
             "textContent": "Photos",
             "attributes": {
               "class": "button subnavigation-button",
@@ -47,7 +46,6 @@
           {
             "auth": true,
             "noAuth": false,
-            "class": "subnavigation-button",
             "textContent": "Favorited",
             "attributes": {
               "class": "button subnavigation-button",
@@ -58,7 +56,6 @@
           {
             "auth": true,
             "noAuth": false,
-            "class": "subnavigation-button",
             "textContent": "Voted",
             "attributes": {
               "class": "button subnavigation-button",
@@ -69,7 +66,6 @@
           {
             "auth": true,
             "noAuth": false,
-            "class": "subnavigation-button",
             "textContent": "Upload",
             "attributes": {
               "class": "button subnavigation-button",
@@ -80,7 +76,6 @@
           {
             "auth": false,
             "noAuth": true,
-            "class": "subnavigation-button",
             "textContent": "Login",
             "attributes": {
               "class": "button subnavigation-button",
@@ -91,7 +86,6 @@
           {
             "auth": true,
             "noAuth": false,
-            "class": "subnavigation-button",
             "textContent": "Logout",
             "attributes": {
               "class": "button subnavigation-button",

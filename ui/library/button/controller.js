@@ -39,6 +39,7 @@ export default class extends Controller {
   }
   onViewClick(event, view) {
     if(event.data.href) window.location.hash = event.data.href
+    if(event.data.action) 
     return this
       .emit(
         'click',
@@ -46,10 +47,6 @@ export default class extends Controller {
         this,
         view,
       )
-  }
-  toggleActive() {
-    this.models.settings.set(!this.models.settings.get('active'))
-    return this
   }
   start() {
     this.views.view.renderTextContent('$element', this.options.data.textContent)

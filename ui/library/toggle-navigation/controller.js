@@ -9,6 +9,9 @@ import View from './view'
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
+      models: {
+        // user: User,
+      },
       views: {
         view: new View({
           attributes: options.data.attributes,
@@ -28,8 +31,10 @@ export default class extends Controller {
   }
   onToggleButtonControllerClick(event, toggleButtonController, toggleButtonView) {
     if(event.data.action === 'toggle-visible') {
-      console.log(event.data)
-      this.controllers.subnavigation.toggleVisible()
+      this.controllers.subnavigation.models.settings.set(
+        'visible', 
+        !this.controllers.subnavigation.models.settings.get('visible')
+      )
     }
   }
   startToggleButtonController() {

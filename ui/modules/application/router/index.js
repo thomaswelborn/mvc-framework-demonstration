@@ -15,7 +15,7 @@ export default class extends Router {
           callback: 'loadModule',
         },
         '/account/logout': {
-          name: 'Login',
+          name: 'Logout',
           callback: 'loadModule',
         },
         '/account/profile': {

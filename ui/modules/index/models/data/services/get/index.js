@@ -1,16 +1,18 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Model } from 'mvc-framework/source/MVC'
+import { Service } from 'mvc-framework/source/MVC'
 
-export default class extends Model {
+export default class extends Service {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       type: 'GET',
       url: 'https://api.thecatapi.com/v1/images/search',
       headers: {
-        'x-api': '',
+        'x-api-key': String(),
       },
       parameters: {
-        sub_id: '',
+        order: String(),
+        limit: 1,
+        page: 1,
       },
     }, settings), mergeDeep({}, options))
   }

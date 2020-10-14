@@ -4,18 +4,24 @@ import { Model } from 'mvc-framework/source/MVC'
 export default class extends Model {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
+      localStorage: {
+        sync: true,
+        endpoint: '/api/index/settings',
+      },
       defaults: {
         auth: true,
         noAuth: true,
+        order: 'RANDOM',
+        page: 1,
         header: {
           select: {
             options: [
               {
-                value: 'random',
+                value: 'RANDOM',
                 textContent: 'Random',
               },
               {
-                value: 'latest',
+                value: 'DESC',
                 textContent: 'Latest',
               },
             ],
