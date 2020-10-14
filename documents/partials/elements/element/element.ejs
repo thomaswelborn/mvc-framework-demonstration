@@ -1,0 +1,28 @@
+<<%= data.tag.name %>
+<% if(data.attributes) { %>
+  <% Object.entries(data.attributes)
+      .forEach(([attributeName, attributeValue]) => { %>
+    <%= attributeName %>="<%= attributeValue%>"
+  <% }) %>
+<% } %>
+>
+<% if(data.innerText) { %>
+  <%= data.innerText %>
+<% } else if(data.children) { %>
+  <% [
+    'afterBegin',
+    'beforeEnd'
+  ].map((position) => { %>
+    <% if(
+      data.children &&
+      Array.isArray(data.children[position])
+    ) { %>
+      <%- include('../elements.ejs', {
+        data: data.children[position]
+      }) -%>
+    <% } %>
+  <% }) %>
+<% } %>
+<% if(data.tag.close) { %>
+  </<%= data.tag.name %>>
+<% } %>

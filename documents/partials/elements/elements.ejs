@@ -1,0 +1,7 @@
+<% if(Array.isArray(data)) { %>
+  <% data.map((element) => { %>
+    <%- include('./element/element.ejs', {
+      data: element
+    }) -%>
+    <% }) %>
+<% } %>

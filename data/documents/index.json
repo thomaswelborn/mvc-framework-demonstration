@@ -1,0 +1,31 @@
+{
+  "template": "documents/layouts/index.ejs",
+  "output": "localhost/index.html",
+  "data": {
+    "title": "MVC Framework Demonstration",
+    "scripts": [
+      {
+        "tag": {
+          "name": "script",
+          "close": true
+        },
+        "attributes": {
+          "type": "module",
+          "src": "./scripts/bundle.js"
+        }
+      }
+    ],
+    "styles": [
+      {
+       "tag": {
+         "name": "link",
+         "close": false
+       },
+       "attributes": {
+         "rel": "stylesheet",
+         "href": "./styles/bundle.css"
+       }
+      }
+    ]
+  }
+}

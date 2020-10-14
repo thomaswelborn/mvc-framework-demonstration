@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= data.title %></title>
+    <%- include('../partials/elements/elements.ejs', {
+      data: data.styles
+    }) -%>
+  </head>
+  <body>
+    <%- include('../partials/elements/elements.ejs', {
+      data: data.scripts
+    }) -%>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "_id": "process-rollup-config",
+  "template": "generator/templates/processes/rollup.config/index.ejs",
+  "destination": "processes/rollup.config.js",
+  "overwrite": true,
+  "merge": false,
+  "data": {
+    "input": "ui/index.js",
+    "output": {
+      "file": "localhost/scripts/bundle.js",
+      "format": "umd",
+      "sourcemap": "inline"
+    },
+    "plugins": {
+      "rollupPluginBabel": {
+        "plugins": {
+          "babelPluginModuleResolver": {
+            "root": [
+              "./ui",
+              "./node_modules"
+            ]
+          }
+        }
+      }
+    },
+    "watch": {
+      "include": [
+        "./processes/rollup.config.js",
+        "./ui/**"
+      ]
+    }
+  }
+}
