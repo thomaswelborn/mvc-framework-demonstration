@@ -25,4 +25,8 @@ export default class extends Controller {
     this.views.view.render(this.viewData)
     return this
   }
+  stop() {
+    this.views.view.autoRemove()
+    return this
+  }
 }

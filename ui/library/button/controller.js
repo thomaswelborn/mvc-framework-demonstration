@@ -39,7 +39,6 @@ export default class extends Controller {
   }
   onViewClick(event, view) {
     if(event.data.href) window.location.hash = event.data.href
-    if(event.data.action) 
     return this
       .emit(
         'click',

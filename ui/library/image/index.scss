@@ -1,7 +1,15 @@
 .image {
-  img {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  .img {
     display: flex;
     width: 100%;
-    height: auto;
+    height: 100%;
+    background: {
+      position: center;
+      repeat: no-repeat;
+      size: contain;
+    }
   }
 }

@@ -1,0 +1,27 @@
+.media-item {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+  .image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-height: 100%;
+  }
+  nav {
+    display: flex;
+    height: 35px;
+    justify-content: flex-end;
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: {
+        size: 16px;
+      }
+      
+    }
+  }
+}

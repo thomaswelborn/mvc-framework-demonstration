@@ -46,7 +46,7 @@ export default class extends Router {
           name: 'Vote',
           callback: 'loadModule',
         },
-        '/photos/upload': {
+        '/upload': {
           name: 'Upload',
           callback: 'loadModule',
         },

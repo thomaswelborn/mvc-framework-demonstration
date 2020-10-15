@@ -12,6 +12,7 @@ module.exports = {
     "host": "localhost",
     "port": 9000,
     "files": ["localhost"],
-    "cors": true
+    "cors": true,
+    "https": true,
   }
 }

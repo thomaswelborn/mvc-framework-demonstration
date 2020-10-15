@@ -1,37 +1,39 @@
 {
-  "navigation": {
-    "attributes": {},
-    "buttons": [
-      {
-        "auth": true,
-        "noAuth": false,
-        "textContent": "LIKE",
-        "attributes": {
-          "id": "index-navigation-like",
-          "class": "button",
-          "data-action": "like"
+  "mediaItem": {
+    "navigation": {
+      "attributes": {},
+      "buttons": [
+        {
+          "auth": true,
+          "noAuth": false,
+          "textContent": "LIKE",
+          "attributes": {
+            "id": "index-navigation-like",
+            "class": "button",
+            "data-action": "like"
+          }
+        },
+        {
+          "auth": true,
+          "noAuth": true,
+          "textContent": "INFO",
+          "attributes": {
+            "id": "index-navigation-info",
+            "class": "button",
+            "data-action": "info"
+          }
+        },
+        {
+          "auth": true,
+          "noAuth": false,
+          "textContent": "FAVE",
+          "attributes": {
+            "id": "index-navigation-fave",
+            "class": "button",
+            "data-action": "fave"
+          }
         }
-      },
-      {
-        "auth": true,
-        "noAuth": true,
-        "textContent": "INFO",
-        "attributes": {
-          "id": "index-navigation-info",
-          "class": "button",
-          "data-action": "info"
-        }
-      },
-      {
-        "auth": true,
-        "noAuth": false,
-        "textContent": "FAVE",
-        "attributes": {
-          "id": "index-navigation-fave",
-          "class": "button",
-          "data-action": "fave"
-        }
-      }
-    ]
+      ]
+    }
   }
 }

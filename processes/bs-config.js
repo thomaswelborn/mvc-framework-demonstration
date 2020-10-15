@@ -48,6 +48,7 @@ module.exports = {
   "open": false,
   "browser": "default",
   "cors": true,
+  "https": true,
   "xip": false,
   "hostnameSuffix": false,
   "reloadOnRestart": false,

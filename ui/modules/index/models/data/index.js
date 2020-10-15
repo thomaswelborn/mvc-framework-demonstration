@@ -12,6 +12,7 @@ export default class extends Model {
           },
           parameters: {
             'order': options.settings.get('order'),
+            'page': options.settings.get('page'),
           },
         }),
         defaults: {
@@ -44,8 +45,8 @@ export default class extends Model {
     this.set({
       details: {
         count: event.data.length,
-        total: this.services.get.response.headers.get('pagination-count'),
-        page: this.services.get.response.headers.get('pagination-page'),
+        total: Number(this.services.get.response.headers.get('pagination-count')),
+        page: Number(this.services.get.response.headers.get('pagination-page')),
       },
       images: event.data,
     })

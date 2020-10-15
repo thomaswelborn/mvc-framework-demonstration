@@ -8,8 +8,7 @@ import {
 } from './models'
 import View from './view'
 import {
-  Navigation as NavigationController,
-  Image as ImageController,
+  MediaItem as MediaItemController,
 } from 'library'
 
 export default class extends Controller {
@@ -18,7 +17,7 @@ export default class extends Controller {
       models: {
         settings: new SettingsModel(),
         library: new LibraryModel(),
-        // data: DataModel,
+        // data: DataModel
         // user: settings.models.user,
       },
       modelEvents: {
@@ -45,13 +44,7 @@ export default class extends Controller {
         onViewHeaderNavButtonClick: (event, view) => this.onViewHeaderNavButtonClick(event, view),
       },
       controllers: {
-        // navigation: NavigationController,
-      },
-      controllerEvents: {
-        'navigation click': 'onNavigationControllerClick',
-      },
-      controllerCallbacks: {
-        onNavigationControllerClick: (event, navigationController, navigationView) => this.onNavigationControllerClick(event, navigationController, navigationView),
+        // mediaItem: MediaItem,
       },
     }, settings), mergeDeep({}, options))
   }
@@ -60,14 +53,7 @@ export default class extends Controller {
     data: this.models.data.parse(),
     user: this.models.user.parse(),
   } }
-  onNavigationControllerClick(event, navigationController, navigationView) {
-    switch(event.data.action) {
-      case 'new':
-        this.getDataModel()
-        break
-    }
-    return this
-  }
+  
   onSettingsModelSetOrder(event, settingsModel) {
     this.models.data.services.get.parameters.order = event.data.value
     this.getDataModel()
@@ -79,7 +65,6 @@ export default class extends Controller {
     return this
   }
   onDataModelSet(event, dataModel) {
-    console.log(event.name, event.data)
     this.renderView()
     return this
   }
@@ -119,9 +104,7 @@ export default class extends Controller {
   }
   renderView() {
     this.views.view.render(this.viewData)
-    this
-      .startImageController()
-      .startNavigationController()
+    this.startMediaItemController()
     return this
   }
   startDataModel() {
@@ -132,28 +115,18 @@ export default class extends Controller {
     this.resetEvents('model')
     return this
   }
-  startNavigationController() {
-    if(this.controllers.navigation) this.controllers.navigation.views.view.autoRemove()
-    this.controllers.navigation = new NavigationController({
+  startMediaItemController() {
+    if(this.controllers.mediaItem) this.controllers.mediaItem.stop()
+    this.controllers.mediaItem = new MediaItemController({
       models: {
         user: this.models.user,
       },
     }, {
-      data: this.models.library.get('navigation'),
+      library: this.models.library.get('mediaItem'),
+      data: this.models.data.get('images')[0],
     }).start()
     this.resetEvents('controller')
-    this.views.view
-      .renderElement('main', 'beforeend', this.controllers.navigation.views.view.element)
-    return this
-  }
-  startImageController() {
-    if(this.controllers.image) this.controllers.image.views.view.autoRemove()
-    this.controllers.image = new ImageController({}, {
-      data: this.models.data.currentImage,
-    }).start()
-    this.resetEvents('controller')
-    this.views.view
-      .renderElement('article', 'afterbegin', this.controllers.image.views.view.element)
+    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this
   }
   start() {
@@ -168,6 +141,10 @@ export default class extends Controller {
       const router = Channels.channel('Application').request('router')
       router.navigate('/account/login')
     }
+    return this
+  }
+  stop() {
+    this.views.view.autoRemove()
     return this
   }
 }

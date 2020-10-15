@@ -23,9 +23,11 @@ export default class extends Controller {
       },
       controllerEvents: {
         'toggleButton click': 'onToggleButtonControllerClick',
+        'subnavigation click': 'onSubnavigationControllerClick',
       },
       controllerCallbacks: {
         onToggleButtonControllerClick: (event, toggleButtonController, toggleButtonView) => this.onToggleButtonControllerClick(event, toggleButtonController, toggleButtonView),
+        onSubnavigationControllerClick: (event, subnavigationController) => this.onSubnavigationControllerClick(event, subnavigationController),
       },
     }, settings), mergeDeep({}, options))
   }
@@ -36,6 +38,15 @@ export default class extends Controller {
         !this.controllers.subnavigation.models.settings.get('visible')
       )
     }
+  }
+  onSubnavigationControllerClick(event, subnavigationController) {
+    return this
+      .emit(
+        event.name,
+        event.data,
+        this,
+        subnavigationController,
+      )
   }
   startToggleButtonController() {
     this.controllers.toggleButton = new ButtonController({
@@ -50,6 +61,7 @@ export default class extends Controller {
       'afterbegin', 
       this.controllers.toggleButton.views.view.element
     )
+    this.resetEvents('controller')
     return this
   }
   startSubnavigationController() {
@@ -60,6 +72,7 @@ export default class extends Controller {
     }, {
       data: this.options.data.subnavigation,
     }).start()
+    this.resetEvents('controller')
     this.views.view.renderElement(
       '$element', 
       'beforeend', 

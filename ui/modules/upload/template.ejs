@@ -1,0 +1,19 @@
+<header>
+  <h2>Upload</h2>
+</header>
+<main>
+  <div id="upload-image-form">
+    <div class="form-group">
+      <div class="input-group">
+        <label for="upload-image-input">Image</label>
+        <input type="file" id="upload-image-input">
+      </div>
+    </div>
+  </div>
+  <% if(locals.settings.imageReady) { %>
+    <nav>
+      <button type="button" id="upload-image-button" class="button" data-action="upload">Upload</button>
+    </div>
+  <% } %>
+  <div id="upload-image-preview"></div>
+</main>

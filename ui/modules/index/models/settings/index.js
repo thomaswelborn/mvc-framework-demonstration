@@ -12,7 +12,7 @@ export default class extends Model {
         auth: true,
         noAuth: true,
         order: 'RANDOM',
-        page: 1,
+        page: 0,
         header: {
           select: {
             options: [

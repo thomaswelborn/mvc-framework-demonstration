@@ -52,21 +52,22 @@ export default class extends Controller {
   get currentModule() { return this._currentModule }
   set currentModule(currentModule) { this._currentModule = currentModule }
   onNavigationControllerClick(event, navigationController, navigationView) {
-    console.log(event)
+    this.controllers.navigation.controllers.toggleButton.views.view.element
+      .dispatchEvent(new MouseEvent('click'))
     return this
   }
   onUserModelSetIsAuthenticated(event, userModel) {
-    console.log('onUserModelSetIsAuthenticated', event)
     if(event.data.value === true) {
       this.routers.application.navigate('/')
     }
-    this.startToggleNavigationController()
+    this.startNavigationController()
     return this
   }
   onApplicationRouterError(event, router) {
     return this
   }
   loadModule(route) {
+    if(this.currentModule) this.currentModule.stop()
     this.currentModule = new Modules[route.route.name]({
       models: {
         user: this.models.user,
@@ -102,24 +103,25 @@ export default class extends Controller {
     this.routers.application.start()
     return this
   }
-  startToggleNavigationController() {
-    if(this.controllers.toggleNavigation) this.controllers.toggleNavigation.views.view.autoRemove()
-    this.controllers.toggleNavigation = new ToggleNavigationController({
+  startNavigationController() {
+    if(this.controllers.navigation) this.controllers.navigation.views.view.autoRemove()
+    this.controllers.navigation = new ToggleNavigationController({
       models: {
         user: this.models.user,
       },
     }, {
       data: this.models.library.get('header').toggleNavigation,
     }).start()
+    this.resetEvents('controller')
     this.views.view.renderElement(
       'header',
       'beforeend',
-      this.controllers.toggleNavigation.views.view.element,
+      this.controllers.navigation.views.view.element,
     )
     return this
   }
   startControllers() {
-    this.startToggleNavigationController()
+    this.startNavigationController()
     return this
   }
   start() {

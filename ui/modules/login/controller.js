@@ -68,4 +68,8 @@ export default class extends Controller {
     }
     return this
   }
+  stop() {
+    this.views.view.autoRemove()
+    return this
+  }
 }

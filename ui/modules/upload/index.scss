@@ -1,0 +1,19 @@
+#upload {
+  display: flex;
+  & > header {}
+  & > main {
+    #upload-image-form {
+      display: flex;
+      height: 50px;
+    }
+    #upload-image-preview {
+      display: flex;
+      flex: 1;
+      img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+      }
+    }
+  }
+}

@@ -1,3 +1,3 @@
-export default class {
-  start() {}
-}
+import Controller from './controller'
+
+export default Controller
