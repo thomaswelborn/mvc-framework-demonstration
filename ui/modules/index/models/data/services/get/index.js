@@ -7,13 +7,23 @@ export default class extends Service {
       method: 'GET',
       url: 'https://api.thecatapi.com/v1/images/search',
       headers: {
-        'x-api-key': String(),
+        'x-api-key': options.user.get('apiKey'),
       },
       parameters: {
-        order: String(),
-        limit: Number(1),
-        page: Number(),
+        'order': options.settings.get('order'),
+        'page': options.settings.get('page'),
       },
     }, settings), mergeDeep({}, options))
+    this.options.user
+      .on('set:apiKey', (event) => this.headers['x-api-key'] = event.data.value)
+    this.options.settings
+      .on('set:order', (event) => {
+        this.parameters.order = event.data.value
+        this.fetch()
+      })
+      .on('set:page', (event) => {
+        this.parameters.page = event.data.value
+        this.fetch()
+      })
   }
 }

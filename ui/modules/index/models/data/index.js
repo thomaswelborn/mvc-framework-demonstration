@@ -1,36 +1,16 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Model } from 'mvc-framework/source/MVC'
 import { GET } from './services'
+import { SearchResultsDefaults } from 'library/the-cat-api'
 
 export default class extends Model {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       services: {
-        get: new GET({
-          headers: {
-            'x-api-key': options.user.get('apiKey'),
-          },
-          parameters: {
-            'order': options.settings.get('order'),
-            'page': options.settings.get('page'),
-          },
+        get: new GET({}, {
+          user: options.user,
+          settings: options.settings,
         }),
-        defaults: {
-          details: {
-            count: Number(),
-            total: Number(),
-            page: Number(),
-          },
-          images: Array(Object({
-            id: String(),
-            url: String(),
-            categories: Array(Object({
-              id: Number(),
-              name: String(),
-            })),
-            breeds: Array(Object({})),
-          })),
-        },
       },
       serviceEvents: {
         'get ready': 'onGetServiceReady',
@@ -38,6 +18,7 @@ export default class extends Model {
       serviceCallbacks: {
         onGetServiceReady: (event, getService) => this.onGetServiceReady(event, getService),
       },
+      defaults: SearchResultsDefaults,
     }, settings), mergeDeep({}, options))
   }
   get currentImage() { return this.get('images')[0] }

@@ -4,8 +4,9 @@ import { Model } from 'mvc-framework/source/MVC'
 export default class extends Model {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
-      defaults: {
-        active: false,
+      default: {
+        attributes: Object(),
+        buttons: Array(),
       },
     }, settings), mergeDeep({}, options))
   }

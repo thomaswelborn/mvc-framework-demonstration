@@ -1,6 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
 import {
+  Settings as SettingsModel,
+  Library as LibraryModel,
+} from './models'
+import {
   Button as ButtonController,
   Navigation as NavigationController,
 } from 'library'
@@ -10,11 +14,17 @@ export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        // user: User,
+        settings: new SettingsModel(),
+        library: new LibraryModel({
+          defaults: options.library,
+        }),
+        // user: settings.models.user,
       },
+      modelEvents: {},
+      modelCallbacks: {},
       views: {
         view: new View({
-          attributes: options.data.attributes,
+          attributes: options.library.attributes,
         }),
       },
       controllers: {
@@ -54,7 +64,7 @@ export default class extends Controller {
         user: this.settings.models.user,
       },
     }, {
-      data: this.options.data.toggle,
+      data: this.models.library.get('toggle'),
     }).start()
     this.views.view.renderElement(
       '$element', 
@@ -70,7 +80,7 @@ export default class extends Controller {
         user: this.settings.models.user,
       },
     }, {
-      data: this.options.data.subnavigation,
+      library: this.models.library.get('subnavigation'),
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement(

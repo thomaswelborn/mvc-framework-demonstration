@@ -36,6 +36,12 @@ export default class extends Controller {
       views: {
         view: new View(),
       },
+      viewEvents: {
+        'view headlineAnchor:click': 'onViewHeadlineAnchorClick',
+      },
+      viewCallbacks: {
+        onViewHeadlineAnchorClick: (event, view) => this.onViewHeadlineAnchorClick(event, view),
+      },
       controllers: {
         // navigation: Navigation,
       },
@@ -61,6 +67,10 @@ export default class extends Controller {
       this.routers.application.navigate('/')
     }
     this.startNavigationController()
+    return this
+  }
+  onViewHeadlineAnchorClick(event, view) {
+    this.routers.application.navigate(event.data.href)
     return this
   }
   onApplicationRouterError(event, router) {
@@ -110,7 +120,7 @@ export default class extends Controller {
         user: this.models.user,
       },
     }, {
-      data: this.models.library.get('header').toggleNavigation,
+      library: this.models.library.get('header').toggleNavigation,
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement(

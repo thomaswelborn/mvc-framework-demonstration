@@ -11,7 +11,14 @@ export default class extends RenderView {
       },
       uiElements: {
         header: ':scope > header',
+        headlineAnchor: ':scope > header > h1 > a',
         main: ':scope > main',
+      },
+      uiElementEvents: {
+        'headlineAnchor click': 'onHeadlineAnchorClick',
+      },
+      uiElementCallbacks: {
+        onHeadlineAnchorClick: (event) => this.onHeadlineAnchorClick(event),
       },
       template: Template,
       insert: {
@@ -19,5 +26,15 @@ export default class extends RenderView {
         method: 'afterbegin',
       },
     }, settings), mergeDeep({}, options))
+  }
+  onHeadlineAnchorClick(event) {
+    this.emit(
+      'headlineAnchor:click',
+      {
+        href: event.currentTarget.getAttribute('data-href'),
+      },
+      this,
+    )
+    return this
   }
 }

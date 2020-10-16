@@ -11,6 +11,7 @@ export default class extends Model {
       defaults: {
         auth: true,
         noAuth: false,
+        redirect: 'account/login',
       },
     }, settings), mergeDeep({}, options))
   }

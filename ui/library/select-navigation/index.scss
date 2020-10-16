@@ -1,0 +1,8 @@
+.select-navigation {
+  display: flex;
+  & > .subnavigation {
+    &[data-visible="false"] {
+      display: none;
+    }
+  }
+}

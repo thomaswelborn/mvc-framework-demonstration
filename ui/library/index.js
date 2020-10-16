@@ -4,6 +4,7 @@ import MediaGrid from './media-grid'
 import MediaItem from './media-item'
 import Navigation from './navigation'
 import ToggleNavigation from './toggle-navigation'
+import SelectNavigation from './select-navigation'
 
 export {
   Button,
@@ -12,4 +13,5 @@ export {
   MediaItem,
   Navigation,
   ToggleNavigation,
+  SelectNavigation,
 }

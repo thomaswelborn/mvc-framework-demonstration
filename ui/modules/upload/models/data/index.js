@@ -6,10 +6,8 @@ export default class extends Model {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       services: {
-        post: new POST({
-          headers: {
-            'x-api-key': options.user.apiKey,
-          },
+        post: new POST({}, {
+          user: options.user,
         }),
       },
       serviceEvents: {

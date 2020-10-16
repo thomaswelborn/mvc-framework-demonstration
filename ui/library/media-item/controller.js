@@ -2,6 +2,7 @@ import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
 import {
   Data as DataModel,
+  Library as LibraryModel,
   Settings as SettingsModel,
 } from './models'
 import View from './view'
@@ -14,13 +15,14 @@ export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
+        // user: settings.models.user,
         data: new DataModel({
           defaults: options.data,
         }),
-        settings: new SettingsModel({
-          defaults: options.library,
+        settings: new SettingsModel(),
+        library: new LibraryModel({
+          defaults: options.library
         })
-        // user: settings.models.user,
       },
       views: {
         view: new View(),
@@ -55,17 +57,19 @@ export default class extends Controller {
     return this
   }
   startNavigationController() {
-    if(this.controllers.navigation) this.controllers.navigation.views.view.autoRemove()
-    this.controllers.navigation = new NavigationController({
-      models: {
-        user: this.models.user,
-      },
-    }, {
-      data: this.models.settings.get('navigation'),
-    }).start()
-    this.resetEvents('controller')
-    this.views.view
-      .renderElement('$element', 'beforeend', this.controllers.navigation.views.view.element)
+    if(this.models.library.get('navigation')) {
+      if(this.controllers.navigation) this.controllers.navigation.stop()
+      this.controllers.navigation = new NavigationController({
+        models: {
+          user: this.models.user,
+        },
+      }, {
+        library: this.models.library.get('navigation'),
+      }).start()
+      this.resetEvents('controller')
+      this.views.view
+        .renderElement('$element', 'beforeend', this.controllers.navigation.views.view.element)
+    }
     return this
   }
   renderView() {

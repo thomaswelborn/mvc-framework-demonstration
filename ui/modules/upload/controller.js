@@ -13,7 +13,7 @@ export default class extends Controller {
       models: {
         settings: new SettingsModel(),
         data: new DataModel({}, {
-          user: settings.models.user.parse(),
+          user: settings.models.user,
         }),
       },
       modelEvents: {
@@ -77,7 +77,7 @@ export default class extends Controller {
     return this
   }
   stop() {
-    this.view.view.autoRemove()
+    this.views.view.autoRemove()
     return this
   }
 }

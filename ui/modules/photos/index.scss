@@ -1,0 +1,14 @@
+#photos {
+  .media-grid {
+    flex: 1;
+    overflow: {
+      y: scroll;
+    };
+    .media-item {
+      .image {
+        width: 200px;
+        height: 200px;
+      }
+    }
+  }
+}

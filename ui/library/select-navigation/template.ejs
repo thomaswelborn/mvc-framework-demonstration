@@ -1,0 +1,31 @@
+<div class="form">
+  <div class="form-group">
+    <div class="input-group">
+      <select>
+        <% locals.settings.select.options.forEach((selectOption) => { %>
+          <option
+            id="<%= selectOption.attributes.id %>"
+            value="<%= selectOption.attributes.value %>"
+            <% if(selectOption.attributes.value === locals.settings.selected) { %>
+              selected
+            <% } %>
+          >
+            <%= selectOption.textContent %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+  </div>
+</div>
+<nav>
+  <% locals.settings.buttons.forEach((button) => { %>
+    <% if(button.associatedOptions.indexOf(locals.settings.selected) !== -1) { %>
+      <button
+        type="button"
+        class="<%= button.attributes.id %>"
+        class="<%= button.attributes.class %>"
+        data-action="<%= button.attributes['data-action'] %>"
+      ><%= button.textContent %></button>
+    <% } %>
+  <% }) %>
+</nav>

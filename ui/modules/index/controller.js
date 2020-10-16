@@ -8,6 +8,7 @@ import {
 } from './models'
 import View from './view'
 import {
+  SelectNavigation as SelectNavigationController,
   MediaItem as MediaItemController,
 } from 'library'
 
@@ -21,79 +22,56 @@ export default class extends Controller {
         // user: settings.models.user,
       },
       modelEvents: {
-        'settings set:order': 'onSettingsModelSetOrder',
-        'settings set:page': 'onSettingsModelSetPage',
         'data set': 'onDataModelSet',
         'user set': 'onUserModelSet',
       },
       modelCallbacks: {
-        onSettingsModelSetOrder: (event, settingsModel) => this.onSettingsModelSetOrder(event, settingsModel),
-        onSettingsModelSetPage: (event, settingsModel) => this.onSettingsModelSetPage(event, settingsModel),
         onDataModelSet: (event, dataModel) => this.onDataModelSet(event, dataModel),
         onUserModelSet: (event, userModel) => this.onUserModelSet(event, userModel),
       },
       views: {
         view: new View(),
       },
-      viewEvents: {
-        'view order:change': 'onViewOrderChange',
-        'view headerNavButton:click': 'onViewHeaderNavButtonClick',
-      },
-      viewCallbacks: {
-        onViewOrderChange: (event, view) => this.onViewOrderChange(event, view),
-        onViewHeaderNavButtonClick: (event, view) => this.onViewHeaderNavButtonClick(event, view),
-      },
       controllers: {
+        // selectNavigation: SelectNavigation,
         // mediaItem: MediaItem,
+      },
+      controllerEvents: {
+        'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
+        'selectNavigation button:click': 'onSelectNavigationButtonControllerClick',
+      },
+      controllerCallbacks: {
+        onSelectNavigationControllerSelectChange: (event, view) => this.onSelectNavigationControllerSelectChange(event, view),
+        onSelectNavigationButtonControllerClick: (event, view) => this.onSelectNavigationButtonControllerClick(event, view),
       },
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
     settings: this.models.settings.parse(),
-    data: this.models.data.parse(),
     user: this.models.user.parse(),
   } }
-  
-  onSettingsModelSetOrder(event, settingsModel) {
-    this.models.data.services.get.parameters.order = event.data.value
-    this.getDataModel()
-    return this
-  }
-  onSettingsModelSetPage(event, settingsModel) {
-    this.models.data.services.get.parameters.page = event.data.value
-    this.getDataModel()
-    return this
-  }
   onDataModelSet(event, dataModel) {
     this.renderView()
     return this
   }
   onUserModelSet(event, userModel) {
-    this.models.data.services.get.headers['x-api-key'] = event.data.apiKey
     this.getDataModel()
     return this
   }
-  onViewOrderChange(event, view) {
-    this.models.settings.set('order', event.data.order)
+  onSelectNavigationControllerSelectChange(event, view) {
+    this.models.settings.set('order', event.data.value)
     return this
   }
-  onViewHeaderNavButtonClick(event, view) {
-    let currentPage, nextPage
+  onSelectNavigationButtonControllerClick(event, view) {
     switch(event.data.action) {
       case 'new':
         this.getDataModel()
         break
       case 'next':
-        currentPage = this.models.settings.get('page')
-        nextPage = currentPage + 1
-        this.models.settings.set('page', nextPage)
+        this.models.settings.advancePage(1)
         break
       case 'previous':
-        currentPage = this.models.settings.get('page')
-        nextPage = (currentPage - 1 >= 0)
-          ? currentPage - 1
-          : currentPage
-        this.models.settings.set('page', nextPage)
+        this.models.settings.advancePage(-1)
         break
     }
     return this
@@ -103,8 +81,10 @@ export default class extends Controller {
     return this
   }
   renderView() {
-    this.views.view.render(this.viewData)
-    this.startMediaItemController()
+    this.views.view.render()
+    this
+      .startSelectNavigationController()
+      .startMediaItemController()
     return this
   }
   startDataModel() {
@@ -113,6 +93,19 @@ export default class extends Controller {
       settings: this.models.settings,
     })
     this.resetEvents('model')
+    return this
+  }
+  startSelectNavigationController() {
+    if(this.controllers.selectNavigation) this.controllers.selectNavigation.stop()
+    this.controllers.selectNavigation = new SelectNavigationController({
+      models: {
+        user: this.models.user,
+      }
+    }, {
+      library: this.models.library.get('selectNavigation'),
+    }).start()
+    this.resetEvents('controller')
+    this.views.view.renderElement('header', 'afterbegin', this.controllers.selectNavigation.views.view.element)
     return this
   }
   startMediaItemController() {
@@ -134,6 +127,7 @@ export default class extends Controller {
       (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
       (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
     ) {
+      this.views.view.render(this.viewData)
       this
         .startDataModel()
         .getDataModel()

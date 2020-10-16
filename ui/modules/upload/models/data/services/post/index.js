@@ -9,7 +9,7 @@ export default class extends Service {
       mode: 'cors',
       referrerPolicy: 'origin',
       headers: {
-        // 'Content-Type': 'multipart/form-data',
+        'x-api-key': options.user.get('apiKey'),
         'Access-Control-Allow-Origin': 'localhost',
       },
     }, settings), mergeDeep({}, options))

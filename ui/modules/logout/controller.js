@@ -15,7 +15,6 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   start() {
-    console.log(this.models.settings.get('auth'), this.models.user.get('isAuthenticated'))
     if(
       (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
       (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))

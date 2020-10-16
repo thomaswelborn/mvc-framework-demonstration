@@ -22,7 +22,7 @@ export default class extends Controller {
     user: this.models.user.parse(),
     settings: this.models.settings.parse(),
   } }
-    start() {
+  start() {
     if(
       (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
       (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
@@ -31,6 +31,10 @@ export default class extends Controller {
     } else {
       Channels.channel('Application').request('router').navigate('/account/login')
     }
+    return this
+  }
+  stop() {
+    this.views.view.autoRemove()
     return this
   }
 }
