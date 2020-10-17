@@ -46,26 +46,6 @@
           {
             "auth": true,
             "noAuth": false,
-            "textContent": "Favorited",
-            "attributes": {
-              "class": "button subnavigation-button",
-              "data-href": "/favorites",
-              "data-target": "_self"
-            }
-          },
-          {
-            "auth": true,
-            "noAuth": false,
-            "textContent": "Voted",
-            "attributes": {
-              "class": "button subnavigation-button",
-              "data-href": "/votes",
-              "data-target": "_self"
-            }
-          },
-          {
-            "auth": true,
-            "noAuth": false,
             "textContent": "Upload",
             "attributes": {
               "class": "button subnavigation-button",

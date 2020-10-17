@@ -4,10 +4,8 @@ import {
   Settings as SettingsModel,
   Library as LibraryModel,
 } from './models'
-import {
-  Button as ButtonController,
-  Navigation as NavigationController,
-} from 'library'
+import ButtonController from '../button'
+import NavigationController from '../navigation'
 import View from './view'
 
 export default class extends Controller {

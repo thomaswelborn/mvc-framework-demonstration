@@ -1,8 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-} from './models'
+import { Settings as SettingsModel } from './models'
 import View from './view'
 import Channels from 'modules/channels'
 

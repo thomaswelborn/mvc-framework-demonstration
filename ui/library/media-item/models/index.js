@@ -1,9 +1,9 @@
 import Settings from './settings'
 import Library from './library'
-import Data from './data'
+import Image from './image'
 
 export {
   Settings,
   Library,
-  Data,
+  Image,
 }

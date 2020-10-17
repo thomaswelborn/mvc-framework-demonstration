@@ -25,12 +25,26 @@ export default class extends Model {
     }, settings), mergeDeep({}, options))
   }
   onPostReady(event, postService) {
-    this.set({
-      id: event.data.id,
-      url: event.data.url,
-      width: event.data.width,
-      height: event.data.height,
-    })
+    console.log(event)
+    switch(postService.response.status) {
+      case 200: 
+      default: 
+        this.set({
+          id: event.data.id,
+          url: event.data.url,
+          width: event.data.width,
+          height: event.data.height,
+        })
+        break
+      case 400: 
+        this.emit(
+          'error',
+          event.data,
+          this,
+        )
+        break
+    }
+    
     return this
   }
 }

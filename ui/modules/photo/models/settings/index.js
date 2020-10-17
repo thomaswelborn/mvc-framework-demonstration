@@ -1,11 +1,15 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Model } from 'mvc-framework/source/MVC'
-import { SearchResultsDefaults } from 'library/the-cat-api'
 
 export default class extends Model {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
-      defaults: SearchResultsDefaults,
+      defaults: {
+        auth: true,
+        noAuth: true,
+        redirect: 'account/login',
+        id: String(),
+      },
     }, settings), mergeDeep({}, options))
   }
 }

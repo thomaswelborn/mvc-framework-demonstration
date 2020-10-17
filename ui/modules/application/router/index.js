@@ -30,22 +30,6 @@ export default class extends Router {
           name: 'Photo',
           callback: 'loadModule',
         },
-        '/favorites': {
-          name: 'Favorites',
-          callback: 'loadModule',
-        },
-        '/favorites/:photo': {
-          name: 'Favorite',
-          callback: 'loadModule',
-        },
-        '/votes': {
-          name: 'Votes',
-          callback: 'loadModule',
-        },
-        '/votes/:photo': {
-          name: 'Vote',
-          callback: 'loadModule',
-        },
         '/upload': {
           name: 'Upload',
           callback: 'loadModule',

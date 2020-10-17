@@ -1,31 +1,37 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
 import {
-  Data as DataModel,
   Library as LibraryModel,
   Settings as SettingsModel,
+  Image as ImageModel,
 } from './models'
 import View from './view'
-import {
-  Navigation as NavigationController,
-  Image as ImageController,
-} from 'library'
+import NavigationController from '../navigation'
+import ImageController from '../image'
 
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        data: new DataModel({
-          defaults: options.data,
+        settings: new SettingsModel({
+          defaults: options.settings,
         }),
-        settings: new SettingsModel(),
         library: new LibraryModel({
-          defaults: options.library
+          defaults: options.library,
+        }),
+        image: new ImageModel({
+          defaults: options.image,
         })
       },
       views: {
         view: new View(),
+      },
+      viewEvents: {
+        'view click': 'onViewElementClick',
+      },
+      viewCallbacks: {
+        onViewElementClick: (event, view) => this.onViewElementClick(event, view),
       },
       controllers: {
         // navigation: NavigationController,
@@ -38,18 +44,25 @@ export default class extends Controller {
       },
     }, settings), mergeDeep({}, options))
   }
+  onViewElementClick(event, view) {
+    this.emit(
+      event.name,
+      event.data,
+      this,
+      view,
+    )
+  }
   onNavigationControllerClick(event, navigationController, navigationView) {
-    switch(event.data.action) {
-      case 'new':
-        this.getDataModel()
-        break
-    }
-    return this
+    return this.emit(
+      'click:navigation',
+      event.data,
+      this,
+    )
   }
   startImageController() {
     if(this.controllers.image) this.controllers.image.stop()
     this.controllers.image = new ImageController({}, {
-      data: this.models.data.parse(),
+      image: this.models.image.parse(),
     }).start()
     this.resetEvents('controller')
     this.views.view
@@ -72,14 +85,13 @@ export default class extends Controller {
     }
     return this
   }
-  renderView() {
-    this
+  startControllers() {
+    return this
       .startImageController()
       .startNavigationController()
-    return this
   }
   start() {
-    return this.renderView()
+    return this.startControllers()
   }
   stop() {
     this.views.view.autoRemove()

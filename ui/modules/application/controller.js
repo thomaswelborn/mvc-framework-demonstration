@@ -82,7 +82,9 @@ export default class extends Controller {
       models: {
         user: this.models.user,
       },
-    }, {})
+    }, {
+      route: route,
+    })
     this.currentModule.start()
     if(
       this.currentModule.views &&

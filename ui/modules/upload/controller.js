@@ -1,8 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
-import {
-  Settings as SettingsModel,
-  Data as DataModel,
-} from './models'
+import { Upload as ImageUploadModel } from 'utilities/scripts/mvc-framework/models/images'
+import { Settings as SettingsModel } from './models'
 import { Controller } from 'mvc-framework/source/MVC'
 import View from './view'
 import Channels from 'modules/channels'
@@ -12,17 +10,19 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         settings: new SettingsModel(),
-        data: new DataModel({}, {
+        imageUpload: new ImageUploadModel({}, {
           user: settings.models.user,
         }),
       },
       modelEvents: {
         'settings set:imageReady': 'onSettingsModelSetImageReady',
-        'data set': 'onDataModelReady',
+        'imageUpload set': 'onImageUploadModelSet',
+        'imageUpload error': 'onImageUploadModelError',
       },
       modelCallbacks: {
         onSettingsModelSetImageReady: (event, settingsModel) => this.onSettingsModelSetImageReady(event, settingsModel),
-        onDataModelReady: (event, dataModel) => this.onDataModelReady(event, dataModel),
+        onImageUploadModelSet: (event, imageUploadModel) => this.onImageUploadModelSet(event, imageUploadModel),
+        onImageUploadModelError: (event, imageUploadModel) => this.onImageUploadModelError(event, imageUploadModel),
       },
       views: {
         view: new View(),
@@ -41,10 +41,15 @@ export default class extends Controller {
     settings: this.models.settings.parse(),
   } }
   onSettingsModelSetImageReady(event, settingsModel) {
-    return this.startView()
+    return this.renderView()
   }
-  onDataModelReady(event, dataModel) {
-    console.log(event.name, event.data)
+  onImageUploadModelError(event, imageUploadModel) {
+    console.log(event)
+    return this
+  }
+  onImageUploadModelSet(event, imageUploadModel) {
+    console.log(event.photos.id)
+    Channels.channel('Application').request('router').navigate(`/photos/${event.data.id}`)
     return this
   }
   onViewInput(event, view) {
@@ -54,14 +59,14 @@ export default class extends Controller {
     this.models.settings.set('imageReady', true)
     this.views.view
       .renderElement('uploadImagePreview', 'afterbegin', event.data.image)
-    this.models.data.services.post.body = data
+    this.models.imageUpload.services.post.body = data
     return this
   }
   onViewClick(event, view) {
-    this.models.data.services.post.fetch()
+    this.models.imageUpload.services.post.fetch()
     return this
   }
-  startView() {
+  renderView() {
     this.views.view.render(this.viewData)
     return this
   }
@@ -70,7 +75,7 @@ export default class extends Controller {
       (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
       (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
     ) {
-      this.startView()
+      this.renderView()
     } else {
       Channels.channel('Application').request('router').navigate('/')
     }

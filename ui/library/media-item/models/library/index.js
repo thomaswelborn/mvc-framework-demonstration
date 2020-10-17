@@ -6,6 +6,7 @@ export default class extends Model {
     super(mergeDeep({
       defaults: {
         navigation: Object(),
+        image: Object(),
       },
     }, settings), mergeDeep({}, options))
   }

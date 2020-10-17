@@ -1,3 +1,0 @@
-# MVC Framework Demonstration
-
-## 

@@ -1,5 +1,5 @@
 import { mergeDeep } from 'utilities/scripts'
-import { RenderView } from 'library/mvc-framework'
+import { RenderView } from 'utilities/scripts/mvc-framework'
 import Template from './template.ejs'
 
 export default class extends RenderView {

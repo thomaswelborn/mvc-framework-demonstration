@@ -1,16 +1,14 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-} from './models'
+import { Image as ImageModel } from './models'
 import View from './view'
 
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        settings: new SettingsModel({
-          defaults: options.data,
+        image: new ImageModel({
+          defaults: options.image,
         }),
       },
       views: {
@@ -19,7 +17,7 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
-    settings: this.models.settings.parse(),
+    image: this.models.image.parse(),
   } }
   start() {
     this.views.view.render(this.viewData)

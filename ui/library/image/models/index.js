@@ -1,5 +1,5 @@
-import Settings from './settings'
+import Image from './image'
 
 export {
-  Settings,
+  Image,
 }

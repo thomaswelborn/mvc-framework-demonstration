@@ -8,6 +8,8 @@ export default class extends Model {
         auth: false,
         noAuth: true,
         redirect: '/account/login',
+        username: String(),
+        apiKey: String(),
       },
     }, settings), mergeDeep({}, options))
   }

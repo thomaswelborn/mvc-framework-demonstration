@@ -2,7 +2,7 @@ import {
   mergeDeep,
   formValidator,
 } from 'utilities/scripts'
-import { RenderView } from 'library/mvc-framework'
+import { RenderView } from 'utilities/scripts/mvc-framework'
 import Template from './templates/template.ejs'
 import ErrorTemplate from './templates/validator.ejs'
 

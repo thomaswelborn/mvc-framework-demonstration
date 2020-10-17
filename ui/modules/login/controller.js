@@ -1,11 +1,7 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
 import Channels from 'modules/channels'
-
-import {
-  Settings as SettingsModel,
-  Data as DataModel,
-} from './models'
+import { Settings as SettingsModel } from './models'
 import View from './view'
 
 export default class extends Controller {
@@ -13,14 +9,13 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         settings: new SettingsModel(), 
-        data: new DataModel(), 
         // user: settings.models.user,
       },
       modelEvents: {
-        'data set': 'onDataModelSet',
+        'settings set': 'onSettingsModelSet',
       },
       modelCallbacks: {
-        onDataModelSet: (event, dataModel) => this.onDataModelSet(event, dataModel),
+        onSettingsModelSet: (event, settingsModel) => this.onSettingsModelSet(event, settingsModel),
       },
       views: {
         view: new View(),
@@ -35,10 +30,9 @@ export default class extends Controller {
   }
   get viewData() { return {
     settings: this.models.settings.parse(),
-    data: this.models.data.parse(),
     user: this.models.user.parse()
   } }
-  onDataModelSet(event, dataModel) {
+  onSettingsModelSet(event, settingsModel) {
     this.models.user.set({
       subID: event.data.username,
       apiKey: event.data.apiKey,
@@ -47,13 +41,13 @@ export default class extends Controller {
     return this
   }
   onViewFormValidated(event, view) {
-    this.models.data.set({
+    this.models.settings.set({
       username: event.data.username,
       apiKey: event.data.apiKey,
     })
     return this
   }
-  startView() {
+  renderView() {
     this.views.view.render(this.viewData)
     return this
   }
@@ -62,7 +56,7 @@ export default class extends Controller {
       (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
       (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
     ) {
-      this.startView()
+      this.renderView()
     } else {
       Channels.channel('Application').request('router').navigate('/')
     }

@@ -1,21 +1,17 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-  Data as DataModel,
-} from './models'
+import { Settings as SettingsModel } from './models'
 import View from './view'
+import Channels from 'modules/channels'
 
-import {
-  MediaItem as MediaItemController
-} from 'library'
+import MediaItemController from '../media-item'
 
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        // data: settings.models.data,
+        // images: settings.models.images,
         settings: new SettingsModel({
           defaults: options.library,
         }),
@@ -30,12 +26,26 @@ export default class extends Controller {
         view: new View(),
       },
       controllers: {},
+      controllerEvents: {
+        '[^media-item-] click': 'onMediaItemControllerClick',
+      },
+      controllerCallbacks: {
+        onMediaItemControllerClick: (event, mediaItemController) => this.onMediaItemControllerClick(event, mediaItemController),
+      },
     }, settings), mergeDeep({}, options))
   }
   get mediaItemControllerNamePrefix() { return 'media-item-' }
   mediaItemControllerName(index) { return `${this.mediaItemControllerNamePrefix}${index}`}
+  onMediaItemControllerClick(event, mediaItemController) {
+    return this
+      .emit(
+        event.name,
+        {},
+        this,
+        mediaItemController,
+      )
+  }
   onDataModelSet(event, dataModel) {
-    console.log(event.name, event.data)
     return this.startMediaItemControllers()
   }
   stopMediaItemControllers() {
@@ -44,24 +54,27 @@ export default class extends Controller {
     return this
   }
   startMediaItemControllers() {
-    console.log('startMediaItemControllers')
     this.stopMediaItemControllers()
     this.views.view.empty('$element')
-    this.models.data.get('images').forEach((image, index) => {
+    this.models.images.get('images').forEach((image, index) => {
       const mediaItemName = this.mediaItemControllerName(index)
       this.controllers[mediaItemName] = new MediaItemController({
         models: {
           user: this.models.user,
         },
       }, {
-        data: image,
+        image: image,
       }).start()
       this.resetEvents('controller')
       this.views.view.renderElement('$element', 'beforeend', this.controllers[mediaItemName].views.view.element)
     })
     return this
   }
+  startControllers() {
+    return this.startMediaItemControllers()
+  }
   start() {
+    this.startControllers()
     return this
   }
   stop() {
