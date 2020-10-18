@@ -7,20 +7,6 @@ export default class extends Model {
       defaults: {
         order: 'RANDOM',
         page: 0,
-        header: {
-          select: {
-            options: [
-              {
-                value: 'RANDOM',
-                textContent: 'Random',
-              },
-              {
-                value: 'DESC',
-                textContent: 'Latest',
-              },
-            ],
-          },
-        },
       },
     }, settings), mergeDeep({}, options))
   }

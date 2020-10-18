@@ -1,0 +1,70 @@
+{
+  "localStorage": {
+    "sync": true,
+    "endpoint": "/api/index/select-navigation/settings"
+  },
+  "attributes": {},
+  "select": {
+    "attributes": {},
+    "options": [
+      {
+        "attributes": {
+          "id": "index-select-navigation-random",
+          "value": "RANDOM"
+        },
+        "textContent": "Random"
+      },
+      {
+        "attributes": {
+          "id": "index-select-navigation-ascending",
+          "value": "ASC"
+        },
+        "textContent": "Ascending"
+      },
+      {
+        "attributes": {
+          "id": "index-select-navigation-descending",
+          "value": "DESC"
+        },
+        "textContent": "Descending"
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "textContent": "PREV",
+      "associatedOptions": [
+        "ASC",
+        "DESC"
+      ],
+      "attributes": {
+        "id": "index-mediaItem",
+        "class": "button",
+        "data-action": "previous"
+      }
+    },
+    {
+      "textContent": "NEXT",
+      "associatedOptions": [
+        "ASC",
+        "DESC"
+      ],
+      "attributes": {
+        "id": "index-mediaItem",
+        "class": "button",
+        "data-action": "next"
+      }
+    },
+    {
+      "textContent": "NEW",
+      "associatedOptions": [
+        "RANDOM"
+      ],
+      "attributes": {
+        "id": "index-mediaItem",
+        "class": "button",
+        "data-action": "new"
+      }
+    }
+  ]
+}

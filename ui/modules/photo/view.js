@@ -7,7 +7,7 @@ export default class extends RenderView {
     super(mergeDeep({
       elementName: 'section',
       attributes: {
-        id: 'index',
+        id: 'photo',
       },
       template: Template,
       uiElements: {

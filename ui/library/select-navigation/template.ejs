@@ -2,7 +2,7 @@
   <div class="form-group">
     <div class="input-group">
       <select>
-        <% locals.settings.select.options.forEach((selectOption) => { %>
+        <% locals.ui.select.options.forEach((selectOption) => { %>
           <option
             id="<%= selectOption.attributes.id %>"
             value="<%= selectOption.attributes.value %>"
@@ -18,7 +18,7 @@
   </div>
 </div>
 <nav>
-  <% locals.settings.buttons.forEach((button) => { %>
+  <% locals.ui.buttons.forEach((button) => { %>
     <% if(button.associatedOptions.indexOf(locals.settings.selected) !== -1) { %>
       <button
         type="button"

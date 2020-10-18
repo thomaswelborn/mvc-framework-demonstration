@@ -25,7 +25,6 @@ export default class extends Model {
     }, settings), mergeDeep({}, options))
   }
   onPostReady(event, postService) {
-    console.log(event)
     switch(postService.response.status) {
       case 200: 
       default: 

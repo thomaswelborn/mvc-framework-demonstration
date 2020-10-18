@@ -3,7 +3,7 @@ import { Controller } from 'mvc-framework/source/MVC'
 import Channels from 'modules/channels'
 import Router from './router'
 import {
-  Library as LibraryModel,
+  ToggleNavigation as ToggleNavigationModel,
   User as UserModel,
 } from './models'
 import View from './view'
@@ -24,7 +24,7 @@ export default class extends Controller {
         onApplicationRouterError: (event, router) => this.onApplicationRouterError(event, router),
       },
       models: {
-        library: new LibraryModel(),
+        toggleNavigation: new ToggleNavigationModel(),
         user: new UserModel(),
       },
       modelEvents: {
@@ -120,9 +120,9 @@ export default class extends Controller {
     this.controllers.navigation = new ToggleNavigationController({
       models: {
         user: this.models.user,
+        ui: this.models.toggleNavigation,
       },
     }, {
-      library: this.models.library.get('header').toggleNavigation,
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement(

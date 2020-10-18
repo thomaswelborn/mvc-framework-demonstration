@@ -1,11 +1,15 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Search as ImageSearchModel } from 'utilities/scripts/mvc-framework/models/images'
-import { Controller } from 'mvc-framework/source/MVC'
-import Channels from 'modules/channels'
 import {
-  Settings as SettingsModel,
-  Library as LibraryModel,
-} from './models'
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
+import Channels from 'modules/channels'
+import { Settings as SettingsModel } from './models'
+import {
+  SelectNavigation as SelectNavigationDefaults,
+  MediaItem as MediaItemDefaults,
+} from './defaults'
 import View from './view'
 import {
   SelectNavigation as SelectNavigationController,
@@ -18,7 +22,12 @@ export default class extends Controller {
       models: {
         // user: settings.models.user,
         settings: new SettingsModel(),
-        library: new LibraryModel(),
+        selectNavigation: new Model({
+          defaults: SelectNavigationDefaults,
+        }),
+        mediaItem: new Model({
+          defaults: MediaItemDefaults,
+        }),
         // imageSearch: ImageSearchModel
       },
       modelEvents: {
@@ -91,9 +100,8 @@ export default class extends Controller {
     this.controllers.selectNavigation = new SelectNavigationController({
       models: {
         user: this.models.user,
+        ui: this.models.selectNavigation,
       }
-    }, {
-      library: this.models.library.get('selectNavigation'),
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement('header', 'afterbegin', this.controllers.selectNavigation.views.view.element)
@@ -101,15 +109,14 @@ export default class extends Controller {
   }
   startMediaItemController() {
     if(this.controllers.mediaItem) this.controllers.mediaItem.stop()
+    this.models.mediaItem.set('image', this.models.imageSearch.get('images')[0])
     this.controllers.mediaItem = new MediaItemController({
       models: {
         user: this.models.user,
+        ui: this.models.mediaItem,
       },
-    }, {
-      library: this.models.library.get('mediaItem'),
-      image: this.models.imageSearch.get('images')[0],
-      // settings: {},
     }).start()
+    console.log('startMediaItemController')
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this

@@ -1,8 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
+import {
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
 import {
   Settings as SettingsModel,
-  Library as LibraryModel,
 } from './models'
 import ButtonController from '../button'
 import NavigationController from '../navigation'
@@ -12,22 +14,26 @@ export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        settings: new SettingsModel(),
-        library: new LibraryModel({
-          defaults: options.library,
-        }),
         // user: settings.models.user,
+        // ui: settings.models.ui,
+        toggle: new Model({
+          defaults: settings.models.ui.get('toggle'),
+        }),
+        subnavigation: new Model({
+          defaults: settings.models.ui.get('subnavigation'),
+        }),
+        settings: new SettingsModel(),
       },
       modelEvents: {},
       modelCallbacks: {},
       views: {
         view: new View({
-          attributes: options.library.attributes,
+          attributes: settings.models.ui.get('attributes'),
         }),
       },
       controllers: {
-        // toggleButton: ToggleButton,
-        // subnavigation: Subnavigation,
+        // toggleButton: ButtonController,
+        // subnavigation: NavigationController,
       },
       controllerEvents: {
         'toggleButton click': 'onToggleButtonControllerClick',
@@ -62,7 +68,7 @@ export default class extends Controller {
         user: this.settings.models.user,
       },
     }, {
-      data: this.models.library.get('toggle'),
+      data: this.models.toggle.parse(),
     }).start()
     this.views.view.renderElement(
       '$element', 
@@ -76,15 +82,15 @@ export default class extends Controller {
     this.controllers.subnavigation = new NavigationController({
       models: {
         user: this.settings.models.user,
+        ui: this.models.subnavigation,
       },
     }, {
-      library: this.models.library.get('subnavigation'),
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement(
       '$element', 
       'beforeend', 
-      this.controllers.subnavigation.views.view.element
+      this.controllers.subnavigation.views.view.element,
     )
     return this
   }

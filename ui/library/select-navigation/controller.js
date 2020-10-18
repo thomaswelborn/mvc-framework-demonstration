@@ -1,9 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-  // Library as LibraryModel,
-} from './models'
+import { Settings as SettingsModel } from './models'
 import ButtonController from '../button'
 import View from './view'
 
@@ -12,12 +9,9 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: User,
+        // ui: settings.models.ui,
         settings: new SettingsModel({
-          localStorage: options.library.localStorage,
-          defaults: {
-            select: options.library.select,
-            buttons: options.library.buttons,
-          },
+          localStorage: settings.models.ui.get('localStorage'),
         }),
       },
       modelEvents: {
@@ -28,7 +22,7 @@ export default class extends Controller {
       },
       views: {
         view: new View({
-          attributes: options.library.attributes,
+          attributes: settings.models.ui.get('attributes'),
         }),
       },
       viewEvents: {
@@ -48,6 +42,7 @@ export default class extends Controller {
   get viewData() { return {
     settings: this.models.settings.parse(),
     user: this.models.user.parse(),
+    ui: this.models.ui.parse(),
   } }
   onSettingsModelSetSelected(event, settingsModel) {
     return this

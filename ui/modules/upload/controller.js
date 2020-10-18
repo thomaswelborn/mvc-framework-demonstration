@@ -44,11 +44,9 @@ export default class extends Controller {
     return this.renderView()
   }
   onImageUploadModelError(event, imageUploadModel) {
-    console.log(event)
     return this
   }
   onImageUploadModelSet(event, imageUploadModel) {
-    console.log(event.photos.id)
     Channels.channel('Application').request('router').navigate(`/photos/${event.data.id}`)
     return this
   }

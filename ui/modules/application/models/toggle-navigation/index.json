@@ -1,0 +1,76 @@
+{
+  "attributes": {
+    "id": "application-toggle-navigation",
+    "class": "navigation toggle-navigation"
+  },
+  "toggle": {
+    "textContent": "*",
+    "attributes": {
+      "id": "application-toggle-navigation-toggle-button",
+      "class": "button toggle-button",
+      "data-action": "toggle-visible",
+      "data-target": "#application-toggle-navigation-subnavigation",
+      "data-secondary-action": "toggle-active",
+      "data-secondary-target": "#application-toggle-navigation-toggle-button"
+    }
+  },
+  "subnavigation": {
+    "attributes": {
+      "id": "application-toggle-navigation-subnavigation",
+      "class": "navigation subnavigation",
+      "data-visible": false
+    },
+    "buttons": [
+      {
+        "auth": true,
+        "noAuth": false,
+        "textContent": "Profile",
+        "attributes": {
+          "class": "button subnavigation-button",
+          "data-href": "/account/profile",
+          "data-target": "_self"
+        }
+      },
+      {
+        "auth": true,
+        "noAuth": false,
+        "textContent": "Photos",
+        "attributes": {
+          "class": "button subnavigation-button",
+          "data-href": "/photos",
+          "data-target": "_self"
+        }
+      },
+      {
+        "auth": true,
+        "noAuth": false,
+        "textContent": "Upload",
+        "attributes": {
+          "class": "button subnavigation-button",
+          "data-href": "/upload",
+          "data-target": "_self"
+        }
+      },
+      {
+        "auth": false,
+        "noAuth": true,
+        "textContent": "Login",
+        "attributes": {
+          "class": "button subnavigation-button",
+          "data-href": "/account/login",
+          "data-target": "_self"
+        }
+      },
+      {
+        "auth": true,
+        "noAuth": false,
+        "textContent": "Logout",
+        "attributes": {
+          "class": "button subnavigation-button",
+          "data-href": "account/logout",
+          "data-target": "_self"
+        }
+      }
+    ]
+  }
+}

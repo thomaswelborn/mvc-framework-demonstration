@@ -6,9 +6,6 @@ export default class extends Model {
     super(mergeDeep({
       defaults: {
         selected: 'RANDOM',
-        attributes: Object(),
-        select: Array(),
-        buttons: Array(),
       },
     }, settings), mergeDeep({}, options))
   }

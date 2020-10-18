@@ -1,34 +1,51 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Image as ImageModel } from 'utilities/scripts/mvc-framework/models/images'
-import { Controller } from 'mvc-framework/source/MVC'
+import {
+  Controller,
+  Model,
+} from 'mvc-framework/source/MVC'
 import {
   Settings as SettingsModel,
-  Library as LibraryModel,
 } from './models'
+import {
+  Navigation as NavigationDefaults,
+  MediaItem as MediaItemDefaults,
+} from './defaults'
 import View from './view'
 import {
   Navigation as NavigationController,
   MediaItem as MediaItemController,
 } from 'library'
+import Channels from 'modules/channels'
 
 export default class extends Controller {
   constructor(settings = {}, options = []) {
     super(mergeDeep({
       models: {
+        // user: settings.models.user,
         settings: new SettingsModel({
           defaults: {
             id: options.route.location.hash.fragments[options.route.location.hash.fragments.length - 1]
           }
         }),
-        library: new LibraryModel(),
-        // user: settings.models.user,
+        navigation: new Model({
+          defaults: NavigationDefaults,
+        }),
+        mediaItem: new Model({
+          defaults: MediaItemDefaults,
+        }),
         // image: ImageModel,
+        // imageDelete: ImageDeleteModel,
       },
       modelEvents: {
         'image set': 'onImageModelSet',
+        'image get:error': 'onImageModelGETError',
+        'image delete:success': 'onImageModelDELETESuccess',
       },
       modelCallbacks: {
         onImageModelSet: (event, imageModel) => this.onImageModelSet(event, imageModel),
+        onImageModelGETError: (event, imageModel) => this.onImageModelGETError(event, imageModel),
+        onImageModelDELETESuccess: (event, imageModel) => this.onImageModelDELETESuccess(event, imageModel),
       },
       views: {
         view: new View(),
@@ -50,6 +67,14 @@ export default class extends Controller {
   onImageModelSet(event, imageModel) {
     return this.startControllers()
   }
+  onImageModelGETError(event, imageModel, getService) {
+    return this
+  }
+  onImageModelDELETESuccess(event, imageModel, deleteService) {
+    console.log(event.name, event.data)
+    Channels.channel('Application').request('router').navigate('/photos')
+    return this
+  }
   onMediaItemControllerClickNavigation(event, mediaItemController) {
     switch(event.data.action) {
       case 'new':
@@ -65,12 +90,17 @@ export default class extends Controller {
       case 'close':
         break
       case 'delete':
+        this.deleteImageModel()
         break
     }
     return this
   }
   getImageModel() {
     this.models.image.services.get.fetch()
+    return this
+  }
+  deleteImageModel() {
+    this.models.image.services.delete.fetch()
     return this
   }
   renderView() {
@@ -91,9 +121,8 @@ export default class extends Controller {
     this.controllers.navigation = new NavigationController({
       models: {
         user: this.models.user,
+        ui: this.models.navigation,
       },
-    }, {
-      library: this.models.library.get('navigation'),
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'beforeend', this.controllers.navigation.views.view.element)
@@ -101,14 +130,14 @@ export default class extends Controller {
   }
   startMediaItemController() {
     if(this.controllers.mediaItem) this.controllers.mediaItem.stop()
+    this.models.mediaItem.set('image', this.models.image.parse())
     this.controllers.mediaItem = new MediaItemController({
       models: {
         user: this.models.user,
+        ui: this.models.mediaItem,
       },
     }, {
-      library: this.models.library.get('mediaItem'),
-      image: this.models.image.parse(),
-      // settings: {},
+      settings: this.models.settings.parse(),
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
@@ -128,8 +157,8 @@ export default class extends Controller {
         .renderView()
         .startImageModel()
     } else {
-      const router = Channels.channel('Application').request('router')
-      router.navigate('/account/login')
+      Channels.channel('Application').request('router')
+        .navigate(this.models.settings.get('redirect'))
     }
     return this
   }

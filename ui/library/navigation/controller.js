@@ -1,9 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-  Library as LibraryModel,
-} from './models'
+import { Settings as SettingsModel } from './models'
 import View from './view'
 import ButtonController from 'library/button'
 
@@ -12,14 +9,8 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        settings: new SettingsModel({
-          defaults: options.library.attributes,
-        }),
-        library: new LibraryModel({
-          defaults: {
-            buttons: options.library.buttons,
-          },
-        }),
+        // ui: settings.models.ui,
+        settings: new SettingsModel(),
       },
       modelEvents: {
         'settings set:visible': 'onSettingsModelSetVisible',
@@ -29,7 +20,7 @@ export default class extends Controller {
       },
       views: {
         view: new View({
-          attributes: options.library.attributes,
+          attributes: settings.models.ui.get('attributes'),
         }),
       },
       controllers: {},
@@ -55,7 +46,7 @@ export default class extends Controller {
       )
   }
   startButtonControllers() {
-    Array.from(this.models.library.get('buttons')).forEach((buttonOptions, buttonIndex) => {
+    Array.from(this.models.ui.get('buttons')).forEach((buttonOptions, buttonIndex) => {
       const buttonControllerName = `button-${buttonIndex}`
       if(
         (buttonOptions.auth && this.models.user.get('isAuthenticated')) || 

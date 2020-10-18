@@ -1,0 +1,18 @@
+{
+  "attributes": {},
+  "navigation": {
+    "attributes": {},
+    "buttons": [
+      {
+        "auth": true,
+        "noAuth": true,
+        "textContent": "INFO",
+        "attributes": {
+          "id": "index-navigation-info",
+          "class": "button",
+          "data-action": "info"
+        }
+      }
+    ]
+  }
+}

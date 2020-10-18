@@ -1,0 +1,28 @@
+{
+  "attributes": {
+    "id": "photo-navigation",
+    "class": "navigation"
+  },
+  "buttons": [
+    {
+      "auth": true,
+      "noAuth": false,
+      "textContent": "DELETE",
+      "attributes": {
+        "id": "photo-navigation-delete",
+        "class": "button",
+        "data-action": "delete"
+      }
+    },
+    {
+      "auth": true,
+      "noAuth": false,
+      "textContent": "CLOSE",
+      "attributes": {
+        "id": "photo-navigation-close",
+        "class": "button",
+        "data-action": "close"
+      }
+    }
+  ]
+}

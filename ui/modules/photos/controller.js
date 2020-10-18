@@ -1,6 +1,13 @@
-  import { mergeDeep } from 'utilities/scripts'
+import { mergeDeep } from 'utilities/scripts'
 import { Images as ImagesModel } from 'utilities/scripts/mvc-framework/models/images'
-import { Controller } from 'mvc-framework/source/MVC'
+import {
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
+import {
+  MediaGrid as MediaGridDefaults,
+  SelectNavigation as SelectNavigationDefaults,
+} from './defaults'
 import {
   Settings as SettingsModel,
   Library as LibraryModel,
@@ -16,9 +23,14 @@ export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        settings: new SettingsModel(),
-        library: new LibraryModel(),
         // user: settings.models.user,
+        settings: new SettingsModel(),
+        mediaGrid: new Model({
+          defaults: MediaGridDefaults,
+        }),
+        selectNavigation: new Model({
+          defaults: SelectNavigationDefaults,
+        }),
         // images: ImagesModel,
       },
       modelEvents: {
@@ -48,7 +60,6 @@ export default class extends Controller {
   }
   get viewData() { return {
     settings: this.models.settings.parse(),
-    images: this.models.images.parse(),
   } }
   onImagesModelSet(event, imagesModel) {
     this.startControllers()
@@ -93,9 +104,8 @@ export default class extends Controller {
     this.controllers.selectNavigation = new SelectNavigationController({
       models: {
         user: this.models.user,
+        ui: this.models.selectNavigation,
       },
-    }, {
-      library: this.models.library.get('selectNavigation'),
     }).start()
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'afterbegin', this.controllers.selectNavigation.views.view.element)
@@ -103,14 +113,15 @@ export default class extends Controller {
   }
   startMediaGridController() {
     if(this.controllers.mediaGrid) this.controllers.mediaGrid.stop()
+    this.models.mediaGrid.set('images', this.models.images.parse())
+    console.log('startMediaGridController')
     this.controllers.mediaGrid = new MediaGridController({
       models: {
         user: this.models.user,
-        images: this.models.images,
+        ui: this.models.mediaGrid,
       },
-    }, {
-      library: this.models.library.get('mediaGrid'),
     }).start()
+    console.log(this.controllers.mediaGrid.views.view.element)
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'beforeEnd', this.controllers.mediaGrid.views.view.element)
     return this
@@ -125,6 +136,7 @@ export default class extends Controller {
       .startMediaGridController()
   }
   start() {
+    console.log('start')
     if(
       (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
       (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))

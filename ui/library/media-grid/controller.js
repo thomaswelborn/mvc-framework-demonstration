@@ -1,9 +1,12 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
+import {
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
+import { MediaItem as MediaItemDefaults } from './defaults'
 import { Settings as SettingsModel } from './models'
 import View from './view'
 import Channels from 'modules/channels'
-
 import MediaItemController from '../media-item'
 
 export default class extends Controller {
@@ -12,20 +15,18 @@ export default class extends Controller {
       models: {
         // user: settings.models.user,
         // images: settings.models.images,
-        settings: new SettingsModel({
-          defaults: options.library,
+        // ui: settings.models.ui,
+        settings: new SettingsModel(),
+        images: new Model({
+          defaults: settings.models.ui.get('images'),
         }),
-      },
-      modelEvents: {
-        'data set': 'onDataModelSet',
-      },
-      modelCallbacks: {
-        onDataModelSet: (event, dataModel) => this.onDataModelSet(event, dataModel),
       },
       views: {
         view: new View(),
       },
-      controllers: {},
+      controllers: {
+        // `media-item-${index}`: MediaItemController,
+      },
       controllerEvents: {
         '[^media-item-] click': 'onMediaItemControllerClick',
       },
@@ -33,6 +34,7 @@ export default class extends Controller {
         onMediaItemControllerClick: (event, mediaItemController) => this.onMediaItemControllerClick(event, mediaItemController),
       },
     }, settings), mergeDeep({}, options))
+    console.log(this.models)
   }
   get mediaItemControllerNamePrefix() { return 'media-item-' }
   mediaItemControllerName(index) { return `${this.mediaItemControllerNamePrefix}${index}`}
@@ -44,9 +46,6 @@ export default class extends Controller {
         this,
         mediaItemController,
       )
-  }
-  onDataModelSet(event, dataModel) {
-    return this.startMediaItemControllers()
   }
   stopMediaItemControllers() {
      Object.values(this.controllers).forEach((controller) => controller.stop())
@@ -61,19 +60,24 @@ export default class extends Controller {
       this.controllers[mediaItemName] = new MediaItemController({
         models: {
           user: this.models.user,
+          ui: new Model({
+            defaults: mergeDeep({
+              image: image,
+            }, MediaItemDefaults),
+          })
         },
-      }, {
-        image: image,
       }).start()
       this.resetEvents('controller')
       this.views.view.renderElement('$element', 'beforeend', this.controllers[mediaItemName].views.view.element)
     })
+    console.log('startMediaItemControllers')
     return this
   }
   startControllers() {
     return this.startMediaItemControllers()
   }
   start() {
+    console.log('start')
     this.startControllers()
     return this
   }

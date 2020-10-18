@@ -1,9 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
 import {
-  Library as LibraryModel,
+  Controller,
+  Model,
+} from 'mvc-framework/source/MVC'
+import {
   Settings as SettingsModel,
-  Image as ImageModel,
 } from './models'
 import View from './view'
 import NavigationController from '../navigation'
@@ -14,18 +15,21 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
+        // ui: settings.models.ui,
         settings: new SettingsModel({
           defaults: options.settings,
         }),
-        library: new LibraryModel({
-          defaults: options.library,
+        navigation: new Model({
+          defaults: settings.models.ui.get('navigation'),
         }),
-        image: new ImageModel({
-          defaults: options.image,
-        })
+        image: new Model({
+          defaults: settings.models.ui.get('image'),
+        }),
       },
       views: {
-        view: new View(),
+        view: new View({
+          attributes: settings.models.ui.get('attributes'),
+        }),
       },
       viewEvents: {
         'view click': 'onViewElementClick',
@@ -60,28 +64,34 @@ export default class extends Controller {
     )
   }
   startImageController() {
-    if(this.controllers.image) this.controllers.image.stop()
-    this.controllers.image = new ImageController({}, {
-      image: this.models.image.parse(),
-    }).start()
-    this.resetEvents('controller')
-    this.views.view
-      .renderElement('$element', 'afterbegin', this.controllers.image.views.view.element)
+    if(this.models.ui.get('image')) {
+      if(this.controllers.image) this.controllers.image.stop()
+      this.controllers.image = new ImageController({
+        models: {
+          user: this.models.user,
+          ui: this.models.image,
+        },
+      }, {}).start()
+      this.resetEvents('controller')
+      console.log(this.controllers.image.views.view.element)
+      this.views.view
+        .renderElement('$element', 'afterbegin', this.controllers.image.views.view.element)
+    }
     return this
   }
   startNavigationController() {
-    if(this.models.library.get('navigation')) {
+    if(this.models.ui.get('navigation')) {
       if(this.controllers.navigation) this.controllers.navigation.stop()
       this.controllers.navigation = new NavigationController({
         models: {
           user: this.models.user,
+          ui: this.models.navigation,
         },
-      }, {
-        library: this.models.library.get('navigation'),
       }).start()
       this.resetEvents('controller')
       this.views.view
         .renderElement('$element', 'beforeend', this.controllers.navigation.views.view.element)
+      console.log(this.controllers.navigation.views.view.element)
     }
     return this
   }

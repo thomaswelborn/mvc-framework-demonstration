@@ -1,7 +1,7 @@
-import Library from './library'
+import ToggleNavigation from './toggle-navigation'
 import User from './user'
 
 export {
-  Library,
+  ToggleNavigation,
   User,
 }
