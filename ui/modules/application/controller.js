@@ -58,6 +58,7 @@ export default class extends Controller {
   get currentModule() { return this._currentModule }
   set currentModule(currentModule) { this._currentModule = currentModule }
   onNavigationControllerClick(event, navigationController, navigationView) {
+    console.log(event.name, event.data)
     this.controllers.navigation.controllers.toggleButton.views.view.element
       .dispatchEvent(new MouseEvent('click'))
     return this

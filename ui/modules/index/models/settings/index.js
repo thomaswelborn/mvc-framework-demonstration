@@ -12,6 +12,7 @@ export default class extends Model {
         auth: true,
         noAuth: true,
         redirect: 'account/login',
+        loading: false,
         order: 'RANDOM',
         page: 0,
         limit: 1,

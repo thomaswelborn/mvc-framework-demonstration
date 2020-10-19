@@ -15,6 +15,8 @@ import View from './view'
 import {
   Navigation as NavigationController,
   MediaItem as MediaItemController,
+  Loader as LoaderController,
+  Error as ErrorController,
 } from 'library'
 import Channels from 'modules/channels'
 
@@ -26,7 +28,7 @@ export default class extends Controller {
         settings: new SettingsModel({
           defaults: {
             id: options.route.location.hash.fragments[options.route.location.hash.fragments.length - 1]
-          }
+          },
         }),
         navigation: new Model({
           defaults: NavigationDefaults,
@@ -38,11 +40,13 @@ export default class extends Controller {
         // imageDelete: ImageDeleteModel,
       },
       modelEvents: {
+        'settings set:loading': 'onSettingsModelSetLoading',
         'image set': 'onImageModelSet',
         'image get:error': 'onImageModelGETError',
         'image delete:success': 'onImageModelDELETESuccess',
       },
       modelCallbacks: {
+        onSettingsModelSetLoading: (event, settingsModel) => this.onSettingsModelSetLoading(event, settingsModel),
         onImageModelSet: (event, imageModel) => this.onImageModelSet(event, imageModel),
         onImageModelGETError: (event, imageModel) => this.onImageModelGETError(event, imageModel),
         onImageModelDELETESuccess: (event, imageModel) => this.onImageModelDELETESuccess(event, imageModel),
@@ -53,25 +57,55 @@ export default class extends Controller {
       controllers: {
         // mediaItem: MediaItemController,
         // navigation: NavigatyionController,
+        loader: new LoaderController(),
+        error: new ErrorController(),
       },
       controllerEvents: {
+        'error ready': 'onErrorControllerReady',
+        'error accept': 'onErrorControllerAccept',
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
         'navigation click': 'onNavigationClick',
       },
       controllerCallbacks: {
+        onErrorControllerReady: (event, errorController) => this.onErrorControllerReady(event, errorController),
+        onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
         onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
     }, settings), mergeDeep({}, options))
+    
+  }
+  onSettingsModelSetLoading(event, settingsModel) {
+    switch(event.data.value) {
+      case true:
+        this.controllers.loader.start()
+        this.views.view.renderElement('$element', 'afterbegin', this.controllers.loader.views.view.element)
+        break
+      case false:
+        this.controllers.loader.stop()
+        break
+    }
+    return this
   }
   onImageModelSet(event, imageModel) {
+    this.models.settings.set('loading', false)
     return this.startControllers()
   }
   onImageModelGETError(event, imageModel, getService) {
+    this.models.settings.set('loading', false)
+    this.controllers.error.models.settings.set(event.data)
     return this
   }
   onImageModelDELETESuccess(event, imageModel, deleteService) {
-    console.log(event.name, event.data)
+    Channels.channel('Application').request('router').navigate('/photos')
+    return this
+  }
+  onErrorControllerReady(event, errorController) {
+    this.views.view.renderElement('main', 'afterbegin', this.controllers.error.views.view.element)
+    return this
+  }
+  onErrorControllerAccept(event, errorController) {
+    this.controllers.error.stop()
     Channels.channel('Application').request('router').navigate('/photos')
     return this
   }
@@ -88,6 +122,7 @@ export default class extends Controller {
   onNavigationClick(event, navigationController) {
     switch(event.data.action) {
       case 'close':
+        Channels.channel('Application').request('router').navigate('/photos')
         break
       case 'delete':
         this.deleteImageModel()
@@ -96,6 +131,7 @@ export default class extends Controller {
     return this
   }
   getImageModel() {
+    this.models.settings.set('loading', true)
     this.models.image.services.get.fetch()
     return this
   }

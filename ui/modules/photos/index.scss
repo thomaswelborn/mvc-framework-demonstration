@@ -1,4 +1,9 @@
 #photos {
+  & > header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
   .media-grid {
     flex: 1;
     overflow: {

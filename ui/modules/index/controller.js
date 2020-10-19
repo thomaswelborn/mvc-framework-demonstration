@@ -14,6 +14,8 @@ import View from './view'
 import {
   SelectNavigation as SelectNavigationController,
   MediaItem as MediaItemController,
+  Loader as LoaderController,
+  Error as ErrorController,
 } from 'library'
 
 export default class extends Controller {
@@ -31,10 +33,14 @@ export default class extends Controller {
         // imageSearch: ImageSearchModel
       },
       modelEvents: {
+        'settings set:loading': 'onSettingsModelSetLoading',
         'imageSearch set': 'onImageSearchModelSet',
+        'imageSearch get:error': 'onImageSearchModelGetError',
       },
       modelCallbacks: {
-        onImageSearchModelSet: (event, imageModel) => this.onImageSearchModelSet(event, imageModel),
+        onSettingsModelSetLoading: (event, settingsModel) => this.onSettingsModelSetLoading(event, settingsModel),
+        onImageSearchModelSet: (event, imageSearchModel) => this.onImageSearchModelSet(event, imageSearchModel),
+        onImageSearchModelGetError: (event, imageSearchModel) => this.onImageSearchModelGetError(event, imageSearchModel),
       },
       views: {
         view: new View(),
@@ -42,12 +48,18 @@ export default class extends Controller {
       controllers: {
         // selectNavigation: SelectNavigation,
         // mediaItem: MediaItem,
+        loader: new LoaderController(),
+        error: new ErrorController(),
       },
       controllerEvents: {
+        'error ready': 'onErrorControllerReady',
+        'error accept': 'onErrorControllerAccept',
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
         'selectNavigation button:click': 'onSelectNavigationButtonControllerClick',
       },
       controllerCallbacks: {
+        onErrorControllerReady: (event, errorController) => this.onErrorControllerReady(event, errorController),
+        onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onSelectNavigationControllerSelectChange: (event, view) => this.onSelectNavigationControllerSelectChange(event, view),
         onSelectNavigationButtonControllerClick: (event, view) => this.onSelectNavigationButtonControllerClick(event, view),
       },
@@ -57,8 +69,26 @@ export default class extends Controller {
     settings: this.models.settings.parse(),
     user: this.models.user.parse(),
   } }
-  onImageSearchModelSet(event, imageModel) {
+  onSettingsModelSetLoading(event, settingsModel) {
+    switch(event.data.value) {
+      case true:
+        this.controllers.loader.start()
+        this.views.view.renderElement('$element', 'afterbegin', this.controllers.loader.views.view.element)
+        break
+      case false:
+        this.controllers.loader.stop()
+        break
+    }
+    return this
+  }
+  onImageSearchModelSet(event, imageSearchModel) {
+    this.models.settings.set('loading', false)
     return this.startControllers()
+  }
+  onImageSearchModelGetError(event, imageSearchModel) {
+    this.models.settings.set('loading', false)
+    this.controllers.error.models.settings.set(event.data)
+    return this
   }
   onSelectNavigationControllerSelectChange(event, view) {
     this.models.settings.set('order', event.data.value)
@@ -78,7 +108,18 @@ export default class extends Controller {
     }
     return this
   }
+  onErrorControllerReady(event, errorController) {
+    this.views.view.renderElement('main', 'afterbegin', this.controllers.error.views.view.element)
+    return this
+  }
+  onErrorControllerAccept(event, errorController) {
+    this.controllers.error.stop()
+    Channels.channel('Application').request('router').navigate('/photos')
+    return this
+  }
   getImageSearchModel() {
+    console.log('loading', true)
+    this.models.settings.set('loading', true)
     this.models.imageSearch.services.get.fetch()
     return this
   }
@@ -116,7 +157,6 @@ export default class extends Controller {
         ui: this.models.mediaItem,
       },
     }).start()
-    console.log('startMediaItemController')
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this

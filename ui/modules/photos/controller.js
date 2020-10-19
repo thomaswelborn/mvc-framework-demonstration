@@ -10,13 +10,14 @@ import {
 } from './defaults'
 import {
   Settings as SettingsModel,
-  Library as LibraryModel,
 } from './models'
 import View from './view'
 import Channels from 'modules/channels'
 import {
   SelectNavigation as SelectNavigationController,
   MediaGrid as MediaGridController,
+  Loader as LoaderController,
+  Error as ErrorController,
 } from 'library'
 
 export default class extends Controller {
@@ -34,35 +35,77 @@ export default class extends Controller {
         // images: ImagesModel,
       },
       modelEvents: {
+        'settings set:loading': 'onSettingsModelSetLoading',
         'images set': 'onImagesModelSet',
+        'images get:error': 'onImageSearchModelGetError',
       },
       modelCallbacks: {
+        onSettingsModelSetLoading: (event, settingsModel) => this.onSettingsModelSetLoading(event, settingsModel),
         onImagesModelSet: (event, imagesModel) => this.onImagesModelSet(event, imagesModel),
+        onImageSearchModelGetError: (event, imageSearchModel) => this.onImageSearchModelGetError(event, imageSearchModel),
       },
       views: {
         view: new View(),
       },
+      viewEvents: {
+        'view headerNavButton:click': 'onViewHeaderNavButtonClick',
+      },
+      viewCallbacks: {
+        onViewHeaderNavButtonClick: (event, view) => this.onViewHeaderNavButtonClick(event, view),
+      },
       controllers: {
         // selectNavigation: SelectNavigation,
         // mediaGrid: MediaGrid,
+        loader: new LoaderController(),
+        error: new ErrorController(),
       },
       controllerEvents: {
+        'error ready': 'onErrorControllerReady',
+        'error accept': 'onErrorControllerAccept',
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
         'selectNavigation button:click': 'onSelectNavigationControllerButtonClick',
-        'mediaGrid click': 'onMediaGridClick',
+        'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
+        onErrorControllerReady: (event, errorController) => this.onErrorControllerReady(event, errorController),
+        onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onSelectNavigationControllerSelectChange: (event, navigationController) => this.onSelectNavigationControllerSelectChange(event, navigationController),
         onSelectNavigationControllerButtonClick: (event, navigationController) => this.onSelectNavigationControllerButtonClick(event, navigationController),
-        onMediaGridClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridClick(event, mediaGridController, mediaGridItemController),
+        onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
       },
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
     settings: this.models.settings.parse(),
   } }
+  onViewHeaderNavButtonClick(event, view) {
+    switch(event.data.action) {
+      case 'upload':
+        Channels.channel('Application').request('router').navigate('/upload')
+        break
+    }
+    return this
+  }
+  onSettingsModelSetLoading(event, settingsModel) {
+    switch(event.data.value) {
+      case true:
+        this.controllers.loader.start()
+        this.views.view.renderElement('$element', 'afterbegin', this.controllers.loader.views.view.element)
+        break
+      case false:
+        this.controllers.loader.stop()
+        break
+    }
+    return this
+  }
   onImagesModelSet(event, imagesModel) {
+    this.models.settings.set('loading', false)
     this.startControllers()
+    return this
+  }
+  onImageSearchModelGetError(event, imageSearchModel) {
+    this.models.settings.set('loading', false)
+    this.controllers.error.models.settings.set(event.data)
     return this
   }
   onSelectNavigationControllerSelectChange(event, navigationController) {
@@ -72,21 +115,31 @@ export default class extends Controller {
   onSelectNavigationControllerButtonClick(event, navigationController) {
     switch(event.data.action) {
       case 'next':
-        this.models.settings.advancePage(1)
+        // this.models.settings.advancePage(1)
         break
       case 'previous':
-        this.models.settings.advancePage(-1)
+        // this.models.settings.advancePage(-1)
         break
     }
     return this
   }
-  onMediaGridClick(event, mediaGridController, mediaGridItemController) {
+  onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
     Channels.channel('Application').request('router').navigate(
       `/photos/${mediaGridItemController.models.image.get('id')}`
     )
     return this
   }
+  onErrorControllerReady(event, errorController) {
+    this.views.view.renderElement('main', 'afterbegin', this.controllers.error.views.view.element)
+    return this
+  }
+  onErrorControllerAccept(event, errorController) {
+    this.controllers.error.stop()
+    Channels.channel('Application').request('router').navigate('/photos')
+    return this
+  }
   getImagesModel() {
+    this.models.settings.set('loading', true)
     this.models.images.services.get.fetch()
     return this
   }

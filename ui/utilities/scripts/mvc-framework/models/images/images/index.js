@@ -14,7 +14,7 @@ export default class extends Model {
         defaults: SearchResultsDefaults,
       },
       serviceEvents: {
-        'get ready': 'onGetServiceReady',
+        'get ready': 'onGetServiceReady', 
       },
       serviceCallbacks: {
         onGetServiceReady: (event, getService) => this.onGetServiceReady(event, getService),
@@ -23,14 +23,28 @@ export default class extends Model {
   }
   get currentImage() { return this.get('images')[0] }
   onGetServiceReady(event, getService) {
-    this.set({
-      details: {
-        count: event.data.length,
-        total: Number(this.services.get.response.headers.get('pagination-count')),
-        page: Number(this.services.get.response.headers.get('pagination-page')),
-      },
-      images: event.data,
-    })
+    console.log(getService.response)
+    switch(getService.response.status) {
+      case 400:
+      case 402:
+        this.emit(
+          'get:error',
+          event.data,
+          this,
+          getService,
+        )
+        break
+      case 200:
+        this.set({
+          details: {
+            count: event.data.length,
+            total: Number(this.services.get.response.headers.get('pagination-count')),
+            page: Number(this.services.get.response.headers.get('pagination-page')),
+          },
+          images: event.data,
+        })
+        break
+    }
     return this
   }
 }

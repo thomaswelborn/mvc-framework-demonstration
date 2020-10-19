@@ -5,9 +5,9 @@ export default class extends Model {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       defaults: {
-        active: false,
         code: Number(),
         message: String(),
+        level: String(),
       },
     }, settings), mergeDeep({}, options))
   }

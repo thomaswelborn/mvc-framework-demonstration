@@ -11,6 +11,8 @@ export default class extends RenderView {
       },
       template: Template,
       uiElements: {
+        header: ':scope > header',
+        main: ':scope > main',
         imageInput: ':scope > main #upload-image-input',
         uploadButton: ':scope > main #upload-image-button',
         uploadImagePreview: ':scope > main #upload-image-preview',
@@ -33,7 +35,7 @@ export default class extends RenderView {
       image.src = event.target.result
       this
         .emit(
-          'input',
+          'image:input',
           {
             file: file,
             image: image,
@@ -47,7 +49,7 @@ export default class extends RenderView {
   onUploadButtonClick(event) {
     return this
       .emit(
-        'click',
+        'uploadButton:click',
         {
           action: event.currentTarget.getAttribute('data-action'),
         },

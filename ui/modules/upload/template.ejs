@@ -10,10 +10,11 @@
       </div>
     </div>
   </div>
+  <% console.log(locals.settings.imageReady) %>
   <% if(locals.settings.imageReady) { %>
     <nav>
       <button type="button" id="upload-image-button" class="button" data-action="upload">Upload</button>
     </div>
+    <div id="upload-image-preview"></div>
   <% } %>
-  <div id="upload-image-preview"></div>
 </main>

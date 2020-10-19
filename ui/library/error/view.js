@@ -1,5 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { RenderView } from 'utilities/scripts/mvc-framework'
+import Template from './template.ejs'
 
 export default class extends RenderView {
   constructor(settings = {}, options = {}) {
@@ -8,31 +9,25 @@ export default class extends RenderView {
       attributes: {
         class: 'error',
       },
-      uiElements: {},
+      template: Template,
+      uiElements: {
+        button: ':scope > .error-content > button',
+      },
       uiElementEvents: {
-        '$element click': 'onElementClick',
+        'button click': 'onButtonClick',
       },
       uiElementCallbacks: {
-        onElementClick: (event) => this.onElementClick(event),
+        onButtonClick: (event) => this.onButtonClick(event),
       },
     }, settings), mergeDeep({}, options))
   }
-  onElementClick(event) {
-    const data = {}
-    const dataHREF = this.element.getAttribute('data-href')
-    const dataAction = this.element.getAttribute('data-action')
-    const dataTarget = this.element.getAttribute('data-target')
-    const dataSecondaryAction = this.element.getAttribute('data-secondary-action')
-    const dataSecondaryTarget = this.element.getAttribute('data-secondary-target')
-    if(dataHREF) data.dataHREF = dataHREF
-    if(dataAction) data.dataAction = dataAction
-    if(dataTarget) data.dataTarget = dataTarget
-    if(dataSecondaryAction) data.dataSecondaryAction = dataSecondaryAction
-    if(dataSecondaryTarget) data.dataSecondaryTarget = dataSecondaryTarget
+  onButtonClick(event) {
     return this
       .emit(
         'click',
-        data,
+        {
+          accept: true,
+        },
         this
       )
   }

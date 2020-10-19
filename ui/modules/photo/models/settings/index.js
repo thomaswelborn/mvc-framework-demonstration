@@ -9,6 +9,7 @@ export default class extends Model {
         noAuth: true,
         redirect: 'account/login',
         id: String(),
+        loading: Boolean(),
       },
     }, settings), mergeDeep({}, options))
   }

@@ -1,9 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { Controller } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-  Library as LibraryModel,
-} from './models'
+import { Settings as SettingsModel } from './models'
 import View from './view'
 
 export default class extends Controller {
@@ -13,15 +10,13 @@ export default class extends Controller {
         settings: new SettingsModel(),
       },
       modelEvents: {
-        'settings set:active': 'onSettingsModelSetActive',
+        'settings set': 'onSettingsModelSet',
       },
       modelCallbacks: {
-        onSettingsModelSetActive: (event, settingsModel) => this.onSettingsModelSetActive(event, settingsModel),
+        onSettingsModelSet: (event, settingsModel) => this.onSettingsModelSet(event, settingsModel),
       },
       views: {
-        view: new View({
-          attributes: options.data.attributes,
-        }),
+        view: new View(),
       },
       viewEvents: {
         'view click': 'onViewClick',
@@ -34,22 +29,34 @@ export default class extends Controller {
   get viewData() { return {
     settings: this.models.settings.parse(),
   } }
-  onSettingsModelSetActive(event, settingsModel) {
-    this.views.view.renderElementAttribute('$element', 'data-active', event.data.active)
+  onSettingsModelSet(event, settingsModel) {
     return this
+      .renderView()
+      .emit(
+        'ready',
+        {},
+        this,
+      )
   }
   onViewClick(event, view) {
     if(event.data.href) window.location.hash = event.data.href
     return this
       .emit(
-        'click',
-        event.data,
+        'accept',
+        {},
         this,
         view,
       )
   }
+  renderView() {
+    this.views.view.render(this.viewData)
+    return this
+  }
   start() {
-    this.views.view.renderTextContent('$element', this.options.data.textContent)
+    return this.renderView()
+  }
+  stop() {
+    this.views.view.autoRemove()
     return this
   }
 }
