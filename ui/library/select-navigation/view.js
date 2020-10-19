@@ -12,7 +12,7 @@ export default class extends RenderView {
       template: Template,
       uiElements: {
         select: ':scope > .form select',
-        navButton: ':scope > nav button',
+        navButton: ':scope > .form button',
       },
       uiElementEvents: {
         'select change': 'onSelectChange',

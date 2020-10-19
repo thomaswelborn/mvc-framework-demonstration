@@ -3,7 +3,9 @@
     "sync": true,
     "endpoint": "/api/index/select-navigation/settings"
   },
-  "attributes": {},
+  "attributes": {
+    "id": "index-select-navigation"
+  },
   "select": {
     "attributes": {},
     "options": [

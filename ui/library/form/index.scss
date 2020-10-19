@@ -1,0 +1,47 @@
+.form {
+  display: flex;
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    select,
+    input,
+    option {
+      line-height: 1.25rem;
+      font: {
+        size: 1.25rem;
+      };
+    }
+    select,
+    input {
+      padding: 0.5rem 1rem;
+    }
+    input {
+      height: 2rem;
+    }
+    button {
+      font: {
+        size: 1rem;
+        family: inherit;
+      }
+      padding: 0.5rem 1rem;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      margin: 0.5rem 0rem;
+      label {
+        margin: 0.5rem 0;
+        font: {
+          size: 1.25rem;
+          family: inherit;
+        }
+      }
+    }
+    .button-group {
+      display: flex;
+      flex-direction: row;
+      margin: 0.5rem 0rem;
+    }
+  }
+}

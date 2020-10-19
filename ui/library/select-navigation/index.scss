@@ -1,8 +1,31 @@
 .select-navigation {
   display: flex;
-  & > .subnavigation {
-    &[data-visible="false"] {
-      display: none;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  .form {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    .form-group {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      .button-group {
+        display: flex;
+        flex: 1;
+        justify-content: flex-end;
+      }
+    }
+    select {
+      width: 10rem;
+    }
+    nav {
+      display: flex;
+      button {
+        width: auto;
+        height: 1.5rem;
+      }
     }
   }
 }

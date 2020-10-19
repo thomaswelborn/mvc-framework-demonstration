@@ -15,17 +15,17 @@
         <% }) %>
       </select>
     </div>
+    <div class="button-group">
+      <% locals.ui.buttons.forEach((button) => { %>
+        <% if(button.associatedOptions.indexOf(locals.settings.selected) !== -1) { %>
+          <button
+            type="button"
+            id="<%= button.attributes.id %>"
+            class="<%= button.attributes.class %>"
+            data-action="<%= button.attributes['data-action'] %>"
+          ><%= button.textContent %></button>
+        <% } %>
+      <% }) %>
+    </div>
   </div>
 </div>
-<nav>
-  <% locals.ui.buttons.forEach((button) => { %>
-    <% if(button.associatedOptions.indexOf(locals.settings.selected) !== -1) { %>
-      <button
-        type="button"
-        class="<%= button.attributes.id %>"
-        class="<%= button.attributes.class %>"
-        data-action="<%= button.attributes['data-action'] %>"
-      ><%= button.textContent %></button>
-    <% } %>
-  <% }) %>
-</nav>
