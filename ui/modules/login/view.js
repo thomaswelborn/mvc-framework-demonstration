@@ -39,9 +39,9 @@ export default class extends RenderView {
         },
         template: ErrorTemplate,
       },
-        validCharacters: {
+      validCharacters: {
         name: 'username',
-        value: new RegExp(/\w*[a-zA-Z0-9_]\w*/),
+        value: new RegExp(/^[a-zA-Z0-1_\-]+$/),
         messages: {
           error: 'Username must contain only alphanumeric characters (no spaces, dashes, underscores, or special characters).',
           success: 'Success.',
@@ -51,6 +51,7 @@ export default class extends RenderView {
     },
   } }
   onSubmitButtonClick(event) {
+    console.log(event.name, event.data)
     this.validateForm()
     return this
   }
@@ -63,6 +64,7 @@ export default class extends RenderView {
     const formValidation = formValidator(this.validators, this.parseForm(), {
       error: ErrorTemplate,
     })
+    console.log(formValidation)
     if(formValidation.totals.error.length) {
       const validationTemplate = Object.values(formValidation.error).reduce((_template, formValidationProperty) => {
         return _template.concat(

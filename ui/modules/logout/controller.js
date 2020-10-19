@@ -28,4 +28,7 @@ export default class extends Controller {
       Channels.channel('Application').request('router').navigate('/account/login')
     }
   }
+  stop() {
+    return this
+  }
 }

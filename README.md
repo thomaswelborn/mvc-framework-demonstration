@@ -1,6 +1,6 @@
 # MVC Framework Demonstration
 
-- Core Dependencies
+- [Core Dependencies](#core-dependencies)
 - [Installation](#installation)
 - [Command Line Interface](#command-line-interface)
 - [Project Architecture](#project-architecture)
@@ -16,15 +16,9 @@
 - [EJS](https://www.npmjs.com/package/node-sass)
 
 ## Installation
-1. Clone [mvc-framework-demonstration](https://github.com/thomaswelborn/mvc-framework-demonstration) to folder system. 
-```
-git clone https://github.com/thomaswelborn/mvc-framework-demonstration.git
-```
+1. Clone or download [mvc-framework-demonstration](https://github.com/thomaswelborn/mvc-framework-demonstration) to folder system. 
 
-2. Navigate to the cloned project folder.  
-```
-cd ./mvc-framework-demonstration
-```
+2. Navigate to the cloned project root folder.  
 
 3. Install `package.json`. 
 ```
@@ -112,18 +106,18 @@ Output folder where document, script, and style files are output and served to a
 
 ## UI Architecture
 ### Module Structure
-Most modules follow a similar structure with a single controller, and one or more models/views/templates/styles associated with the module controller.  
+Most modules follow a similar structure with a single controller and one or more models/views/templates/styles associated with the module controller.  
 ```
 + Module
+  - Controller
   - Models
   - Views
-  - Controller
   - Templates
   - Styles
 ```
 
 ### Router
-The MVC Router is configured for response to window location hash changes, which trigger a module to render inside the application.  
+The MVC Router is configured for response to window location hash changes which trigger associated modules to render inside the application.  
 ```
 Index: `/`
 Login: `/account/login`
@@ -137,8 +131,8 @@ Upload: `/upload`
 ### Router Modules, Library Classes
 ```
 + Application
+  - Toggle Navigation
   + Index
-    - Toggle Navigation
     - Select Navigation
     + Media Item
       - Image

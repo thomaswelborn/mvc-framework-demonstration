@@ -4,25 +4,57 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font: {
+    size: 16px;
+  }
   & > header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
-    height: 35px;
+    height: 3rem;
     z-index: 100;
-    h1 {}
+    h1 {
+      display: flex;
+      align-items: center;
+      font: {
+        size: 1.75rem;
+      }
+      padding: 0.5rem 1rem;
+    }
     .toggle-navigation {
+      position: relative;
       display: flex;
       align-items: flex-end;
       flex-direction: column;
-      width: 200px;
-      .toggle-button {}
+      width: 10rem;
+      background: {
+        color: white;
+      }
+      .toggle-button {
+        width: 3rem;
+        height: 3rem;
+      }
       .subnavigation {
         flex-direction: column;
         position: absolute;
         margin: {
-          top: 20px;
+          top: 3rem;
+        }
+        width: 100%;
+        justify-content: flex-end;
+        button {
+          text-align: right;
+          border: {
+            right: none;
+            left: none;
+            radius: 0;
+          }
+          padding: 0.5rem 1rem;
+          font: {
+            size: 1.25rem;
+            family: inherit;
+          }
         }
       }
     }
@@ -39,13 +71,21 @@
       overflow: hidden;
       & > header {
         display: flex;
-        height: 35px;
+        height: 2rem;
+        padding: 0.5rem 1rem;
+        align-items: center;
+        h2 {
+          font: {
+            size: 1.25rem;
+          }
+        }
       }
       & > main {
         display: flex;
         flex-direction: column;
         flex: 1;
         overflow: hidden;
+        padding: 0.5rem 1rem;
       }
     }
   }
