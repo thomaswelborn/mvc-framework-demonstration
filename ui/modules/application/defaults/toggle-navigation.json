@@ -1,0 +1,152 @@
+{
+  "models": {
+    "ui": {
+      "defaults": {
+        "toggled": false
+      }
+    }
+  },
+  "views": {
+    "view": {
+      "attributes": {
+        "id": "application-toggle-navigation",
+        "class": "navigation toggle-navigation",
+        "data-toggled": false
+      }
+    }
+  },
+  "controllers": {
+    "toggle": {
+      "models": {
+        "ui": {
+          "defaults": {
+            "textContent": "*"
+          }
+        }
+      },
+      "views": {
+        "view": {
+          "attributes": {
+            "id": "application-toggle-navigation-toggle-button",
+            "class": "button toggle-button"
+          }
+        }
+      }
+    },
+    "subnavigation": {
+      "models": {},
+      "views": {
+        "view": {
+          "attributes": {
+            "id": "application-toggle-navigation-subnavigation",
+            "class": "navigation subnavigation"
+          }
+        }
+      },
+      "controllers": {
+        "buttons": [
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": false,
+                  "textContent": "Profile"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "class": "button subnavigation-button",
+                  "data-href": "/account/profile",
+                  "data-target": "_self"
+                }
+              }
+            }
+          },
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": false,
+                  "textContent": "Photos"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "class": "button subnavigation-button",
+                  "data-href": "/photos",
+                  "data-target": "_self"
+                }
+              }
+            }
+          },
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": false,
+                  "textContent": "Upload"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "class": "button subnavigation-button",
+                  "data-href": "/upload",
+                  "data-target": "_self"
+                }
+              }
+            }
+          },
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": false,
+                  "noAuth": true,
+                  "textContent": "Login"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "class": "button subnavigation-button",
+                  "data-href": "/account/login",
+                  "data-target": "_self"
+                }
+              }
+            }
+          },
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": false,
+                  "textContent": "Logout"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "class": "button subnavigation-button",
+                  "data-href": "account/logout",
+                  "data-target": "_self"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

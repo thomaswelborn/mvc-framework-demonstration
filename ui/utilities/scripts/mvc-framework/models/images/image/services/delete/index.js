@@ -5,7 +5,7 @@ export default class extends Service {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       method: 'DELETE',
-      url: `https://api.thecatapi.com/v1/images/${options.settings.get('id')}`,
+      url: `https://api.thecatapi.com/v1/images/${options.ui.get('id')}`,
       headers: {
         'x-api-key': options.user.get('apiKey'),
       },

@@ -1,6 +1,5 @@
 import { mergeDeep } from 'utilities/scripts'
-import { RenderView } from 'utilities/scripts/mvc-framework'
-import Template from './template.ejs'
+import { RenderView } from 'utilities/scripts/mvc-framework/views'
 
 export default class extends RenderView {
   constructor(settings = {}, options = {}) {
@@ -9,11 +8,6 @@ export default class extends RenderView {
       attributes: {
         class: 'navigation',
       },
-      template: Template,
     }, settings), mergeDeep({}, options))
-  }
-  render() {
-    this.element.innerHTML = Template()
-    return this
   }
 }

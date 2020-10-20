@@ -1,0 +1,19 @@
+{
+  "models": {
+    "ui": {
+      "localStorage": {
+        "sync": true,
+        "endpoint": "/api/photos/models/ui"
+      },
+      "defaults": {
+        "auth": true,
+        "noAuth": false,
+        "redirect": "account/login",
+        "loading": false,
+        "order": "ASC",
+        "page": 0,
+        "limit": 9
+      }
+    }
+  }
+}

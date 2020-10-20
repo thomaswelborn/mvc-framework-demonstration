@@ -1,5 +1,4 @@
-import Settings from './settings'
-
+import UI from './ui'
 export {
-  Settings,
+  UI,
 }

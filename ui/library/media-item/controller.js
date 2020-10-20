@@ -15,21 +15,9 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        // ui: settings.models.ui,
-        settings: new SettingsModel({
-          defaults: options.settings,
-        }),
-        navigation: new Model({
-          defaults: settings.models.ui.get('navigation'),
-        }),
-        image: new Model({
-          defaults: settings.models.ui.get('image'),
-        }),
       },
       views: {
-        view: new View({
-          attributes: settings.models.ui.get('attributes'),
-        }),
+        view: new View(options.views.view),
       },
       viewEvents: {
         'view click': 'onViewElementClick',
@@ -38,7 +26,18 @@ export default class extends Controller {
         onViewElementClick: (event, view) => this.onViewElementClick(event, view),
       },
       controllers: {
-        // navigation: NavigationController,
+        image: (options.controllers.image)
+          ? new ImageController({
+            user: settings.models.user,
+          }, options.controllers.image).start()
+          : null,
+        navigation: (options.controllers.navigation)
+          ? new NavigationController({
+            models: {
+              user: settings.models.user
+            },
+          }, options.controllers.navigation).start()
+          : null
       },
       controllerEvents: {
         'navigation click': 'onNavigationControllerClick',
@@ -49,8 +48,8 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   onViewElementClick(event, view) {
-    this.emit(
-      event.name,
+    return this.emit(
+      'click',
       event.data,
       this,
       view,
@@ -63,45 +62,36 @@ export default class extends Controller {
       this,
     )
   }
-  startImageController() {
-    if(this.models.ui.get('image')) {
-      if(this.controllers.image) this.controllers.image.stop()
-      this.controllers.image = new ImageController({
-        models: {
-          user: this.models.user,
-          ui: this.models.image,
-        },
-      }, {}).start()
-      this.resetEvents('controller')
-      console.log(this.controllers.image.views.view.element)
+  renderImageController() {
+    if(this.controllers.image) {
+      this.controllers.image.stop()
       this.views.view
-        .renderElement('$element', 'afterbegin', this.controllers.image.views.view.element)
+        .renderElement(
+          '$element', 
+          'afterbegin', 
+          this.controllers.image.views.view.element
+        )
     }
     return this
   }
-  startNavigationController() {
-    if(this.models.ui.get('navigation')) {
-      if(this.controllers.navigation) this.controllers.navigation.stop()
-      this.controllers.navigation = new NavigationController({
-        models: {
-          user: this.models.user,
-          ui: this.models.navigation,
-        },
-      }).start()
-      this.resetEvents('controller')
-      this.views.view
-        .renderElement('$element', 'beforeend', this.controllers.navigation.views.view.element)
-      console.log(this.controllers.navigation.views.view.element)
+  renderNavigationController() {
+    if(this.controllers.navigation) {
+      this.controllers.navigation.stop()
+      this.views.view.renderElement(
+        '$element', 
+        'beforeend', 
+        this.controllers.navigation.views.view.element,
+      )
     }
     return this
   }
-  startControllers() {
+  render() {
     return this
-      .startImageController()
-      .startNavigationController()
+      .renderImageController()
+      .renderNavigationController()
   }
   start() {
-    return this.startControllers()
+    return this.render()
   }
   stop() {
     this.views.view.autoRemove()

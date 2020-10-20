@@ -1,4 +1,5 @@
 import { mergeDeep } from 'utilities/scripts'
+import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
 import { Images as ImagesModel } from 'utilities/scripts/mvc-framework/models/images'
 import {
   Model,
@@ -7,10 +8,8 @@ import {
 import {
   MediaGrid as MediaGridDefaults,
   SelectNavigation as SelectNavigationDefaults,
+  Options as OptionsDefaults,
 } from './defaults'
-import {
-  Settings as SettingsModel,
-} from './models'
 import View from './view'
 import Channels from 'modules/channels'
 import {
@@ -25,24 +24,21 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        settings: new SettingsModel(),
+        ui: new Model(OptionsDefaults.models.ui),
         mediaGrid: new Model({
           defaults: MediaGridDefaults,
-        }),
-        selectNavigation: new Model({
-          defaults: SelectNavigationDefaults,
         }),
         // images: ImagesModel,
       },
       modelEvents: {
-        'settings set:loading': 'onSettingsModelSetLoading',
+        'ui set:loading': 'onUIModelSetLoading',
         'images set': 'onImagesModelSet',
-        'images get:error': 'onImageSearchModelGetError',
+        'images error': 'onImagesModelError',
       },
       modelCallbacks: {
-        onSettingsModelSetLoading: (event, settingsModel) => this.onSettingsModelSetLoading(event, settingsModel),
+        onUIModelSetLoading: (event, uiModel) => this.onUIModelSetLoading(event, uiModel),
         onImagesModelSet: (event, imagesModel) => this.onImagesModelSet(event, imagesModel),
-        onImageSearchModelGetError: (event, imageSearchModel) => this.onImageSearchModelGetError(event, imageSearchModel),
+        onImagesModelError: (event, imageSearchModel) => this.onImagesModelError(event, imageSearchModel),
       },
       views: {
         view: new View(),
@@ -57,7 +53,6 @@ export default class extends Controller {
         // selectNavigation: SelectNavigation,
         // mediaGrid: MediaGrid,
         loader: new LoaderController(),
-        error: new ErrorController(),
       },
       controllerEvents: {
         'error ready': 'onErrorControllerReady',
@@ -67,7 +62,6 @@ export default class extends Controller {
         'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
-        onErrorControllerReady: (event, errorController) => this.onErrorControllerReady(event, errorController),
         onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onSelectNavigationControllerSelectChange: (event, navigationController) => this.onSelectNavigationControllerSelectChange(event, navigationController),
         onSelectNavigationControllerButtonClick: (event, navigationController) => this.onSelectNavigationControllerButtonClick(event, navigationController),
@@ -76,7 +70,7 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
-    settings: this.models.settings.parse(),
+    settings: this.models.ui.parse(),
   } }
   onViewHeaderNavButtonClick(event, view) {
     switch(event.data.action) {
@@ -86,7 +80,7 @@ export default class extends Controller {
     }
     return this
   }
-  onSettingsModelSetLoading(event, settingsModel) {
+  onUIModelSetLoading(event, uiModel) {
     switch(event.data.value) {
       case true:
         this.controllers.loader.start()
@@ -99,53 +93,59 @@ export default class extends Controller {
     return this
   }
   onImagesModelSet(event, imagesModel) {
-    this.models.settings.set('loading', false)
-    this.startControllers()
+    this.models.ui.set('loading', false)
     return this
+      .startControllers()
+      .renderSelectNavigationController()
+      .renderMediaGridController()
   }
-  onImageSearchModelGetError(event, imageSearchModel) {
-    this.models.settings.set('loading', false)
-    this.controllers.error.models.settings.set(event.data)
+  onImagesModelError(event, imageSearchModel) {
+    this.models.ui.set('loading', false)
+    this.startErrorController(event.data)
     return this
   }
   onSelectNavigationControllerSelectChange(event, navigationController) {
-    this.models.settings.set('order', event.data.value)
+    this.models.ui.set('order', event.data.value)
     return this
   }
   onSelectNavigationControllerButtonClick(event, navigationController) {
     switch(event.data.action) {
       case 'next':
-        // this.models.settings.advancePage(1)
+        // this.models.ui.advancePage(1)
         break
       case 'previous':
-        // this.models.settings.advancePage(-1)
+        // this.models.ui.advancePage(-1)
         break
     }
     return this
   }
   onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
     Channels.channel('Application').request('router').navigate(
-      `/photos/${mediaGridItemController.models.image.get('id')}`
+      `/photos/${mediaGridItemController.controllers.image.models.ui.get('id')}`
     )
-    return this
-  }
-  onErrorControllerReady(event, errorController) {
-    this.views.view.renderElement('main', 'afterbegin', this.controllers.error.views.view.element)
     return this
   }
   onErrorControllerAccept(event, errorController) {
     this.controllers.error.stop()
-    Channels.channel('Application').request('router').navigate('/photos')
+    Channels.channel('Application').request('router').navigate('').navigate('/photos')
     return this
   }
   getImagesModel() {
-    this.models.settings.set('loading', true)
+    this.models.ui.set('loading', true)
     this.models.images.services.get.fetch()
+    return this
+  }
+  renderSelectNavigationController() {
+    this.views.view.renderElement('main', 'afterbegin', this.controllers.selectNavigation.views.view.element)
+    return this
+  }
+  renderMediaGridController() {
+    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaGrid.views.view.element)
     return this
   }
   startImagesModel() {
     this.models.images = new ImagesModel({}, {
-      settings: this.models.settings,
+      ui: this.models.ui,
       user: this.models.user,
     })
     return this
@@ -157,30 +157,32 @@ export default class extends Controller {
     this.controllers.selectNavigation = new SelectNavigationController({
       models: {
         user: this.models.user,
-        ui: this.models.selectNavigation,
       },
-    }).start()
+    }, SelectNavigationDefaults).start()
     this.resetEvents('controller')
-    this.views.view.renderElement('main', 'afterbegin', this.controllers.selectNavigation.views.view.element)
     return this
   }
   startMediaGridController() {
     if(this.controllers.mediaGrid) this.controllers.mediaGrid.stop()
-    this.models.mediaGrid.set('images', this.models.images.parse())
-    console.log('startMediaGridController')
     this.controllers.mediaGrid = new MediaGridController({
       models: {
         user: this.models.user,
-        ui: this.models.mediaGrid,
+        images: this.models.images,
       },
-    }).start()
-    console.log(this.controllers.mediaGrid.views.view.element)
+    }, MediaGridDefaults).start()
     this.resetEvents('controller')
-    this.views.view.renderElement('main', 'beforeEnd', this.controllers.mediaGrid.views.view.element)
     return this
   }
-  renderView() {
-    this.views.view.render()
+  startErrorController(data) {
+    this.controllers.error = new ErrorController({}, {
+      models: {
+        ui: {
+          defaults: data,
+        },
+      },
+    }).start()
+    this.resetEvents('controller')
+    this.views.view.renderElement('$element', 'afterbegin', this.controllers.error.views.view.element)
     return this
   }
   startControllers() {
@@ -188,21 +190,30 @@ export default class extends Controller {
       .startSelectNavigationController()
       .startMediaGridController()
   }
+  renderView() {
+    this.views.view.render()
+    return this
+  }
   start() {
-    console.log('start')
-    if(
-      (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
-      (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
-    ) {
+    if(isAuthenticated(this)) {
       this
         .renderView()
         .startImagesModel()
     } else {
-      Channels.channel('Application').request('router').navigate('/')
+      Channels.channel('Application').request('router')
+        .navigate(this.models.ui.get('redirect'))
     }
   }
   stop() {
     this.views.view.autoRemove()
+    return this
+  }
+  advancePage(pages) {
+    let currentPage = this.models.ui.get('page')
+    let nextPage = (currentPage + pages < 0)
+    ? 0
+    : currentPage + pages
+    this.models.ui.set('page', nextPage)
     return this
   }
 }

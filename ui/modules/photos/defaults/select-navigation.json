@@ -1,52 +1,116 @@
 {
-  "localStorage": {
-    "sync": true,
-    "endpoint": "/api/photos/select-navigation/settings"
-  },
-  "attributes": {},
-  "select": {
-    "attributes": {},
-    "options": [
-      {
-        "attributes": {
-          "id": "index-select-navigation-ascending",
-          "value": "ASC"
-        },
-        "textContent": "Ascending"
+  "models": {
+    "ui": {
+      "localStorage": {
+        "sync": true,
+        "endpoint": "/api/photos/select-navigation/settings"
       },
-      {
-        "attributes": {
-          "id": "index-select-navigation-descending",
-          "value": "DESC"
-        },
-        "textContent": "Descending"
-      }
-    ]
-  },
-  "buttons": [
-    {
-      "textContent": "PREV",
-      "associatedOptions": [
-        "ASC",
-        "DESC"
-      ],
-      "attributes": {
-        "id": "index-mediaItem",
-        "class": "button",
-        "data-action": "previous"
-      }
-    },
-    {
-      "textContent": "NEXT",
-      "associatedOptions": [
-        "ASC",
-        "DESC"
-      ],
-      "attributes": {
-        "id": "index-mediaItem",
-        "class": "button",
-        "data-action": "next"
+      "defaults": {
+        "selectedOption": "ASC"
       }
     }
-  ]
+  },
+  "views": {
+    "view": {
+      "attributes": {
+        "id": "photos-select-navigation"
+      },
+      "children": [
+        {
+          "tag": {
+            "name": "select",
+            "close": true
+          },
+          "attributes": {
+            "class": "select"
+          },
+          "children": [
+            {
+              "tag": {
+                "name": "option",
+                "close": true
+              },
+              "attributes": {
+                "id": "photos-select-navigation-option-ascending",
+                "value": "ASC"
+              },
+              "innerText": "Ascending"
+              },
+            {
+              "tag": {
+                "name": "option",
+                "close": true
+              },
+              "attributes": {
+                "id": "photos-select-navigation-option-descending",
+                "value": "DESC"
+              },
+              "innerText": "Descending"
+            }
+          ]
+        },
+        {
+          "tag": {
+            "name": "nav",
+            "close": true
+          },
+          "attributes": {
+            "class": "subnavigation"
+          }
+        }
+      ]
+    }
+  },
+  "controllers": {
+    "buttons": [
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "auth": false,
+              "noAuth": true,
+              "textContent": "PREV",
+              "associatedOptions": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "id": "photos-select-navigation-button-previous",
+              "class": "button",
+              "data-action": "previous"
+            }
+          }
+        }
+      },
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "auth": false,
+              "noAuth": true,
+              "textContent": "NEXT",
+              "associatedOptions": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "id": "photos-select-navigation-button-next",
+              "class": "button",
+              "data-action": "next"
+            }
+          }
+        }
+      }
+    ]
+  }
 }

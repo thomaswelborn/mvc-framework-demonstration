@@ -1,28 +1,57 @@
 {
-  "attributes": {
-    "id": "photo-navigation",
-    "class": "navigation"
+  "models": {
+    "ui": {}
   },
-  "buttons": [
-    {
-      "auth": true,
-      "noAuth": false,
-      "textContent": "DELETE",
+  "views": {
+    "view": {
       "attributes": {
-        "id": "photo-navigation-delete",
-        "class": "button",
-        "data-action": "delete"
-      }
-    },
-    {
-      "auth": true,
-      "noAuth": false,
-      "textContent": "CLOSE",
-      "attributes": {
-        "id": "photo-navigation-close",
-        "class": "button",
-        "data-action": "close"
+        "id": "photo-navigation",
+        "class": "navigation"
       }
     }
-  ]
+  },
+  "controllers": {
+    "buttons": [
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "auth": true,
+              "noAuth": false,
+              "textContent": "DELETE"
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "id": "photo-navigation-delete",
+              "class": "button",
+              "data-action": "delete"
+            }
+          }
+        }
+      },
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "auth": true,
+              "noAuth": false,
+              "textContent": "CLOSE"
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "id": "photo-navigation-close",
+              "class": "button",
+              "data-action": "close"
+            }
+          }
+        }
+      }
+    ]
+  }
 }

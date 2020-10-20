@@ -17,7 +17,13 @@ module.exports = {
   },
   plugins: [
     rollup.plugins.nodeResolve(),
-    rollup.plugins.ejs(),
+    rollup.plugins.ejs({
+      compilerOptions: {
+        client: true,
+        localsName: 'data',
+        rmWhitespace: true,
+      }
+    }),
     rollup.plugins.commonJS(),
     rollup.plugins.json(),
     rollup.plugins.babel({

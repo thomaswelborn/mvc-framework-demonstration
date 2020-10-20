@@ -9,7 +9,7 @@ export default class extends Model {
       services: {
         get: new GET({}, {
           user: options.user,
-          settings: options.settings,
+          ui: options.ui,
         }),
         defaults: SearchResultsDefaults,
       },
@@ -23,12 +23,12 @@ export default class extends Model {
   }
   get currentImage() { return this.get('images')[0] }
   onGetServiceReady(event, getService) {
-    console.log(getService.response)
     switch(getService.response.status) {
       case 400:
       case 402:
+      case 404:
         this.emit(
-          'get:error',
+          'error',
           event.data,
           this,
           getService,

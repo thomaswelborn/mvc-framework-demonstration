@@ -1,26 +1,19 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
 import {
-  Settings as SettingsModel,
-} from './models'
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
 import View from './view'
 
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        settings: new SettingsModel(),
-      },
-      modelEvents: {
-        'settings set:active': 'onSettingsModelSetActive',
-      },
-      modelCallbacks: {
-        onSettingsModelSetActive: (event, settingsModel) => this.onSettingsModelSetActive(event, settingsModel),
+        // user: settings.models.user,
+        ui: new Model(options.models.ui),
       },
       views: {
-        view: new View({
-          attributes: options.data.attributes,
-        }),
+        view: new View(options.views.view),
       },
       viewEvents: {
         'view click': 'onViewClick',
@@ -31,12 +24,9 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
-    settings: this.models.settings.parse(),
+    user: this.models.user.parse(),
+    ui: this.models.ui.parse(),
   } }
-  onSettingsModelSetActive(event, settingsModel) {
-    this.views.view.renderElementAttribute('$element', 'data-active', event.data.active)
-    return this
-  }
   onViewClick(event, view) {
     if(event.data.href) window.location.hash = event.data.href
     return this
@@ -47,8 +37,15 @@ export default class extends Controller {
         view,
       )
   }
+  renderView() {
+    this.views.view.render(this.viewData)
+    return this
+  }
   start() {
-    this.views.view.renderTextContent('$element', this.options.data.textContent)
+    return this.renderView()
+  }
+  stop() {
+    this.views.view.autoRemove()
     return this
   }
 }

@@ -43,7 +43,6 @@ export default class extends Model {
         )
         break
     }
-    
     return this
   }
 }

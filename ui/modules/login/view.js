@@ -1,8 +1,8 @@
 import {
   mergeDeep,
-  formValidator,
 } from 'utilities/scripts'
-import { RenderView } from 'utilities/scripts/mvc-framework'
+import { formValidator } from 'utilities/scripts/mvc-framework/methods'
+import { RenderView } from 'utilities/scripts/mvc-framework/views'
 import Template from './templates/template.ejs'
 import ErrorTemplate from './templates/validator.ejs'
 
@@ -51,7 +51,6 @@ export default class extends RenderView {
     },
   } }
   onSubmitButtonClick(event) {
-    console.log(event.name, event.data)
     this.validateForm()
     return this
   }
@@ -64,7 +63,6 @@ export default class extends RenderView {
     const formValidation = formValidator(this.validators, this.parseForm(), {
       error: ErrorTemplate,
     })
-    console.log(formValidation)
     if(formValidation.totals.error.length) {
       const validationTemplate = Object.values(formValidation.error).reduce((_template, formValidationProperty) => {
         return _template.concat(

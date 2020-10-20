@@ -1,7 +1,9 @@
 import mergeDeep from './merge-deep'
-import formValidator from './form-validator'
+import convertDashToCamel from './convert-dash-to-camel'
+import serializeElementAttributes from './serialize-element-attributes'
 
 export {
   mergeDeep,
-  formValidator,
+  convertDashToCamel,
+  serializeElementAttributes,
 }

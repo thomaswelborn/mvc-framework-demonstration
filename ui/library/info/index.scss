@@ -1,0 +1,37 @@
+.info {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  width: 100%;
+  background: {
+    color: white;
+  }
+  .info-image-url {
+    display: flex;
+    flex-direction: column;
+    aside {
+      display: flex;
+      input {
+        display: flex;
+        flex: 1;
+        width: 100%;
+        margin: {
+          right: 0.5rem;
+        }
+      }
+      button {
+        display: flex;
+        margin: {
+          left: 0.5rem;
+        }
+      }
+    }
+  }
+  button {
+    line-height: 1rem;
+    padding: 0.5rem;
+    font: {
+      size: 1rem;
+    }
+  }
+}

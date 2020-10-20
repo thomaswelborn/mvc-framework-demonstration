@@ -10,13 +10,13 @@ export default class extends Service {
         'x-api-key': options.user.get('apiKey'),
       },
       parameters: {
-        'order': options.settings.get('order'),
-        'page': options.settings.get('page'),
+        'order': options.ui.get('order'),
+        'page': options.ui.get('page'),
       },
     }, settings), mergeDeep({}, options))
     this.options.user
       .on('set:apiKey', (event) => this.headers['x-api-key'] = event.data.value)
-    this.options.settings
+    this.options.ui
       .on('set:order', (event) => {
         this.parameters.order = event.data.value
         this.fetch()

@@ -1,7 +1,7 @@
 .toggle-navigation {
   display: flex;
-  & > .subnavigation {
-    &[data-visible="false"] {
+  &[data-toggled="false"] {
+    & > .subnavigation {
       display: none;
     }
   }

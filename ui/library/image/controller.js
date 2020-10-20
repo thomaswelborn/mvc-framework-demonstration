@@ -1,14 +1,15 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
-import { Settings as SettingsModel } from './models'
+import {
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
 import View from './view'
 
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        // ui: settings.models.ui,
-        settings: new SettingsModel(),
+        ui: new Model(options.models.ui),
       },
       views: {
         view: new View(),
@@ -16,7 +17,6 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
-    settings: this.models.settings.parse(),
     ui: this.models.ui.parse(),
   } }
   renderView() {

@@ -9,7 +9,7 @@ export default class extends Model {
       services: {
         get: new GET({}, {
           user: options.user,
-          settings: options.settings,
+          ui: options.ui,
         }),
       },
       serviceEvents: {
@@ -23,14 +23,26 @@ export default class extends Model {
   }
   get currentImage() { return this.get('images')[0] }
   onGetServiceReady(event, getService) {
-    this.set({
-      details: {
-        count: event.data.length,
-        total: Number(this.services.get.response.headers.get('pagination-count')),
-        page: Number(this.services.get.response.headers.get('pagination-page')),
-      },
-      images: event.data,
-    })
+    switch(getService.response.status) {
+      case 200: 
+      default: 
+        this.set({
+          details: {
+            count: event.data.length,
+            total: Number(this.services.get.response.headers.get('pagination-count')),
+            page: Number(this.services.get.response.headers.get('pagination-page')),
+          },
+          images: event.data,
+        })
+        break
+      case 400: 
+        this.emit(
+          'error',
+          event.data,
+          this,
+        )
+        break
+    }
     return this
   }
 }

@@ -4,7 +4,6 @@ import {
   Controller,
 } from 'mvc-framework/source/MVC'
 import { MediaItem as MediaItemDefaults } from './defaults'
-import { Settings as SettingsModel } from './models'
 import View from './view'
 import Channels from 'modules/channels'
 import MediaItemController from '../media-item'
@@ -15,18 +14,11 @@ export default class extends Controller {
       models: {
         // user: settings.models.user,
         // images: settings.models.images,
-        // ui: settings.models.ui,
-        settings: new SettingsModel(),
-        images: new Model({
-          defaults: settings.models.ui.get('images'),
-        }),
       },
       views: {
         view: new View(),
       },
-      controllers: {
-        // `media-item-${index}`: MediaItemController,
-      },
+      controllers: {},
       controllerEvents: {
         '[^media-item-] click': 'onMediaItemControllerClick',
       },
@@ -34,7 +26,6 @@ export default class extends Controller {
         onMediaItemControllerClick: (event, mediaItemController) => this.onMediaItemControllerClick(event, mediaItemController),
       },
     }, settings), mergeDeep({}, options))
-    console.log(this.models)
   }
   get mediaItemControllerNamePrefix() { return 'media-item-' }
   mediaItemControllerName(index) { return `${this.mediaItemControllerNamePrefix}${index}`}
@@ -48,36 +39,44 @@ export default class extends Controller {
       )
   }
   stopMediaItemControllers() {
-     Object.values(this.controllers).forEach((controller) => controller.stop())
-     this.controllers = {}
+     this.controllers = Object.entries(this.controllers).reduce((controllers, [controllerName, controller]) => {
+       if(controllerName.match(new RegExp(`/${this.mediaItemControllerNamePrefix}/`))) {
+         controller.stop()
+       } else {
+         controllers[controllerName] = controller
+       }
+       return controllers
+     }, {})
     return this
   }
   startMediaItemControllers() {
     this.stopMediaItemControllers()
-    this.views.view.empty('$element')
     this.models.images.get('images').forEach((image, index) => {
-      const mediaItemName = this.mediaItemControllerName(index)
+      const mediaItemName = `${this.mediaItemControllerNamePrefix}-${index}`
       this.controllers[mediaItemName] = new MediaItemController({
         models: {
           user: this.models.user,
-          ui: new Model({
-            defaults: mergeDeep({
-              image: image,
-            }, MediaItemDefaults),
-          })
-        },
-      }).start()
+        }
+      }, mergeDeep(MediaItemDefaults, {
+        controllers: {
+          image: {
+            models: {
+              ui: {
+                defaults: image,
+              }
+            },
+          },
+        }
+      })).start()
       this.resetEvents('controller')
       this.views.view.renderElement('$element', 'beforeend', this.controllers[mediaItemName].views.view.element)
     })
-    console.log('startMediaItemControllers')
     return this
   }
   startControllers() {
     return this.startMediaItemControllers()
   }
   start() {
-    console.log('start')
     this.startControllers()
     return this
   }

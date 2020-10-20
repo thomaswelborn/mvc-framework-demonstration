@@ -14,7 +14,12 @@ module.exports = {
   output: <%- JSON.stringify(data.output) %>,
   plugins: [
     rollup.plugins.nodeResolve(),
-    rollup.plugins.ejs(),
+    rollup.plugins.ejs({
+      compilerOptions: {
+        client: true,
+        localsName: 'data',
+      }
+    }),
     rollup.plugins.commonJS(),
     rollup.plugins.json(),
     rollup.plugins.babel({

@@ -1,6 +1,8 @@
-import { mergeDeep } from 'utilities/scripts'
-import { RenderView } from 'utilities/scripts/mvc-framework'
-import Template from './template.ejs'
+import {
+  mergeDeep,
+  serializeElementAttributes,
+} from 'utilities/scripts'
+import { RenderView } from 'utilities/scripts/mvc-framework/views'
 
 export default class extends RenderView {
   constructor(settings = {}, options = {}) {
@@ -9,19 +11,18 @@ export default class extends RenderView {
       attributes: {
         class: 'select-navigation',
       },
-      template: Template,
       uiElements: {
-        select: ':scope > .form select',
-        navButton: ':scope > .form button',
+        select: ':scope > select',
+        subnavigation: ':scope > .subnavigation',
+        subnavigationButton: ':scope > .subnavigation > .button',
       },
       uiElementEvents: {
         'select change': 'onSelectChange',
-        'navButton click': 'onNavButtonClick',
+        'subnavigationButton click': 'onSubnavigationButtonClick',
       },
-
       uiElementCallbacks: {
         onSelectChange: (event) => this.onSelectChange(event),
-        onNavButtonClick: (event) => this.onNavButtonClick(event),
+        onSubnavigationButtonClick: (event) => this.onSubnavigationButtonClick(event),
       },
     }, settings), mergeDeep({}, options))
   }
@@ -35,14 +36,17 @@ export default class extends RenderView {
         this,
       )
   }
-  onNavButtonClick(event) {
+  onSubnavigationButtonClick(event) {
     return this
       .emit(
-        'button:click',
-        {
-          action: event.currentTarget.getAttribute('data-action'),
-        },
-        this,
+        'subnavigationButton:click',
+        serializeElementAttributes(event.currentTarget.attributes)
       )
+  }
+  selectOption(value) {
+    this.ui.select
+      .querySelector(`:scope > option[value=${value}]`)
+      .setAttribute('selected', true)
+    return this
   }
 }

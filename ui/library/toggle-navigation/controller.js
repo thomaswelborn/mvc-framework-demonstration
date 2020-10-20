@@ -3,9 +3,6 @@ import {
   Model,
   Controller,
 } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-} from './models'
 import ButtonController from '../button'
 import NavigationController from '../navigation'
 import View from './view'
@@ -15,25 +12,28 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        // ui: settings.models.ui,
-        toggle: new Model({
-          defaults: settings.models.ui.get('toggle'),
-        }),
-        subnavigation: new Model({
-          defaults: settings.models.ui.get('subnavigation'),
-        }),
-        settings: new SettingsModel(),
+        ui: new Model(options.models.ui),
       },
-      modelEvents: {},
-      modelCallbacks: {},
+      modelEvents: {
+        'ui set:toggled': 'onUIModelSetToggled',
+      },
+      modelCallbacks: {
+        onUIModelSetToggled: (event, uiModel) => this.onUIModelSetToggled(event, uiModel),
+      },
       views: {
-        view: new View({
-          attributes: settings.models.ui.get('attributes'),
-        }),
+        view: new View(options.views.view),
       },
       controllers: {
-        // toggleButton: ButtonController,
-        // subnavigation: NavigationController,
+        toggleButton: new ButtonController({
+          models: {
+            user: settings.models.user,
+          },
+        }, options.controllers.toggle).start(),
+        subnavigation: new NavigationController({
+          models: {
+            user: settings.models.user,
+          },
+        }, options.controllers.subnavigation).start(),
       },
       controllerEvents: {
         'toggleButton click': 'onToggleButtonControllerClick',
@@ -45,13 +45,12 @@ export default class extends Controller {
       },
     }, settings), mergeDeep({}, options))
   }
+  onUIModelSetToggled(event, uiModel) {
+    this.views.view.renderElementAttribute('$element', 'data-toggled', event.data.value)
+    return this
+  }
   onToggleButtonControllerClick(event, toggleButtonController, toggleButtonView) {
-    if(event.data.action === 'toggle-visible') {
-      this.controllers.subnavigation.models.settings.set(
-        'visible', 
-        !this.controllers.subnavigation.models.settings.get('visible')
-      )
-    }
+    this.models.ui.set('toggled', !this.models.ui.get('toggled'))
   }
   onSubnavigationControllerClick(event, subnavigationController) {
     return this
@@ -62,31 +61,15 @@ export default class extends Controller {
         subnavigationController,
       )
   }
-  startToggleButtonController() {
-    this.controllers.toggleButton = new ButtonController({
-      models: {
-        user: this.settings.models.user,
-      },
-    }, {
-      data: this.models.toggle.parse(),
-    }).start()
+  renderToggleButton() {
     this.views.view.renderElement(
       '$element', 
       'afterbegin', 
       this.controllers.toggleButton.views.view.element
     )
-    this.resetEvents('controller')
     return this
   }
-  startSubnavigationController() {
-    this.controllers.subnavigation = new NavigationController({
-      models: {
-        user: this.settings.models.user,
-        ui: this.models.subnavigation,
-      },
-    }, {
-    }).start()
-    this.resetEvents('controller')
+  renderSubnavigation() {
     this.views.view.renderElement(
       '$element', 
       'beforeend', 
@@ -96,8 +79,11 @@ export default class extends Controller {
   }
   start() {
     return this
-      .startToggleButtonController()
-      .startSubnavigationController()
-      .resetEvents('controller')
+      .renderToggleButton()
+      .renderSubnavigation()
+  }
+  stop() {
+    this.views.view.autoRemove()
+    return this
   }
 }

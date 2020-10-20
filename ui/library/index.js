@@ -7,6 +7,7 @@ import ToggleNavigation from './toggle-navigation'
 import SelectNavigation from './select-navigation'
 import Loader from './loader'
 import Error from './error'
+import Info from './info'
 
 export {
   Button,
@@ -18,4 +19,5 @@ export {
   SelectNavigation,
   Loader,
   Error,
+  Info,
 }

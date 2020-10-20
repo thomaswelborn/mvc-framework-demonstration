@@ -12,11 +12,11 @@ export default class extends Model {
       services: {
         get: new GET({}, {
           user: options.user,
-          settings: options.settings,
+          ui: options.ui,
         }),
         delete: new DELETE({}, {
           user: options.user,
-          settings: options.settings,
+          ui: options.ui,
         }),
       },
       serviceEvents: {
@@ -31,10 +31,10 @@ export default class extends Model {
     }, settings), mergeDeep({}, options))
   }
   onGetServiceReady(event, getService) {
-    console.log(getService.response)
     switch(getService.response.status) {
       case 400:
       case 402:
+      case 404:
         this.emit(
           'get:error',
           event.data,
@@ -49,7 +49,6 @@ export default class extends Model {
     return this
   }
   onDeleteServiceReady(event, deleteService) {
-    console.log(deleteService.response)
     switch(deleteService.response.status) {
       case 204:
         this.emit(

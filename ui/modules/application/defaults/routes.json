@@ -1,0 +1,30 @@
+{
+  "/": {
+    "name": "Index",
+    "callback": "loadModule"
+  },
+  "/account/login": {
+    "name": "Login",
+    "callback": "loadModule"
+  },
+  "/account/logout": {
+    "name": "Logout",
+    "callback": "loadModule"
+  },
+  "/account/profile": {
+    "name": "Profile",
+    "callback": "loadModule"
+  },
+  "/photos": {
+    "name": "Photos",
+    "callback": "loadModule"
+  },
+  "/photos/:photo": {
+    "name": "Photo",
+    "callback": "loadModule"
+  },
+  "/upload": {
+    "name": "Upload",
+    "callback": "loadModule"
+  }
+}

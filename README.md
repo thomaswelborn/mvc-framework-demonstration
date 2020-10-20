@@ -5,6 +5,10 @@
 - [Command Line Interface](#command-line-interface)
 - [Project Architecture](#project-architecture)
 
+## Notes
+**Development In Progress**  
+I am currently contributing to this project. Follow installation instructions below.  
+
 ## Core Dependencies
 ### Production
 - [MVC Framework](https://gitlab.com/thomas.welborn/mvc-framework)

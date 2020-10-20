@@ -1,18 +1,47 @@
 {
-  "attributes": {},
-  "navigation": {
-    "attributes": {},
-    "buttons": [
-      {
-        "auth": true,
-        "noAuth": true,
-        "textContent": "INFO",
-        "attributes": {
-          "id": "index-navigation-info",
-          "class": "button",
-          "data-action": "info"
-        }
+  "models": {},
+  "views": {
+    "view": {
+      "attributes": {
+        "id": "index-media-item",
+        "class": "media-item"
       }
-    ]
+    }
+  },
+  "controllers": {
+    "navigation": {
+      "models": {},
+      "views": {
+        "view": {
+          "attributes": {
+            "id": "index-media-item-navigation"
+          }
+        }
+      },
+      "controllers": {
+        "buttons": [
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": true,
+                  "textContent": "INFO"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "id": "index-media-item-navigation-info-button",
+                  "class": "button",
+                  "data-action": "info"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
   }
 }

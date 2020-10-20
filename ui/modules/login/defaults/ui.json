@@ -1,0 +1,7 @@
+{
+  "auth": false,
+  "noAuth": true,
+  "redirect": "/account/login",
+  "username": "",
+  "apiKey": ""
+}

@@ -1,6 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
-import { Settings as SettingsModel } from './models'
+import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
+import {
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
+import { Options as OptionsDefaults } from './defaults'
 import View from './view'
 import Channels from 'modules/channels'
 
@@ -8,8 +12,8 @@ export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        settings: new SettingsModel(),
         // user: setings.models.user,
+        ui: new Model(OptionsDefaults.models.ui),
       },
       views: {
         view: new View(),
@@ -18,16 +22,13 @@ export default class extends Controller {
   }
   get viewData() { return {
     user: this.models.user.parse(),
-    settings: this.models.settings.parse(),
+    ui: this.models.ui.parse(),
   } }
   start() {
-    if(
-      (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
-      (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
-    ) {
+    if(isAuthenticated(this)) {
       this.views.view.render(this.viewData)
     } else {
-      Channels.channel('Application').request('router').navigate('/account/login')
+      Channels.channel('Application').request('router').navigate(this.models.ui.get('redirect'))
     }
     return this
   }

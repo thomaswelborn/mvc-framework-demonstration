@@ -1,0 +1,18 @@
+<<%= data.tag.name %>
+<% if(data.attributes) { %>
+  <% Object.entries(data.attributes)
+      .forEach(([attributeName, attributeValue]) => { %>
+    <%= attributeName %>="<%= attributeValue%>"
+  <% }) %>
+<% } %>
+>
+<% if(data.innerText) { %>
+  <%= data.innerText %>
+<% } else if(data.children) { %>
+  <% if(data.children) { %>
+    <%- include('../elements/elements', data.children) %>
+  <% } %>
+<% } %>
+<% if(data.tag.close) { %>
+  </<%= data.tag.name %>>
+<% } %>

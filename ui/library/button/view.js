@@ -1,5 +1,9 @@
-import { mergeDeep } from 'utilities/scripts'
-import { RenderView } from 'utilities/scripts/mvc-framework'
+import {
+  mergeDeep,
+  serializeElementAttributes,
+} from 'utilities/scripts'
+import { RenderView } from 'utilities/scripts/mvc-framework/views'
+import Template from './template.ejs'
 
 export default class extends RenderView {
   constructor(settings = {}, options = {}) {
@@ -15,16 +19,11 @@ export default class extends RenderView {
       uiElementCallbacks: {
         onElementClick: (event) => this.onElementClick(event),
       },
+      template: Template,
     }, settings), mergeDeep({}, options))
   }
   onElementClick(event) {
-    const data = {
-      href: this.element.getAttribute('data-href'),
-      action: this.element.getAttribute('data-action'),
-      target: this.element.getAttribute('data-target'),
-      secondaryAction: this.element.getAttribute('data-secondary-action'),
-      secondaryTarget: this.element.getAttribute('data-secondary-target'),
-    }
+    const data = serializeElementAttributes(event.currentTarget.attributes)
     return this
       .emit(
         'click',

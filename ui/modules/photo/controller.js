@@ -1,15 +1,14 @@
 import { mergeDeep } from 'utilities/scripts'
+import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
 import { Image as ImageModel } from 'utilities/scripts/mvc-framework/models/images'
 import {
-  Controller,
   Model,
+  Controller,
 } from 'mvc-framework/source/MVC'
-import {
-  Settings as SettingsModel,
-} from './models'
 import {
   Navigation as NavigationDefaults,
   MediaItem as MediaItemDefaults,
+  Options as OptionsDefaults,
 } from './defaults'
 import View from './view'
 import {
@@ -17,6 +16,7 @@ import {
   MediaItem as MediaItemController,
   Loader as LoaderController,
   Error as ErrorController,
+  Info as InfoController,
 } from 'library'
 import Channels from 'modules/channels'
 
@@ -25,28 +25,27 @@ export default class extends Controller {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        settings: new SettingsModel({
-          defaults: {
-            id: options.route.location.hash.fragments[options.route.location.hash.fragments.length - 1]
+        ui: new Model(mergeDeep(
+          OptionsDefaults.models.ui,
+          {
+            defaults: {
+              id: options.route.location.hash.fragments[options.route.location.hash.fragments.length - 1]
+            },
           },
-        }),
-        navigation: new Model({
-          defaults: NavigationDefaults,
-        }),
-        mediaItem: new Model({
-          defaults: MediaItemDefaults,
-        }),
+        )),
         // image: ImageModel,
         // imageDelete: ImageDeleteModel,
       },
       modelEvents: {
-        'settings set:loading': 'onSettingsModelSetLoading',
+        'ui set:loading': 'onUIModelSetLoading',
+        'ui set:infoSelected': 'onUIModelSetInfoSelected',
         'image set': 'onImageModelSet',
         'image get:error': 'onImageModelGETError',
         'image delete:success': 'onImageModelDELETESuccess',
       },
       modelCallbacks: {
-        onSettingsModelSetLoading: (event, settingsModel) => this.onSettingsModelSetLoading(event, settingsModel),
+        onUIModelSetLoading: (event, uiModel) => this.onUIModelSetLoading(event, uiModel),
+        onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
         onImageModelSet: (event, imageModel) => this.onImageModelSet(event, imageModel),
         onImageModelGETError: (event, imageModel) => this.onImageModelGETError(event, imageModel),
         onImageModelDELETESuccess: (event, imageModel) => this.onImageModelDELETESuccess(event, imageModel),
@@ -56,26 +55,28 @@ export default class extends Controller {
       },
       controllers: {
         // mediaItem: MediaItemController,
-        // navigation: NavigatyionController,
+        // navigation: NavigationController,
+        navigation: new NavigationController({
+          models: {
+            user: settings.models.user,
+          }
+        }, NavigationDefaults).start(),
         loader: new LoaderController(),
-        error: new ErrorController(),
+        info: new InfoController(),
       },
       controllerEvents: {
-        'error ready': 'onErrorControllerReady',
         'error accept': 'onErrorControllerAccept',
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
         'navigation click': 'onNavigationClick',
       },
       controllerCallbacks: {
-        onErrorControllerReady: (event, errorController) => this.onErrorControllerReady(event, errorController),
         onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
         onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
     }, settings), mergeDeep({}, options))
-    
   }
-  onSettingsModelSetLoading(event, settingsModel) {
+  onUIModelSetLoading(event, uiModel) {
     switch(event.data.value) {
       case true:
         this.controllers.loader.start()
@@ -87,21 +88,31 @@ export default class extends Controller {
     }
     return this
   }
+  onUIModelSetInfoSelected(event, uiModel) {
+    switch(event.data.value) {
+      case true:
+        this.startInfoController()
+        this.controllers.mediaItem.controllers.navigation
+        break
+      case false:
+        this.stopInfoController()
+        break
+    }
+    return this
+  }
   onImageModelSet(event, imageModel) {
-    this.models.settings.set('loading', false)
-    return this.startControllers()
+    this.models.ui.set('loading', false)
+    return this
+      .startMediaItemController()
+      .renderMediaItemController()
   }
   onImageModelGETError(event, imageModel, getService) {
-    this.models.settings.set('loading', false)
-    this.controllers.error.models.settings.set(event.data)
+    this.models.ui.set('loading', false)
+    this.startErrorController(event.data)
     return this
   }
   onImageModelDELETESuccess(event, imageModel, deleteService) {
     Channels.channel('Application').request('router').navigate('/photos')
-    return this
-  }
-  onErrorControllerReady(event, errorController) {
-    this.views.view.renderElement('main', 'afterbegin', this.controllers.error.views.view.element)
     return this
   }
   onErrorControllerAccept(event, errorController) {
@@ -115,6 +126,7 @@ export default class extends Controller {
         this.getImageModel()
         break
       case 'info':
+        this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
         break
     }
     return this
@@ -131,7 +143,7 @@ export default class extends Controller {
     return this
   }
   getImageModel() {
-    this.models.settings.set('loading', true)
+    this.models.ui.set('loading', true)
     this.models.image.services.get.fetch()
     return this
   }
@@ -146,56 +158,78 @@ export default class extends Controller {
   startImageModel() {
     this.models.image = new ImageModel({}, {
       user: this.models.user,
-      settings: this.models.settings,
+      ui: this.models.ui,
     })
     return this
       .resetEvents('model')
       .getImageModel()
   }
-  startNavigationController() {
-    if(this.controllers.navigation) this.controllers.navigation.stop()
-    this.controllers.navigation = new NavigationController({
+  renderNavigationController() {
+    this.views.view.renderElement('main', 'beforeend', this.controllers.navigation.views.view.element)
+    return this
+  }
+  renderMediaItemController() {
+    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
+    return this
+  }
+  startErrorController(data) {
+    this.controllers.error = new ErrorController({}, {
       models: {
-        user: this.models.user,
-        ui: this.models.navigation,
+        ui: {
+          defaults: data,
+        },
       },
     }).start()
     this.resetEvents('controller')
-    this.views.view.renderElement('main', 'beforeend', this.controllers.navigation.views.view.element)
+    this.views.view.renderElement('$element', 'afterbegin', this.controllers.error.views.view.element)
     return this
   }
   startMediaItemController() {
     if(this.controllers.mediaItem) this.controllers.mediaItem.stop()
-    this.models.mediaItem.set('image', this.models.image.parse())
     this.controllers.mediaItem = new MediaItemController({
       models: {
         user: this.models.user,
-        ui: this.models.mediaItem,
       },
-    }, {
-      settings: this.models.settings.parse(),
-    }).start()
+    }, mergeDeep(MediaItemDefaults, {
+      controllers: {
+        image: {
+          models: {
+            ui: {
+              defaults: this.models.image.parse(),
+            }
+          },
+        },
+      }
+    })).start()
     this.resetEvents('controller')
-    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this
   }
-  startControllers() {
+  startInfoController(info) {
+    this.controllers.info = new InfoController({
+      models: {
+        ui: new Model({
+          defaults: this.models.image.parse(),
+        }),
+      },
+    }).start()
+    this.views.view.renderElement('main', 'afterbegin', this.controllers.info.views.view.element)
     return this
-      .startNavigationController()
-      .startMediaItemController()
   }
   start() {
-    if(
-      (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
-      (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
-    ) {
+    if(isAuthenticated(this)) {
       this
         .renderView()
+        .renderNavigationController()
         .startImageModel()
     } else {
       Channels.channel('Application').request('router')
-        .navigate(this.models.settings.get('redirect'))
+        .navigate(this.models.ui.get('redirect'))
     }
+    return this
+  }
+  stopInfoController() {
+    this.controllers.info.stop()
+    delete this.controllers.info.stop()
     return this
   }
   stop() {

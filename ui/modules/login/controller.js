@@ -1,21 +1,28 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
+import {
+  Model,
+  Controller,
+} from 'mvc-framework/source/MVC'
 import Channels from 'modules/channels'
-import { Settings as SettingsModel } from './models'
+import { UI as UIDefaults } from './defaults'
 import View from './view'
 
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
-        settings: new SettingsModel(), 
         // user: settings.models.user,
+        ui: new Model({
+          defaults: UIDefaults,
+        }), 
       },
       modelEvents: {
-        'settings set': 'onSettingsModelSet',
+        'ui set': 'onUIModelSet',
+        'user set': 'onUserModelSet',
       },
       modelCallbacks: {
-        onSettingsModelSet: (event, settingsModel) => this.onSettingsModelSet(event, settingsModel),
+        onUIModelSet: (event, uiModel) => this.onUIModelSet(event, uiModel),
+        onUserModelSet: (event, userModel) => this.onUserModelSet(event, userModel),
       },
       views: {
         view: new View(),
@@ -29,10 +36,10 @@ export default class extends Controller {
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
-    settings: this.models.settings.parse(),
+    settings: this.models.ui.parse(),
     user: this.models.user.parse()
   } }
-  onSettingsModelSet(event, settingsModel) {
+  onUIModelSet(event, uiModel) {
     this.models.user.set({
       subID: event.data.username,
       apiKey: event.data.apiKey,
@@ -40,8 +47,12 @@ export default class extends Controller {
     })
     return this
   }
+  onUserModelSet(event, userModel) {
+    if(event.data.isAuthenticated) Channels.channel('Application').request('router').navigate('/')
+    return this
+  }
   onViewFormValidated(event, view) {
-    this.models.settings.set({
+    this.models.ui.set({
       username: event.data.username,
       apiKey: event.data.apiKey,
     })
@@ -53,8 +64,8 @@ export default class extends Controller {
   }
   start() {
     if(
-      (this.models.settings.get('auth') && this.models.user.get('isAuthenticated')) ||
-      (this.models.settings.get('noAuth') && !this.models.user.get('isAuthenticated'))
+      (this.models.ui.get('auth') && this.models.user.get('isAuthenticated')) ||
+      (this.models.ui.get('noAuth') && !this.models.user.get('isAuthenticated'))
     ) {
       this.renderView()
     } else {

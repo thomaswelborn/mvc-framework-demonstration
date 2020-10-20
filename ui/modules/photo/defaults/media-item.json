@@ -1,23 +1,47 @@
 {
-  "attributes": {
-    "id": "photo-media-item",
-    "class": "media-item"
-  },
-  "navigation": {
-    "attributes": {
-      "id": "photo-media-item-navigation"
-    },
-    "buttons": [
-      {
-        "auth": true,
-        "noAuth": true,
-        "textContent": "INFO",
-        "attributes": {
-          "id": "photo-media-item-navigation-info",
-          "class": "button",
-          "data-action": "info"
-        }
+  "models": {},
+  "views": {
+    "view": {
+      "attributes": {
+        "id": "photo-media-item",
+        "class": "media-item"
       }
-    ]
+    }
+  },
+  "controllers": {
+    "navigation": {
+      "models": {},
+      "views": {
+        "view": {
+          "attributes": {
+            "id": "photo-media-item-navigation"
+          }
+        }
+      },
+      "controllers": {
+        "buttons": [
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": true,
+                  "textContent": "INFO"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "id": "photo-media-item-navigation-info",
+                  "class": "button",
+                  "data-action": "info"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
   }
 }

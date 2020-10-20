@@ -1,9 +1,15 @@
 import { mergeDeep } from 'utilities/scripts'
-import { Controller } from 'mvc-framework/source/MVC'
-import Channels from 'modules/channels'
-import Router from './router'
 import {
-  ToggleNavigation as ToggleNavigationModel,
+  Model,
+  Controller,
+  Router,
+} from 'mvc-framework/source/MVC'
+import Channels from 'modules/channels'
+import {
+  Routes as RoutesDefaults,
+  ToggleNavigation as ToggleNavigationDefaults,
+} from './defaults'
+import {
   User as UserModel,
 } from './models'
 import View from './view'
@@ -13,18 +19,27 @@ import {
 
 import Modules from 'modules'
 
+const startToggleNavigationController = (settings, options) => {
+  return new ToggleNavigationController({
+    models: {
+      user: settings.models.user,
+    },
+  }, ToggleNavigationDefaults).start()
+}
+
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       routers: {},
       routerEvents: {
         'application error': 'onApplicationRouterError',
+        'application change': 'onApplicationRouterChange',
       },
       routerCallbacks: {
         onApplicationRouterError: (event, router) => this.onApplicationRouterError(event, router),
+        onApplicationRouterChange: (event, router) => this.onApplicationRouterChange(event, router),
       },
       models: {
-        toggleNavigation: new ToggleNavigationModel(),
         user: new UserModel(),
       },
       modelEvents: {
@@ -43,13 +58,13 @@ export default class extends Controller {
         onViewHeadlineAnchorClick: (event, view) => this.onViewHeadlineAnchorClick(event, view),
       },
       controllers: {
-        // navigation: Navigation,
+        // toggleNavigation: ToggleNavigationController,
       },
       controllerEvents: {
-        'navigation click': 'onNavigationControllerClick',
+        'toggleNavigation click': 'onNavigationControllerClick',
       },
       controllerCallbacks: {
-        onNavigationControllerClick: (event, navigationController, navigationView) => this.onNavigationControllerClick(event, navigationController, navigationView),
+        onNavigationControllerClick: (event, toggleNavigationController, toggleNavigationView) => this.onNavigationControllerClick(event, toggleNavigationController, toggleNavigationView),
       },
     }, settings), mergeDeep({}, options))
     Channels.channel('Application').response('router', () => this.routers.application)
@@ -57,17 +72,13 @@ export default class extends Controller {
   }
   get currentModule() { return this._currentModule }
   set currentModule(currentModule) { this._currentModule = currentModule }
-  onNavigationControllerClick(event, navigationController, navigationView) {
-    console.log(event.name, event.data)
-    this.controllers.navigation.controllers.toggleButton.views.view.element
-      .dispatchEvent(new MouseEvent('click'))
+  onUserModelSetIsAuthenticated(event, userModel) {
+    this.startToggleNavigationController()
     return this
   }
-  onUserModelSetIsAuthenticated(event, userModel) {
-    if(event.data.value === true) {
-      this.routers.application.navigate('/')
-    }
-    this.startNavigationController()
+  onNavigationControllerClick(event, toggleNavigationController, toggleNavigationView) {
+    this.controllers.toggleNavigation.controllers.toggleButton.views.view.element
+      .dispatchEvent(new MouseEvent('click'))
     return this
   }
   onViewHeadlineAnchorClick(event, view) {
@@ -75,6 +86,9 @@ export default class extends Controller {
     return this
   }
   onApplicationRouterError(event, router) {
+    return this
+  }
+  onApplicationRouterChange(event, router) {
     return this
   }
   loadModule(route) {
@@ -102,45 +116,47 @@ export default class extends Controller {
     }
     return this
   }
-  startView() {
+  renderToggleNavigation() {
+    this.views.view.renderElement(
+      'header',
+      'beforeend',
+      this.controllers.toggleNavigation.views.view.element,
+    )
+    return this
+  }
+  renderView() {
     this.views.view
+      .autoRemove()
       .render()
       .autoInsert()
     return this
   }
   startRouter() {
     this.routers.application = new Router({
+      hashRouting: true,
+      routes: RoutesDefaults,
       controller: this,
     })
     this.resetEvents('router')
-    this.routers.application.start()
+    const currentRoute = (window.location.hash.length)
+      ? window.location.hash
+      : '/'
+    this.routers.application
+      .navigate('')
+      .navigate(currentRoute)
     return this
   }
-  startNavigationController() {
-    if(this.controllers.navigation) this.controllers.navigation.views.view.autoRemove()
-    this.controllers.navigation = new ToggleNavigationController({
-      models: {
-        user: this.models.user,
-        ui: this.models.toggleNavigation,
-      },
-    }, {
-    }).start()
-    this.resetEvents('controller')
-    this.views.view.renderElement(
-      'header',
-      'beforeend',
-      this.controllers.navigation.views.view.element,
-    )
+  startToggleNavigationController() {
+    if(this.controllers.toggleNavigation) this.controllers.toggleNavigation.stop()
+    this.controllers.toggleNavigation = startToggleNavigationController(this.settings, this.options)
     return this
-  }
-  startControllers() {
-    this.startNavigationController()
-    return this
+      .resetEvents('controller')
+      .renderToggleNavigation()
   }
   start() {
     this
-      .startView()
-      .startControllers()
+      .renderView()
+      .startToggleNavigationController()
       .startRouter()
     return this
   }

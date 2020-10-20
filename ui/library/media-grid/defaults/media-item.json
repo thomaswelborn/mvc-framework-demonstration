@@ -1,5 +1,9 @@
 {
-  "attributes": {
-    "class": "media-item"
+  "views": {
+    "view": {
+      "attributes": {
+        "class": "media-item"
+      }
+    }
   }
 }
