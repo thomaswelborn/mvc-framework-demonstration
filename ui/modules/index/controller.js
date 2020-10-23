@@ -1,9 +1,9 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Save as SaveFavoriteModel } from 'utilities/scripts/mvc-framework/models/favorites'
-import { UI as UIModel } from './models'
 import { Search as ImageSearchModel } from 'utilities/scripts/mvc-framework/models/images'
+import { UI as UIModel } from './models'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
+import { Save as SaveFavoriteModel } from 'utilities/scripts/mvc-framework/models/favorites'
 import { Model } from 'mvc-framework/source/MVC'
 import Channels from 'modules/channels'
 import {

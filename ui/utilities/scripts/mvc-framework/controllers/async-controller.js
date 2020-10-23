@@ -26,6 +26,7 @@ export default class extends Controller {
     }, settings), mergeDeep({}, settings))
   }
   onErrorControllerAccept(event, errorController) {
+    console.log(event.name, event.data)
     this.controllers.error.stop()
     Channels.channel('Application').request('router').navigate('/favorites')
     return this
@@ -43,6 +44,7 @@ export default class extends Controller {
     return this
   }
   startErrorController(data) {
+    console.log('startErrorController', data)
     this.controllers.error = new ErrorController({}, {
       models: {
         ui: {
