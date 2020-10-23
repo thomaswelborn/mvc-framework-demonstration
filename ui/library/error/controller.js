@@ -35,12 +35,12 @@ export default class extends Controller {
         view,
       )
   }
-  renderView() {
+  startView() {
     this.views.view.render(this.viewData)
     return this
   }
   start() {
-    return this.renderView()
+    return this.startView()
   }
   stop() {
     this.views.view.autoRemove()

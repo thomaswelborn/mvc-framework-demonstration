@@ -1,23 +1,17 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
 import { Favorites as FavoritesModel } from 'utilities/scripts/mvc-framework/models/favorites'
-import {
-  Model,
-  Controller,
-} from 'mvc-framework/source/MVC'
+import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
+import { Model } from 'mvc-framework/source/MVC'
 import {
   MediaGrid as MediaGridDefaults,
   Options as OptionsDefaults,
 } from './defaults'
 import View from './view'
 import Channels from 'modules/channels'
-import {
-  MediaGrid as MediaGridController,
-  Loader as LoaderController,
-  Error as ErrorController,
-} from 'library'
+import { MediaGrid as MediaGridController } from 'library'
 
-export default class extends Controller {
+export default class extends AsyncController {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
@@ -29,12 +23,10 @@ export default class extends Controller {
         // favorites: FavoritesModel,
       },
       modelEvents: {
-        'ui set:loading': 'onUIModelSetLoading',
         'favorites set': 'onFavoritesModelSet',
         'favorites error': 'onFavoritesModelError',
       },
       modelCallbacks: {
-        onUIModelSetLoading: (event, uiModel) => this.onUIModelSetLoading(event, uiModel),
         onFavoritesModelSet: (event, favoritesModel) => this.onFavoritesModelSet(event, favoritesModel),
         onFavoritesModelError: (event, favoritesModel) => this.onFavoritesModelError(event, favoritesModel),
       },
@@ -43,15 +35,11 @@ export default class extends Controller {
       },
       controllers: {
         // mediaGrid: MediaGrid,
-        loader: new LoaderController(),
       },
       controllerEvents: {
-        'error ready': 'onErrorControllerReady',
-        'error accept': 'onErrorControllerAccept',
         'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
-        onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
       },
     }, settings), mergeDeep({}, options))
@@ -59,18 +47,6 @@ export default class extends Controller {
   get viewData() { return {
     settings: this.models.ui.parse(),
   } }
-  onUIModelSetLoading(event, uiModel) {
-    switch(event.data.value) {
-      case true:
-        this.controllers.loader.start()
-        this.views.view.renderElement('$element', 'afterbegin', this.controllers.loader.views.view.element)
-        break
-      case false:
-        this.controllers.loader.stop()
-        break
-    }
-    return this
-  }
   onFavoritesModelSet(event, favoritesModel) {
     console.log('onFavoritesModelSet')
     this.models.ui.set('loading', false)
@@ -78,23 +54,21 @@ export default class extends Controller {
   }
   onFavoritesModelError(event, favoritesModel) {
     this.models.ui.set('loading', false)
-    this.startErrorController(event.data)
+    this.startErrorController(event.data, () => {
+      Channels.channel('Application').request('router')
+        .navigate('/')
+    })
     return this
   }
   onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
-    console.log(this.models.favorites.get('favorites').find(
+    console.log(`/favorites/${this.models.favorites.get('favorites').find(
       (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')
-    ))
+    ).id}`)
     Channels.channel('Application').request('router').navigate(
       `/favorites/${this.models.favorites.get('favorites').find(
         (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')
       ).id}`
     )
-    return this
-  }
-  onErrorControllerAccept(event, errorController) {
-    this.controllers.error.stop()
-    Channels.channel('Application').request('router').navigate('').navigate('/photos')
     return this
   }
   getFavoritesModel() {
@@ -126,18 +100,6 @@ export default class extends Controller {
     }, MediaGridDefaults).start()
     this.resetEvents('controller')
     this.views.view.renderElement('main', 'beforeend', this.controllers.mediaGrid.views.view.element)
-    return this
-  }
-  startErrorController(data) {
-    this.controllers.error = new ErrorController({}, {
-      models: {
-        ui: {
-          defaults: data,
-        },
-      },
-    }).start()
-    this.resetEvents('controller')
-    this.views.view.renderElement('$element', 'afterbegin', this.controllers.error.views.view.element)
     return this
   }
   renderView() {

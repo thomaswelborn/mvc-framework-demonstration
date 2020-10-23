@@ -96,9 +96,10 @@ export default class extends Controller {
     this.currentModule = new Modules[route.route.name]({
       models: {
         user: this.models.user,
+        route: new Model({
+          defaults: route,
+        }),
       },
-    }, {
-      route: route,
     })
     this.currentModule.start()
     if(

@@ -49,4 +49,9 @@ export default class extends View {
     this.ui[target].innerHTML = ''
     return this
   }
+  removeElement(queryString) {
+    const element = this.ui.$element.querySelector(queryString)
+    element.parent.removeChild(element)
+    return this
+  }
 }

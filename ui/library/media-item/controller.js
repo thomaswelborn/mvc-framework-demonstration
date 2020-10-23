@@ -97,4 +97,10 @@ export default class extends Controller {
     this.views.view.autoRemove()
     return this
   }
+  stopButton(id) {
+    Object.values(this.controllers.navigation.controllers).find((controller) => (
+      controller.options.views.view.attributes.id === id
+    )).stop()
+    return this
+  }
 }
