@@ -1,10 +1,8 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
 import { Images as ImagesModel } from 'utilities/scripts/mvc-framework/models/images'
-import {
-  Model,
-  Controller,
-} from 'mvc-framework/source/MVC'
+import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
+import { Model } from 'mvc-framework/source/MVC'
 import {
   MediaGrid as MediaGridDefaults,
   SelectNavigation as SelectNavigationDefaults,
@@ -15,11 +13,9 @@ import Channels from 'modules/channels'
 import {
   SelectNavigation as SelectNavigationController,
   MediaGrid as MediaGridController,
-  Loader as LoaderController,
-  Error as ErrorController,
 } from 'library'
 
-export default class extends Controller {
+export default class extends AsyncController {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
@@ -31,12 +27,10 @@ export default class extends Controller {
         // images: ImagesModel,
       },
       modelEvents: {
-        'ui set:loading': 'onUIModelSetLoading',
         'images set': 'onImagesModelSet',
         'images error': 'onImagesModelError',
       },
       modelCallbacks: {
-        onUIModelSetLoading: (event, uiModel) => this.onUIModelSetLoading(event, uiModel),
         onImagesModelSet: (event, imagesModel) => this.onImagesModelSet(event, imagesModel),
         onImagesModelError: (event, imageSearchModel) => this.onImagesModelError(event, imageSearchModel),
       },
@@ -52,17 +46,13 @@ export default class extends Controller {
       controllers: {
         // selectNavigation: SelectNavigation,
         // mediaGrid: MediaGrid,
-        loader: new LoaderController(),
       },
       controllerEvents: {
-        'error ready': 'onErrorControllerReady',
-        'error accept': 'onErrorControllerAccept',
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
         'selectNavigation button:click': 'onSelectNavigationControllerButtonClick',
         'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
-        onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
         onSelectNavigationControllerSelectChange: (event, navigationController) => this.onSelectNavigationControllerSelectChange(event, navigationController),
         onSelectNavigationControllerButtonClick: (event, navigationController) => this.onSelectNavigationControllerButtonClick(event, navigationController),
         onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
@@ -76,18 +66,6 @@ export default class extends Controller {
     switch(event.data.action) {
       case 'upload':
         Channels.channel('Application').request('router').navigate('/upload')
-        break
-    }
-    return this
-  }
-  onUIModelSetLoading(event, uiModel) {
-    switch(event.data.value) {
-      case true:
-        this.controllers.loader.start()
-        this.views.view.renderElement('$element', 'afterbegin', this.controllers.loader.views.view.element)
-        break
-      case false:
-        this.controllers.loader.stop()
         break
     }
     return this
@@ -123,11 +101,6 @@ export default class extends Controller {
     Channels.channel('Application').request('router').navigate(
       `/photos/${mediaGridItemController.controllers.image.models.ui.get('id')}`
     )
-    return this
-  }
-  onErrorControllerAccept(event, errorController) {
-    this.controllers.error.stop()
-    Channels.channel('Application').request('router').navigate('').navigate('/photos')
     return this
   }
   getImagesModel() {
@@ -173,18 +146,7 @@ export default class extends Controller {
     this.resetEvents('controller')
     return this
   }
-  startErrorController(data) {
-    this.controllers.error = new ErrorController({}, {
-      models: {
-        ui: {
-          defaults: data,
-        },
-      },
-    }).start()
-    this.resetEvents('controller')
-    this.views.view.renderElement('$element', 'afterbegin', this.controllers.error.views.view.element)
-    return this
-  }
+  
   startControllers() {
     return this
       .startSelectNavigationController()

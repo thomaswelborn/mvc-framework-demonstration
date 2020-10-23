@@ -14,15 +14,18 @@ export default class extends Model {
       },
       serviceEvents: {
         'get ready': 'onGetServiceReady',
+        'get error': 'onGetServiceError',
       },
       serviceCallbacks: {
         onGetServiceReady: (event, getService) => this.onGetServiceReady(event, getService),
+        onGetServiceError: (event, getService) => this.onGetServiceError(event, getService),
       },
       defaults: SearchResultsDefaults,
     }, settings), mergeDeep({}, options))
   }
   get currentImage() { return this.get('images')[0] }
   onGetServiceReady(event, getService) {
+    console.log(event.name, event.data)
     switch(getService.response.status) {
       case 200: 
       default: 
@@ -44,5 +47,15 @@ export default class extends Model {
         break
     }
     return this
+  }
+  onGetServiceError(event, getService) {
+    console.log(event.name, event.data)
+    this.emit(
+      'error',
+      {
+        status: -1,
+        message: event.data,
+      }
+    )
   }
 }
