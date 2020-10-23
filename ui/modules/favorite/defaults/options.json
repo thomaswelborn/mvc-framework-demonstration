@@ -1,0 +1,14 @@
+{
+  "models": {
+    "ui": {
+      "defaults": {
+        "auth": true,
+        "noAuth": true,
+        "redirect": "account/login",
+        "infoSelected": false,
+        "id": "",
+        "loading": false
+      }
+    }
+  }
+}
