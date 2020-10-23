@@ -23,6 +23,14 @@
     "name": "Photo",
     "callback": "loadModule"
   },
+  "/favorites": {
+    "name": "Favorites",
+    "callback": "loadModule"
+  },
+  "/favorites/:favorite": {
+    "name": "Favorite",
+    "callback": "loadModule"
+  },
   "/upload": {
     "name": "Upload",
     "callback": "loadModule"

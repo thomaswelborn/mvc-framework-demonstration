@@ -1,5 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
+import { Save as SaveFavoriteModel } from 'utilities/scripts/mvc-framework/models/favorites'
 import { UI as UIModel } from './models'
 import { Search as ImageSearchModel } from 'utilities/scripts/mvc-framework/models/images'
 import {
@@ -27,20 +28,22 @@ export default class extends Controller {
       models: {
         // user: settings.models.user,
         // imageSearch: ImageSearchModel,
-        ui: new Model(OptionsDefaults.models.ui)
-        // ui: new UIModel(OptionsDefaults.models.ui)
+        // saveFavorite: FavoriteModel,
+        ui: new Model(OptionsDefaults.models.ui),
       },
       modelEvents: {
         'ui set:loading': 'onUIModelSetLoading',
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
         'imageSearch set': 'onImageSearchModelSet',
         'imageSearch error': 'onImageSearchModelError',
+        'saveFavorite set': 'onSaveFavoriteModelSet',
       },
       modelCallbacks: {
         onUIModelSetLoading: (event, uiModel) => this.onUIModelSetLoading(event, uiModel),
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
         onImageSearchModelSet: (event, imageSearchModel) => this.onImageSearchModelSet(event, imageSearchModel),
         onImageSearchModelError: (event, imageSearchModel) => this.onImageSearchModelError(event, imageSearchModel),
+        onSaveFavoriteModelSet: (event, imageSearchModel) => this.onSaveFavoriteModelSet(event, imageSearchModel),
       },
       views: {
         view: new View(),
@@ -68,6 +71,7 @@ export default class extends Controller {
         onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
       },
     }, settings), mergeDeep({}, options))
+    Object.values(this.models).forEach((model) => console.log(model.parse()))
   }
   onUIModelSetLoading(event, uiModel) {
     switch(event.data.value) {
@@ -96,11 +100,14 @@ export default class extends Controller {
     this.models.ui.set('loading', false)
     return this
       .startMediaItemController()
-      .renderMediaItemController()
   }
   onImageSearchModelError(event, imageSearchModel) {
     this.models.ui.set('loading', false)
     this.startErrorController(event)
+    return this
+  }
+  onSaveFavoriteModelSet(event, imageSearchModel) {
+    console.log('onSaveFavoriteModelSet')
     return this
   }
   onSelectNavigationControllerSelectChange(event, view) {
@@ -126,6 +133,9 @@ export default class extends Controller {
       case 'info':
         this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
         break
+      case 'favorite':
+        this.startSaveFavoriteModel()
+        break
     }
     return this
   }
@@ -139,6 +149,10 @@ export default class extends Controller {
     this.models.imageSearch.services.get.fetch()
     return this
   }
+  postFavoriteModel() {
+    this.models.saveFavorite.services.post.fetch()
+    return this
+  }
   advancePage(pages) {
     let currentPage = this.models.ui.get('page')
     let nextPage = (currentPage + pages < 0)
@@ -149,10 +163,6 @@ export default class extends Controller {
   }
   renderSelectNavigation() {
     this.views.view.renderElement('header', 'afterbegin', this.controllers.selectNavigation.views.view.element)
-    return this
-  }
-  renderMediaItemController() {
-    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this
   }
   startMediaItemController() {
@@ -173,6 +183,7 @@ export default class extends Controller {
       }
     })).start()
     this.resetEvents('controller')
+    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this
   }
   startInfoController() {
@@ -213,11 +224,22 @@ export default class extends Controller {
       .resetEvents('model')
       .getImageSearchModel()
   }
+  startSaveFavoriteModel() {
+    this.models.saveFavorite = new SaveFavoriteModel({}, {
+      user: this.models.user,
+      ui: this.models.ui,
+      image: new Model({
+        defaults: this.models.imageSearch.get('images').slice(-1)[0],
+      }),
+    })
+    return this
+      .resetEvents('model')
+      .postFavoriteModel()
+  }
   start() {
     if(isAuthenticated(this)) {
       this
         .renderView()
-        .renderSelectNavigation()
         .startImageSearchModel()
     } else {
       Channels.channel('Application').request('router')
@@ -227,6 +249,12 @@ export default class extends Controller {
   }
   stopInfoController() {
     if(this.controllers.info) this.controllers.info.stop()
+    return this
+  }
+  stopFavoriteModel() {
+    Object.values(this.controllers.mediaItem
+      .controllers.navigation
+        .controllers).find
     return this
   }
   stop() {

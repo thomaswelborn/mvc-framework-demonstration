@@ -1,0 +1,7 @@
+#photo {
+  & > main {
+    .navigation {
+      justify-content: space-between;
+    }
+  }
+}
