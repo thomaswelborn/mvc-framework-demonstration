@@ -3,7 +3,7 @@
   "views": {
     "view": {
       "attributes": {
-        "id": "index-media-item",
+        "id": "favorite-media-item",
         "class": "media-item"
       }
     }
@@ -14,7 +14,7 @@
       "views": {
         "view": {
           "attributes": {
-            "id": "index-media-item-navigation"
+            "id": "favorite-media-item-navigation"
           }
         }
       },
@@ -33,29 +33,9 @@
             "views": {
               "view": {
                 "attributes": {
-                  "id": "index-media-item-navigation-info-button",
+                  "id": "favorite-media-item-navigation-info",
                   "class": "button",
                   "data-action": "info"
-                }
-              }
-            }
-          },
-          {
-            "models": {
-              "ui": {
-                "defaults": {
-                  "auth": true,
-                  "noAuth": false ,
-                  "textContent": "FAVE"
-                }
-              }
-            },
-            "views": {
-              "view": {
-                "attributes": {
-                  "id": "index-media-item-navigation-favorite-button",
-                  "class": "button",
-                  "data-action": "favorite"
                 }
               }
             }

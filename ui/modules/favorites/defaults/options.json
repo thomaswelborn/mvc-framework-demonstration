@@ -1,0 +1,18 @@
+{
+  "models": {
+    "ui": {
+      "localStorage": {
+        "sync": true,
+        "endpoint": "/api/favorites/models/ui"
+      },
+      "defaults": {
+        "auth": true,
+        "noAuth": false,
+        "redirect": "account/login",
+        "loading": false,
+        "page": 0,
+        "limit": 9
+      }
+    }
+  }
+}
