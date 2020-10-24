@@ -54,13 +54,16 @@ export default class extends AsyncController {
   }
   onFavoritesModelError(event, favoritesModel) {
     this.models.ui.set('loading', false)
-    this.startErrorController(event.data)
+    this.startErrorController(event.data, () => {
+      Channels.channel('Application').request('router')
+        .navigate('/')
+    })
     return this
   }
   onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
-    console.log(this.models.favorites.get('favorites').find(
+    console.log(`/favorites/${this.models.favorites.get('favorites').find(
       (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')
-    ))
+    ).id}`)
     Channels.channel('Application').request('router').navigate(
       `/favorites/${this.models.favorites.get('favorites').find(
         (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')

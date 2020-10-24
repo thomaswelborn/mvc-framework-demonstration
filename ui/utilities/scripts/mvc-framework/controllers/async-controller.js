@@ -8,11 +8,11 @@ import {
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
-      modelsEvents: {
-        'ui loading': 'onUIModelLoading',
+      modelEvents: {
+        'ui set:loading': 'onUIModelSetLoading',
       },
       modelCallbacks: {
-        onUIModelLoading: (event, uiModel) => this.onUIModelLoading(event, uiModel),
+        onUIModelSetLoading: (event, uiModel) => this.onUIModelSetLoading(event, uiModel),
       },
       controllers: {
         loader: new LoaderController(),
@@ -26,9 +26,7 @@ export default class extends Controller {
     }, settings), mergeDeep({}, settings))
   }
   onErrorControllerAccept(event, errorController) {
-    console.log(event.name, event.data)
     this.controllers.error.stop()
-    Channels.channel('Application').request('router').navigate('/favorites')
     return this
   }
   onUIModelSetLoading(event, uiModel) {
@@ -43,7 +41,7 @@ export default class extends Controller {
     }
     return this
   }
-  startErrorController(data) {
+  startErrorController(data, acceptCallback) {
     console.log('startErrorController', data)
     this.controllers.error = new ErrorController({}, {
       models: {
@@ -52,6 +50,7 @@ export default class extends Controller {
         },
       },
     }).start()
+      .on('accept', acceptCallback)
     this.resetEvents('controller')
     this.views.view.renderElement('$element', 'afterbegin', this.controllers.error.views.view.element)
     return this

@@ -3,7 +3,7 @@
     "ui": {
       "defaults": {
         "auth": true,
-        "noAuth": true,
+        "noAuth": false,
         "redirect": "account/login",
         "infoSelected": false,
         "id": "",

@@ -79,8 +79,10 @@ export default class extends AsyncController {
   }
   onImagesModelError(event, imageSearchModel) {
     this.models.ui.set('loading', false)
-    this.startErrorController(event.data)
-    return this
+    return this.startErrorController(event.data, () => {
+      Channels.channel('Application').request('router')
+        .navigate('/')
+    })
   }
   onSelectNavigationControllerSelectChange(event, navigationController) {
     this.models.ui.set('order', event.data.value)

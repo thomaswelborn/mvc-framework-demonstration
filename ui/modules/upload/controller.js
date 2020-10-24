@@ -38,8 +38,6 @@ export default class extends AsyncController {
         onViewUploadButtonClick: (event, view) => this.onViewUploadButtonClick(event, view),
       },
       controllers: {},
-      controllerEvents: {},
-      controllerCallbacks: {},
     }, settings), mergeDeep({}, options))
   }
   get viewData() { return {
@@ -51,7 +49,11 @@ export default class extends AsyncController {
   }
   onImageUploadModelError(event, imageUploadModel) {
     this.models.ui.set('loading', false)
-    return this.startErrorController(event)
+    return this.startErrorController(event.data, () => {
+      Channels.channel('Application').request('router')
+        .navigate('/')
+        .navigate('/upload')
+    })
   }
   onImageUploadModelSet(event, imageUploadModel) {
     Channels.channel('Application').request('router').navigate(`/photos/${event.data.id}`)

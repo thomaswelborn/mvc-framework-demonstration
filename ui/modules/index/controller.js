@@ -28,29 +28,21 @@ export default class extends AsyncController {
         ui: new Model(OptionsDefaults.models.ui),
       },
       modelEvents: {
-        'ui set:infoSelected': 'onUIModelSetInfoSelected',
         'imageSearch set': 'onImageSearchModelSet',
         'imageSearch error': 'onImageSearchModelError',
         'saveFavorite set': 'onSaveFavoriteModelSet',
+        'ui set:infoSelected': 'onUIModelSetInfoSelected',
       },
       modelCallbacks: {
-        onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
         onImageSearchModelSet: (event, imageSearchModel) => this.onImageSearchModelSet(event, imageSearchModel),
         onImageSearchModelError: (event, imageSearchModel) => this.onImageSearchModelError(event, imageSearchModel),
         onSaveFavoriteModelSet: (event, imageSearchModel) => this.onSaveFavoriteModelSet(event, imageSearchModel),
+        onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
       },
       views: {
         view: new View(),
       },
-      controllers: {
-        selectNavigation: new SelectNavigationController({
-          models: {
-            user: settings.models.user,
-          }
-        }, SelectNavigationDefaults).start(),
-        // mediaItem: MediaItem,
-        // info: InfoController,
-      },
+      controllers: {},
       controllerEvents: {
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
         'selectNavigation subnavigationButton:click': 'onSelectNavigationControllerSubnavigationButtonClick',
@@ -62,7 +54,26 @@ export default class extends AsyncController {
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
       },
     }, settings), mergeDeep({}, options))
-    Object.values(this.models).forEach((model) => console.log(model.parse()))
+    console.log(this.modelEvents)
+  }
+  onImageSearchModelSet(event, imageSearchModel) {
+    console.log('onImageSearchModelSet')
+    this.models.ui.set('loading', false)
+    return this
+      .startMediaItemController()
+  }
+  onImageSearchModelError(event, imageSearchModel) {
+    console.log('onImageSearchModelError')
+    this.models.ui.set('loading', false)
+    return this.startErrorController(event.data, () => {
+      Channels.channel('Application').request('router')
+        .navigate('/')
+    })
+  }
+  onSaveFavoriteModelSet(event, imageSearchModel) {
+    console.log('onSaveFavoriteModelSet')
+    this.controllers.mediaItem.stopButton('index-media-item-navigation-favorite-button')
+    return this
   }
   onUIModelSetInfoSelected(event, uiModel) {
     switch(event.data.value) {
@@ -75,20 +86,6 @@ export default class extends AsyncController {
     }
     return this
   } 
-  onImageSearchModelSet(event, imageSearchModel) {
-    this.models.ui.set('loading', false)
-    return this
-      .startMediaItemController()
-  }
-  onImageSearchModelError(event, imageSearchModel) {
-    this.models.ui.set('loading', false)
-    this.startErrorController(event)
-    return this
-  }
-  onSaveFavoriteModelSet(event, imageSearchModel) {
-    console.log('onSaveFavoriteModelSet')
-    return this
-  }
   onSelectNavigationControllerSelectChange(event, view) {
     this.models.ui.set('order', event.data.value)
     return this
@@ -121,6 +118,7 @@ export default class extends AsyncController {
   getImageSearchModel() {
     this.models.ui.set('loading', true)
     this.models.imageSearch.services.get.fetch()
+    console.log('getImageSearchModel')
     return this
   }
   postFavoriteModel() {
@@ -135,7 +133,13 @@ export default class extends AsyncController {
     this.models.ui.set('page', nextPage)
     return this
   }
-  renderSelectNavigation() {
+  startSelectNavigation() {
+    if(this.controllers.selectNavigation) this.controllers.selectNavigation.stop()
+    this.controllers.selectNavigation = new SelectNavigationController({
+      models: {
+        user: this.models.user,
+      }
+    }, SelectNavigationDefaults).start()
     this.views.view.renderElement('header', 'afterbegin', this.controllers.selectNavigation.views.view.element)
     return this
   }
@@ -172,7 +176,7 @@ export default class extends AsyncController {
     this.views.view.renderElement('main', 'afterbegin', this.controllers.info.views.view.element)
     return this
   }
-  renderView() {
+  startView() {
     this.views.view.render()
     return this
   }
@@ -200,7 +204,8 @@ export default class extends AsyncController {
   start() {
     if(isAuthenticated(this)) {
       this
-        .renderView()
+        .startView()
+        .startSelectNavigation()
         .startImageSearchModel()
     } else {
       Channels.channel('Application').request('router')

@@ -17,15 +17,18 @@ import {
 import Channels from 'modules/channels'
 
 export default class extends AsyncController {
-  constructor(settings = {}, options = []) {
+  constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
+        // route: settings.models.route,
         ui: new Model(mergeDeep(
           OptionsDefaults.models.ui,
           {
             defaults: {
-              id: options.route.location.hash.fragments[options.route.location.hash.fragments.length - 1]
+              id: settings.models.route.get('location').hash.fragments[
+                settings.models.route.get('location').hash.fragments.length - 1
+              ],
             },
           },
         )),
@@ -66,6 +69,7 @@ export default class extends AsyncController {
         onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
     }, settings), mergeDeep({}, options))
+    
   }
   onUIModelSetInfoSelected(event, uiModel) {
     switch(event.data.value) {

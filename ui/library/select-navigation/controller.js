@@ -62,17 +62,6 @@ export default class extends Controller {
         view,
       )
   }
-  stopButtonControllers() {
-    this.controllers = Object.entries(this.controllers).reduce((_controllers, [controllerName, controller]) => {
-      if(controllerName.match(new RegExp(/^button-/))) {
-        controller.stop()
-      } else {
-        _controllers[controllerName] = controller
-      }
-      return _controllers
-    }, {})
-    return this
-  }
   startButtonControllers() {
     this.controllers = this.options.controllers.buttons.reduce((controllers, controller, controllerIndex) => {
       if(
@@ -99,7 +88,7 @@ export default class extends Controller {
     this.resetEvents('controller')
     return this
   }
-  renderView() {
+  startView() {
     this.views.view
       .render()
       .selectOption(this.models.ui.get('selectedOption'))
@@ -107,8 +96,22 @@ export default class extends Controller {
   }
   start() {
     return this
-      .renderView()
+      .startView()
       .startButtonControllers()
+  }
+  stopButtonControllers() {
+    this.controllers = Object.entries(this.controllers).reduce((_controllers, [controllerName, controller]) => {
+      if(controllerName.match(new RegExp(/^button-/))) {
+        controller.stop()
+      } else {
+        _controllers[controllerName] = controller
+      }
+      return _controllers
+    }, {})
+    return this
+  }
+  stopButtonController() {
+    console.log(this.buttons)
   }
   stop() {
     this.views.view.autoRemove()
