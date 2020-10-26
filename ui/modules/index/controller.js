@@ -1,12 +1,13 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Search as ImageSearchModel } from 'utilities/scripts/mvc-framework/models/images'
+import { Search as ImageSearchModel } from 'api/the-cat-api/models/images'
 import { UI as UIModel } from './models'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
-import { Save as SaveFavoriteModel } from 'utilities/scripts/mvc-framework/models/favorites'
+import { Save as SaveFavoriteModel } from 'api/the-cat-api/models/favorites'
 import { Model } from 'mvc-framework/source/MVC'
 import Channels from 'modules/channels'
 import {
+  GETServiceError as GETServiceErrorDefaults,
   Options as OptionsDefaults,
   SelectNavigation as SelectNavigationDefaults,
   MediaItem as MediaItemDefaults,
@@ -25,17 +26,22 @@ export default class extends AsyncController {
         // user: settings.models.user,
         // imageSearch: ImageSearchModel,
         // saveFavorite: FavoriteModel,
-        ui: new Model(OptionsDefaults.models.ui),
+        ui: new Model(OptionsDefaults.models.ui)
+          .set('page', 0, true),
       },
       modelEvents: {
         'imageSearch set': 'onImageSearchModelSet',
+        'imageSearch ready': 'onImageSearchModelReady',
         'imageSearch error': 'onImageSearchModelError',
+        'saveFavorite ready': 'onSaveFavoriteReady',
         'saveFavorite set': 'onSaveFavoriteModelSet',
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
       },
       modelCallbacks: {
         onImageSearchModelSet: (event, imageSearchModel) => this.onImageSearchModelSet(event, imageSearchModel),
+        onImageSearchModelReady: (event, imageSearchModel) => this.onImageSearchModelReady(event, imageSearchModel),
         onImageSearchModelError: (event, imageSearchModel) => this.onImageSearchModelError(event, imageSearchModel),
+        onSaveFavoriteReady: (event, imageSearchModel) => this.onSaveFavoriteReady(event, imageSearchModel),
         onSaveFavoriteModelSet: (event, imageSearchModel) => this.onSaveFavoriteModelSet(event, imageSearchModel),
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
       },
@@ -53,25 +59,35 @@ export default class extends AsyncController {
         onSelectNavigationControllerSelectChange: (event, view) => this.onSelectNavigationControllerSelectChange(event, view),
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
       },
-    }, settings), mergeDeep({}, options))
-    console.log(this.modelEvents)
+    }, settings), mergeDeep({
+      controllers: {
+        error: GETServiceErrorDefaults,
+      },
+    }, options))
   }
   onImageSearchModelSet(event, imageSearchModel) {
-    console.log('onImageSearchModelSet')
     this.models.ui.set('loading', false)
     return this
       .startMediaItemController()
   }
+  onImageSearchModelReady(event, imageSearchModel) {
+    this.models.imageSearch.set({
+      images: event.data,
+    })
+    return this
+  }
   onImageSearchModelError(event, imageSearchModel) {
-    console.log('onImageSearchModelError')
     this.models.ui.set('loading', false)
     return this.startErrorController(event.data, () => {
       Channels.channel('Application').request('router')
         .navigate('/')
     })
   }
+  onSaveFavoriteReady(event, imageSearchModel) {
+    this.models.saveFavorite.set(event.data)
+    return this
+  }
   onSaveFavoriteModelSet(event, imageSearchModel) {
-    console.log('onSaveFavoriteModelSet')
     this.controllers.mediaItem.stopButton('index-media-item-navigation-favorite-button')
     return this
   }
@@ -115,10 +131,18 @@ export default class extends AsyncController {
     }
     return this
   }
+  onErrorControllerButtonClick(event, errorController) {
+    switch(event.data.action) {
+      case 'refresh':
+        Channels.channel('Application').request('router')
+          .navigate('')
+          .navigate(this.models.route.get('location').hash.string)
+        break
+    }
+  }
   getImageSearchModel() {
     this.models.ui.set('loading', true)
     this.models.imageSearch.services.get.fetch()
-    console.log('getImageSearchModel')
     return this
   }
   postFavoriteModel() {

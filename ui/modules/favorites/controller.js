@@ -1,9 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Favorites as FavoritesModel } from 'utilities/scripts/mvc-framework/models/favorites'
+import { Favorites as FavoritesModel } from 'api/the-cat-api/models/favorites'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
+  GETServiceError as GETServiceErrorDefaults,
   MediaGrid as MediaGridDefaults,
   Options as OptionsDefaults,
 } from './defaults'
@@ -23,10 +24,12 @@ export default class extends AsyncController {
         // favorites: FavoritesModel,
       },
       modelEvents: {
+        'favorites ready': 'onFavoritesModelReady',
         'favorites set': 'onFavoritesModelSet',
         'favorites error': 'onFavoritesModelError',
       },
       modelCallbacks: {
+        onFavoritesModelReady: (event, favoriteModel) => this.onFavoritesModelReady(event, favoriteModel),
         onFavoritesModelSet: (event, favoritesModel) => this.onFavoritesModelSet(event, favoritesModel),
         onFavoritesModelError: (event, favoritesModel) => this.onFavoritesModelError(event, favoritesModel),
       },
@@ -42,13 +45,30 @@ export default class extends AsyncController {
       controllerCallbacks: {
         onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
       },
-    }, settings), mergeDeep({}, options))
+    }, settings), mergeDeep({
+      controllers: {
+        error: GETServiceErrorDefaults,
+      },
+    }, options))
   }
   get viewData() { return {
     settings: this.models.ui.parse(),
   } }
+  
+  onFavoritesModelReady(event, favoriteModel) {
+    this.models.favorites.set('favorites', event.data)
+    return this
+  }
+  onErrorControllerButtonClick(event, errorController) {
+    switch(event.data.action) {
+      case 'refresh':
+        Channels.channel('Application').request('router')
+          .navigate('')
+          .navigate(this.models.route.get('location').hash.string)
+        break
+    }
+  }
   onFavoritesModelSet(event, favoritesModel) {
-    console.log('onFavoritesModelSet')
     this.models.ui.set('loading', false)
     return this.startMediaGridController()
   }
@@ -61,9 +81,6 @@ export default class extends AsyncController {
     return this
   }
   onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
-    console.log(`/favorites/${this.models.favorites.get('favorites').find(
-      (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')
-    ).id}`)
     Channels.channel('Application').request('router').navigate(
       `/favorites/${this.models.favorites.get('favorites').find(
         (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')
@@ -86,7 +103,6 @@ export default class extends AsyncController {
       .getFavoritesModel()
   }
   startMediaGridController() {
-    console.log()
     if(this.controllers.mediaGrid) this.controllers.mediaGrid.stop()
     this.controllers.mediaGrid = new MediaGridController({
       models: {

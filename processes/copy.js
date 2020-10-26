@@ -9,17 +9,26 @@ const configuration = Object.values({
   "styles": {
     "source": [],
     "destinations": []
+  },
+  "fonts": {
+    "source": ["media/fonts/**"],
+    "destinations": [{
+      "path": "localhost",
+      "cwd": true
+    }]
   }
 }).forEach((copyElement) => {
   copyElement.source.forEach((sourceLocation) => {
-    const file = $fs.readFileSync($path.resolve(__dirname, '..', sourceLocation))
-    copyElement.destinations.forEach((destination) => {
-      const destinationLocation = (destination.cwd) ? $path.resolve(__dirname, '..', destination.path, sourceLocation) : $path.resolve(__dirname, '..', destination.path, $path.parse(sourceLocation).base)
-      console.log('Copy', sourceLocation, '=>', destinationLocation)
-      $fs.mkdirSync($path.dirname(destinationLocation), {
-        recursive: true
+    const files = globby.sync($path.resolve(__dirname, '..', sourceLocation)) || Array()
+    files.forEach((fileLocation) => {
+      // const file = $fs.readFileSync(fileLocation)
+      copyElement.destinations.forEach((destination) => {
+        const destinationLocation = $path.resolve(destination.path, $path.relative('.', fileLocation))
+        $fs.mkdirSync($path.dirname(destinationLocation), {
+          recursive: true
+        })
+        $fs.copyFileSync(fileLocation, destinationLocation)
       })
-      $fs.writeFileSync(destinationLocation, file)
     })
   })
 })

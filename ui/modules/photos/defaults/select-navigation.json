@@ -69,7 +69,6 @@
             "defaults": {
               "auth": false,
               "noAuth": true,
-              "textContent": "PREV",
               "associatedOptions": [
                 "ASC",
                 "DESC"
@@ -81,7 +80,7 @@
           "view": {
             "attributes": {
               "id": "photos-select-navigation-button-previous",
-              "class": "button",
+              "class": "button icon-circle-left",
               "data-action": "previous"
             }
           }
@@ -93,7 +92,6 @@
             "defaults": {
               "auth": false,
               "noAuth": true,
-              "textContent": "NEXT",
               "associatedOptions": [
                 "ASC",
                 "DESC"
@@ -105,7 +103,7 @@
           "view": {
             "attributes": {
               "id": "photos-select-navigation-button-next",
-              "class": "button",
+              "class": "button icon-circle-right",
               "data-action": "next"
             }
           }

@@ -9,6 +9,7 @@ module.exports = {
       "file": "./ui/index.scss",
       "includePaths": [
         "./ui",
+        "./media"
       ],
     },
     "output": {

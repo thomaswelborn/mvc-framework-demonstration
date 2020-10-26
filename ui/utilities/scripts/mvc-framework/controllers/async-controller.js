@@ -8,6 +8,9 @@ import {
 export default class extends Controller {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
+      models: {
+        // user: settings.models.user,
+      },
       modelEvents: {
         'ui set:loading': 'onUIModelSetLoading',
       },
@@ -18,16 +21,12 @@ export default class extends Controller {
         loader: new LoaderController(),
       },
       controllerEvents: {
-        'error accept': 'onErrorControllerAccept',
+        'error button:click': 'onErrorControllerButtonClick',
       },
       controllerCallbacks: {
-        onErrorControllerAccept: (event, errorController) => this.onErrorControllerAccept(event, errorController),
+        onErrorControllerButtonClick: (event, errorController) => this.onErrorControllerButtonClick(event, errorController), 
       },
-    }, settings), mergeDeep({}, settings))
-  }
-  onErrorControllerAccept(event, errorController) {
-    this.controllers.error.stop()
-    return this
+    }, settings), mergeDeep({}, options))
   }
   onUIModelSetLoading(event, uiModel) {
     switch(event.data.value) {
@@ -42,14 +41,17 @@ export default class extends Controller {
     return this
   }
   startErrorController(data, acceptCallback) {
-    console.log('startErrorController', data)
-    this.controllers.error = new ErrorController({}, {
+    this.controllers.error = new ErrorController({
+      models: {
+        user: this.models.user,
+      },
+    }, mergeDeep({
       models: {
         ui: {
           defaults: data,
         },
       },
-    }).start()
+    }, this.options.controllers.error)).start()
       .on('accept', acceptCallback)
     this.resetEvents('controller')
     this.views.view.renderElement('$element', 'afterbegin', this.controllers.error.views.view.element)

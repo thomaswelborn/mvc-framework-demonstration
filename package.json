@@ -6,7 +6,7 @@
     "start": "concurrently \"npm run documents\" \"npm run scripts\" \"npm run styles\" \"npm run server\" \"npm run copy\"",
     "documents": "nodemon -e json,ejs -w ./documents -w ./processes/ejs.js ./processes/ejs.js",
     "scripts": "rollup -c ./processes/rollup.config.js -w",
-    "styles": "nodemon  -e scss -w ./ui ./processes/node-sass.js",
+    "styles": "nodemon  -e scss,css -w ./ui -w ./processes/node-sass.js ./processes/node-sass.js",
     "copy": "nodemon -e jpg,gif,svg,png -w ./media -w ./processes/copy.js ./processes/copy.js",
     "server": "browser-sync start --config ./processes/bs-config.js",
     "generate": "node ./generator",

@@ -15,8 +15,15 @@
     flex-direction: column;
     width: 75%;
     max-width: 350px;
+    padding: 0.75rem;
     background: {
       color: rgb(255, 255, 255);
+    }
+    & > * {
+      margin: {
+        top: 0.25rem;
+        bottom: 0.25rem;
+      }
     }
   }
 }

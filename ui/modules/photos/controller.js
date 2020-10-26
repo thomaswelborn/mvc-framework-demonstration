@@ -1,9 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Images as ImagesModel } from 'utilities/scripts/mvc-framework/models/images'
+import { Images as ImagesModel } from 'api/the-cat-api/models/images'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
+  GETServiceError as GETServiceErrorDefaults,
   MediaGrid as MediaGridDefaults,
   SelectNavigation as SelectNavigationDefaults,
   Options as OptionsDefaults,
@@ -20,17 +21,22 @@ export default class extends AsyncController {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        ui: new Model(OptionsDefaults.models.ui),
+        ui: new Model(OptionsDefaults.models.ui)
+          .set('page', 0, true),
         mediaGrid: new Model({
           defaults: MediaGridDefaults,
         }),
         // images: ImagesModel,
       },
       modelEvents: {
+        'ui set:page': 'onUIModelSetPage',
+        'images ready': 'onImagesModelReady',
         'images set': 'onImagesModelSet',
         'images error': 'onImagesModelError',
       },
       modelCallbacks: {
+        onUIModelSetPage: (event, uiModel) => this.onUIModelSetPage(event, uiModel),
+        onImagesModelReady: (event, imagesModel) => this.onImagesModelReady(event, imagesModel),
         onImagesModelSet: (event, imagesModel) => this.onImagesModelSet(event, imagesModel),
         onImagesModelError: (event, imageSearchModel) => this.onImagesModelError(event, imageSearchModel),
       },
@@ -49,25 +55,45 @@ export default class extends AsyncController {
       },
       controllerEvents: {
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
-        'selectNavigation button:click': 'onSelectNavigationControllerButtonClick',
+        'selectNavigation subnavigationButton:click': 'onSelectNavigationSubnavigationButtonClick',
         'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
-        onSelectNavigationControllerSelectChange: (event, navigationController) => this.onSelectNavigationControllerSelectChange(event, navigationController),
-        onSelectNavigationControllerButtonClick: (event, navigationController) => this.onSelectNavigationControllerButtonClick(event, navigationController),
+        onSelectNavigationControllerSelectChange: (event, selectNavigationController) => this.onSelectNavigationControllerSelectChange(event, selectNavigationController),
+        onSelectNavigationSubnavigationButtonClick: (event, selectNavigationController) => this.onSelectNavigationSubnavigationButtonClick(event, selectNavigationController),
         onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
       },
-    }, settings), mergeDeep({}, options))
+    }, settings), mergeDeep({
+      controllers: {
+        error: GETServiceErrorDefaults,
+      },
+    }, options))
   }
   get viewData() { return {
     settings: this.models.ui.parse(),
   } }
+  onErrorControllerButtonClick(event, errorController) {
+    switch(event.data.action) {
+      case 'refresh':
+        Channels.channel('Application').request('router')
+          .navigate('')
+          .navigate(this.models.route.get('location').hash.string)
+        break
+    }
+  }
   onViewHeaderNavButtonClick(event, view) {
     switch(event.data.action) {
       case 'upload':
         Channels.channel('Application').request('router').navigate('/upload')
         break
     }
+    return this
+  }
+  onUIModelSetPage(event, uiModel) {
+    return this.getImagesModel()
+  }
+  onImagesModelReady(event, imagesModel) {
+    this.models.images.set('images', event.data)
     return this
   }
   onImagesModelSet(event, imagesModel) {
@@ -84,17 +110,17 @@ export default class extends AsyncController {
         .navigate('/')
     })
   }
-  onSelectNavigationControllerSelectChange(event, navigationController) {
+  onSelectNavigationControllerSelectChange(event, selectNavigationController) {
     this.models.ui.set('order', event.data.value)
     return this
   }
-  onSelectNavigationControllerButtonClick(event, navigationController) {
+  onSelectNavigationSubnavigationButtonClick(event, selectNavigationController) {
     switch(event.data.action) {
       case 'next':
-        // this.models.ui.advancePage(1)
+        this.advancePage(1)
         break
       case 'previous':
-        // this.models.ui.advancePage(-1)
+        this.advancePage(-1)
         break
     }
     return this

@@ -2,8 +2,11 @@ import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
-import { Options as OptionsDefaults } from './defaults'
-import { Upload as ImageUploadModel } from 'utilities/scripts/mvc-framework/models/images'
+import {
+  POSTServiceError as POSTServiceErrorDefaults,
+  Options as OptionsDefaults,
+} from './defaults'
+import { Upload as ImageUploadModel } from 'api/the-cat-api/models/images'
 import View from './view'
 import Channels from 'modules/channels'
 
@@ -18,11 +21,13 @@ export default class extends AsyncController {
       },
       modelEvents: {
         'ui set:imageReady': 'onUIModelSetImageReady',
+        'imageUpload ready': 'onImageUploadReady',
         'imageUpload set': 'onImageUploadModelSet',
         'imageUpload error': 'onImageUploadModelError',
       },
       modelCallbacks: {
         onUIModelSetImageReady: (event, settingsModel) => this.onUIModelSetImageReady(event, settingsModel),
+        onImageUploadReady: (event, imageUploadModel) => this.onImageUploadReady(event, imageUploadModel),
         onImageUploadModelSet: (event, imageUploadModel) => this.onImageUploadModelSet(event, imageUploadModel),
         onImageUploadModelError: (event, imageUploadModel) => this.onImageUploadModelError(event, imageUploadModel),
       },
@@ -38,11 +43,24 @@ export default class extends AsyncController {
         onViewUploadButtonClick: (event, view) => this.onViewUploadButtonClick(event, view),
       },
       controllers: {},
-    }, settings), mergeDeep({}, options))
+    }, settings), mergeDeep({
+      controllers: {
+        error: POSTServiceErrorDefaults,
+      },
+    }, options))
   }
   get viewData() { return {
     ui: this.models.ui.parse(),
   } }
+  onErrorControllerButtonClick(event, errorController) {
+    switch(event.data.action) {
+      case 'refresh':
+        Channels.channel('Application').request('router')
+          .navigate('')
+          .navigate(this.models.route.get('location').hash.string)
+        break
+    }
+  }
   onUIModelSetImageReady(event, settingsModel) {
     this.models.ui.set('loading', false)
     return this.renderView()
@@ -54,6 +72,10 @@ export default class extends AsyncController {
         .navigate('/')
         .navigate('/upload')
     })
+  }
+  onImageUploadReady(event, imageUploadModel) {
+    this.models.imageUpload.set(event.data)
+    return this
   }
   onImageUploadModelSet(event, imageUploadModel) {
     Channels.channel('Application').request('router').navigate(`/photos/${event.data.id}`)

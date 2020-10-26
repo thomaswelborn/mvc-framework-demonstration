@@ -1,0 +1,22 @@
+{
+  "controllers": {
+    "buttons": [
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "textContent": "Refresh"
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "data-action": "refresh"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -21,7 +21,6 @@ module.exports = {
       compilerOptions: {
         client: true,
         localsName: 'data',
-        rmWhitespace: true,
       }
     }),
     rollup.plugins.commonJS(),

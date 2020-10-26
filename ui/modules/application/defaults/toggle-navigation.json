@@ -19,16 +19,14 @@
     "toggle": {
       "models": {
         "ui": {
-          "defaults": {
-            "textContent": "*"
-          }
+          "defaults": {}
         }
       },
       "views": {
         "view": {
           "attributes": {
             "id": "application-toggle-navigation-toggle-button",
-            "class": "button toggle-button"
+            "class": "button toggle-button icon-menu"
           }
         }
       }
@@ -58,7 +56,7 @@
             "views": {
               "view": {
                 "attributes": {
-                  "class": "button subnavigation-button",
+                  "class": "button subnavigation-button icon-profile",
                   "data-href": "/account/profile",
                   "data-target": "_self"
                 }
@@ -71,15 +69,35 @@
                 "defaults": {
                   "auth": true,
                   "noAuth": false,
-                  "textContent": "Photos"
+                  "textContent": "My Photos"
                 }
               }
             },
             "views": {
               "view": {
                 "attributes": {
-                  "class": "button subnavigation-button",
+                  "class": "button subnavigation-button icon-images",
                   "data-href": "/photos",
+                  "data-target": "_self"
+                }
+              }
+            }
+          },
+          {
+            "models": {
+              "ui": {
+                "defaults": {
+                  "auth": true,
+                  "noAuth": false,
+                  "textContent": "My Favorites"
+                }
+              }
+            },
+            "views": {
+              "view": {
+                "attributes": {
+                  "class": "button subnavigation-button icon-star-empty",
+                  "data-href": "/favorites",
                   "data-target": "_self"
                 }
               }
@@ -98,7 +116,7 @@
             "views": {
               "view": {
                 "attributes": {
-                  "class": "button subnavigation-button",
+                  "class": "button subnavigation-button icon-box-remove",
                   "data-href": "/upload",
                   "data-target": "_self"
                 }
@@ -118,7 +136,7 @@
             "views": {
               "view": {
                 "attributes": {
-                  "class": "button subnavigation-button",
+                  "class": "button subnavigation-button icon-enter",
                   "data-href": "/account/login",
                   "data-target": "_self"
                 }
@@ -138,7 +156,7 @@
             "views": {
               "view": {
                 "attributes": {
-                  "class": "button subnavigation-button",
+                  "class": "button subnavigation-button icon-exit",
                   "data-href": "account/logout",
                   "data-target": "_self"
                 }

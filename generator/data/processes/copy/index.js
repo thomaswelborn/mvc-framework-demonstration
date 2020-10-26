@@ -19,6 +19,17 @@ module.exports = {
     "styles": {
       "source": [],
       "destinations": []
+    },
+    "fonts": {
+      "source": [
+        "media/fonts/**"
+      ],
+      "destinations": [
+        {
+          "path": "localhost",
+          "cwd": true
+        }
+      ]
     }
   }
 }

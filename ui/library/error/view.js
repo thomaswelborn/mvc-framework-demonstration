@@ -11,24 +11,8 @@ export default class extends RenderView {
       },
       template: Template,
       uiElements: {
-        button: ':scope > .error-content > button',
-      },
-      uiElementEvents: {
-        'button click': 'onButtonClick',
-      },
-      uiElementCallbacks: {
-        onButtonClick: (event) => this.onButtonClick(event),
+        nav: ':scope > .error-content > nav',
       },
     }, settings), mergeDeep({}, options))
-  }
-  onButtonClick(event) {
-    return this
-      .emit(
-        'click',
-        {
-          accept: true,
-        },
-        this
-      )
   }
 }

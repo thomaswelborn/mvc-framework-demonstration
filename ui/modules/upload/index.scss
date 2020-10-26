@@ -24,6 +24,13 @@
       .button-group {
         margin: 0;
       }
+      button {
+        &:before {
+          margin: {
+            right: 0.75rem;
+          }
+        }
+      }
     }
     #upload-image-preview {
       display: flex;

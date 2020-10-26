@@ -1,10 +1,11 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Favorite as FavoriteModel } from 'utilities/scripts/mvc-framework/models/favorites'
-import { Image as ImageModel } from 'utilities/scripts/mvc-framework/models/images'
+import { Favorite as FavoriteModel } from 'api/the-cat-api/models/favorites'
+import { Image as ImageModel } from 'api/the-cat-api/models/images'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
+  GETServiceError as GETServiceErrorDefaults,
   Navigation as NavigationDefaults,
   MediaItem as MediaItemDefaults,
   Options as OptionsDefaults,
@@ -18,7 +19,7 @@ import {
 import Channels from 'modules/channels'
 
 export default class extends AsyncController {
-  constructor(settings = {}, options = []) {
+  constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
@@ -29,12 +30,14 @@ export default class extends AsyncController {
       },
       modelEvents: {
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
+        'favorite ready': 'onFavoriteModelReady',
         'favorite set': 'onFavoriteModelSet',
-        'favorite get:error': 'onFavoriteModelGETError',
+        'favorite error': 'onFavoriteModelGETError',
         'favorite delete:success': 'onFavoriteModelDELETESuccess',
       },
       modelCallbacks: {
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
+        onFavoriteModelReady: (event, favoriteModel) => this.onFavoriteModelReady(event, favoriteModel),
         onFavoriteModelSet: (event, favoriteModel) => this.onFavoriteModelSet(event, favoriteModel),
         onFavoriteModelGETError: (event, favoriteModel) => this.onFavoriteModelGETError(event, favoriteModel),
         onFavoriteModelDELETESuccess: (event, favoriteModel) => this.onFavoriteModelDELETESuccess(event, favoriteModel),
@@ -49,7 +52,6 @@ export default class extends AsyncController {
         info: new InfoController(),
       },
       controllerEvents: {
-        
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
         'navigation click': 'onNavigationClick',
       },
@@ -57,7 +59,24 @@ export default class extends AsyncController {
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
         onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
-    }, settings), mergeDeep({}, options))
+    }, settings), mergeDeep({
+      controllers: {
+        error: GETServiceErrorDefaults,
+      },
+    }, options))
+  }
+  onFavoriteModelReady(event, favoriteModel) {
+    this.models.favorite.set(event.data)
+    return this
+  }
+  onErrorControllerButtonClick(event, errorController) {
+    switch(event.data.action) {
+      case 'refresh':
+        Channels.channel('Application').request('router')
+          .navigate('')
+          .navigate(this.models.route.get('location').hash.string)
+        break
+    }
   }
   onUIModelSetInfoSelected(event, uiModel) {
     switch(event.data.value) {
@@ -72,7 +91,6 @@ export default class extends AsyncController {
     return this
   }
   onFavoriteModelSet(event, favoriteModel) {
-    console.log('onFavoriteModelSet')
     this.models.ui.set('loading', false)
     return this.startMediaItemController()
   }
@@ -144,7 +162,6 @@ export default class extends AsyncController {
     return this
   }
   startNavigationController() {
-    console.log('startNavigationController')
     if(this.controllers.navigation) this.controllers.navigation.stop()
     this.controllers.navigation = new NavigationController({
       models: {
@@ -155,7 +172,6 @@ export default class extends AsyncController {
     return this
   }
   startMediaItemController() {
-    console.log('startMediaItemController')
     if(this.controllers.mediaItem) this.controllers.mediaItem.stop()
     this.controllers.mediaItem = new MediaItemController({
       models: {
@@ -188,7 +204,6 @@ export default class extends AsyncController {
     return this
   }
   start() {
-    console.log(isAuthenticated(this))
     if(isAuthenticated(this)) {
       this
         .startView()

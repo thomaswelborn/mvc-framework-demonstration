@@ -1,9 +1,10 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Image as ImageModel } from 'utilities/scripts/mvc-framework/models/images'
+import { Image as ImageModel } from 'api/the-cat-api/models/images'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
+  GETServiceError as GETServiceErrorDefaults,
   Navigation as NavigationDefaults,
   MediaItem as MediaItemDefaults,
   Options as OptionsDefaults,
@@ -38,11 +39,14 @@ export default class extends AsyncController {
       modelEvents: {
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
         'image set': 'onImageModelSet',
+        'image ready': 'onImageModelReady',
+        'image error': 'onImageModelGETError',
         'image get:error': 'onImageModelGETError',
         'image delete:success': 'onImageModelDELETESuccess',
       },
       modelCallbacks: {
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
+        onImageModelReady: (event, imageModel) => this.onImageModelReady(event, imageModel),
         onImageModelSet: (event, imageModel) => this.onImageModelSet(event, imageModel),
         onImageModelGETError: (event, imageModel) => this.onImageModelGETError(event, imageModel),
         onImageModelDELETESuccess: (event, imageModel) => this.onImageModelDELETESuccess(event, imageModel),
@@ -68,8 +72,21 @@ export default class extends AsyncController {
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
         onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
-    }, settings), mergeDeep({}, options))
+    }, settings), mergeDeep({
+      controllers: {
+        error: GETServiceErrorDefaults,
+      },
+    }, options))
     
+  }
+  onErrorControllerButtonClick(event, errorController) {
+    switch(event.data.action) {
+      case 'refresh':
+        Channels.channel('Application').request('router')
+          .navigate('')
+          .navigate(this.models.route.get('location').hash.string)
+        break
+    }
   }
   onUIModelSetInfoSelected(event, uiModel) {
     switch(event.data.value) {
@@ -83,6 +100,10 @@ export default class extends AsyncController {
     }
     return this
   }
+  onImageModelReady(event, imageModel) {
+    this.models.image.set(event.data)
+    return this
+  }
   onImageModelSet(event, imageModel) {
     this.models.ui.set('loading', false)
     return this
@@ -91,7 +112,10 @@ export default class extends AsyncController {
   }
   onImageModelGETError(event, imageModel, getService) {
     this.models.ui.set('loading', false)
-    this.startErrorController(event.data)
+    this.startErrorController(event.data, () => {
+      Channels.channel('Application').request('router')
+        .navigate('/')
+    })
     return this
   }
   onImageModelDELETESuccess(event, imageModel, deleteService) {

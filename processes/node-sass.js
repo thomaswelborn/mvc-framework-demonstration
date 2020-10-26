@@ -11,7 +11,7 @@ const output = {
 output.destination = $path.join(output.directory, output.file)
 const input = {
   "file": "./ui/index.scss",
-  "includePaths": ["./ui"]
+  "includePaths": ["./ui", "./media"]
 }
 const results = sass.renderSync({
   file: input.file,

@@ -1,5 +1,9 @@
 <div class="error-content">
-  <p>Status: <%= data.ui.status %></p>
-  <p>Message: <%= data.ui.message %></p>
-  <button class="button">OK</button>
+  <% if(data.ui.status) { %>
+    <p>Status: <%= data.ui.status %></p>
+  <% } %>
+  <% if(data.ui.message) { %>
+    <p>Message: <%= data.ui.message %></p>
+  <% } %>
+  <nav></nav>
 </div>

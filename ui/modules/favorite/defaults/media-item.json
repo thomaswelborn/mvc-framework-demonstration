@@ -25,8 +25,7 @@
               "ui": {
                 "defaults": {
                   "auth": true,
-                  "noAuth": true,
-                  "textContent": "INFO"
+                  "noAuth": true
                 }
               }
             },
@@ -34,7 +33,7 @@
               "view": {
                 "attributes": {
                   "id": "favorite-media-item-navigation-info",
-                  "class": "button",
+                  "class": "button icon-info",
                   "data-action": "info"
                 }
               }
