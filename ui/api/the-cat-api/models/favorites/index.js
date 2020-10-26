@@ -1,9 +1,11 @@
-import Favorite from './favorite'
-import Favorites from './favorites'
-import Save from './save'
+import DeleteOne from './delete-one'
+import GetOne from './get-one'
+import GetAll from './get-all'
+import PostOne from './post-one'
 
 export {
-  Favorite,
-  Favorites,
-  Save,
+  DeleteOne,
+  GetOne,
+  GetAll,
+  PostOne,
 }

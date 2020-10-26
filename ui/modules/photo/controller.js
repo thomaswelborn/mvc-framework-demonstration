@@ -1,17 +1,18 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Image as ImageModel } from 'api/the-cat-api/models/images'
+import {
+  DeleteOne as ImageDeleteOneModel,
+  GetOne as ImageGetOneModel,
+} from 'api/the-cat-api/models/images'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
   GETServiceError as GETServiceErrorDefaults,
-  Navigation as NavigationDefaults,
   MediaItem as MediaItemDefaults,
   Options as OptionsDefaults,
 } from './defaults'
 import View from './view'
 import {
-  Navigation as NavigationController,
   MediaItem as MediaItemController,
   Info as InfoController,
 } from 'library'
@@ -33,44 +34,42 @@ export default class extends AsyncController {
             },
           },
         )),
-        // image: ImageModel,
-        // imageDelete: ImageDeleteModel,
+        // image: ImageGetOneModel,
+        // imageDelete: ImageDeleteOneModel,
       },
       modelEvents: {
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
-        'image set': 'onImageModelSet',
-        'image ready': 'onImageModelReady',
-        'image error': 'onImageModelGETError',
-        'image get:error': 'onImageModelGETError',
-        'image delete:success': 'onImageModelDELETESuccess',
+        'imageGetOne set': 'onImageGetOneModelSet',
+        'imageGetOne ready': 'onImageGetOneModelReady',
+        'imageGetOne error': 'onImageGetOneModelError',
+        'imageDeleteOne ready': 'onImageDeleteOneModelReady',
+        'imageDeleteOne error': 'onImageDeleteOneModelReady',
       },
       modelCallbacks: {
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
-        onImageModelReady: (event, imageModel) => this.onImageModelReady(event, imageModel),
-        onImageModelSet: (event, imageModel) => this.onImageModelSet(event, imageModel),
-        onImageModelGETError: (event, imageModel) => this.onImageModelGETError(event, imageModel),
-        onImageModelDELETESuccess: (event, imageModel) => this.onImageModelDELETESuccess(event, imageModel),
+        onImageGetOneModelReady: (event, imageModel) => this.onImageGetOneModelReady(event, imageModel),
+        onImageGetOneModelSet: (event, imageModel) => this.onImageGetOneModelSet(event, imageModel),
+        onImageGetOneModelError: (event, imageModel) => this.onImageGetOneModelError(event, imageModel),
+        onImageDeleteOneModelReady: (event, imageModel) => this.onImageDeleteOneModelReady(event, imageModel),
       },
       views: {
         view: new View(),
       },
+      viewEvents: {
+        'view buttonClose:click': 'onViewButtonCloseClick',
+      },
+      viewCallbacks: {
+        onViewButtonCloseClick: (event, view) => this.onViewButtonCloseClick(event, view),
+      },
       controllers: {
         // mediaItem: MediaItemController,
-        // navigation: NavigationController,
-        navigation: new NavigationController({
-          models: {
-            user: settings.models.user,
-          }
-        }, NavigationDefaults).start(),
         info: new InfoController(),
       },
       controllerEvents: {
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
-        'navigation click': 'onNavigationClick',
       },
       controllerCallbacks: {
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
-        onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
     }, settings), mergeDeep({
       controllers: {
@@ -86,6 +85,10 @@ export default class extends AsyncController {
           .navigate('')
           .navigate(this.models.route.get('location').hash.string)
         break
+      case 'photos':
+        Channels.channel('Application').request('router')
+          .navigate('/photos')
+        break
     }
   }
   onUIModelSetInfoSelected(event, uiModel) {
@@ -100,17 +103,15 @@ export default class extends AsyncController {
     }
     return this
   }
-  onImageModelReady(event, imageModel) {
-    this.models.image.set(event.data)
+  onImageGetOneModelReady(event, imageModel) {
+    this.models.imageGetOne.set(event.data)
     return this
   }
-  onImageModelSet(event, imageModel) {
+  onImageGetOneModelSet(event, imageModel) {
     this.models.ui.set('loading', false)
-    return this
-      .startMediaItemController()
-      .renderMediaItemController()
+    return this.startMediaItemController()
   }
-  onImageModelGETError(event, imageModel, getService) {
+  onImageGetOneModelError(event, imageModel, getService) {
     this.models.ui.set('loading', false)
     this.startErrorController(event.data, () => {
       Channels.channel('Application').request('router')
@@ -118,60 +119,53 @@ export default class extends AsyncController {
     })
     return this
   }
-  onImageModelDELETESuccess(event, imageModel, deleteService) {
+  onImageDeleteOneModelReady(event, imageModel) {
+    console.log('onImageDeleteOneModelReady')
+    this.models.ui.set('loading', false)
     Channels.channel('Application').request('router').navigate('/photos')
     return this
   }
   onMediaItemControllerClickNavigation(event, mediaItemController) {
     switch(event.data.action) {
       case 'new':
-        this.getImageModel()
+        this.startImageGetOneModel()
         break
       case 'info':
         this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
         break
-    }
-    return this
-  }
-  onNavigationClick(event, navigationController) {
-    switch(event.data.action) {
-      case 'close':
-        Channels.channel('Application').request('router').navigate('/photos')
-        break
       case 'delete':
-        this.deleteImageModel()
+        this.startImageDeleteOneModel()
         break
     }
     return this
   }
-  getImageModel() {
-    this.models.ui.set('loading', true)
-    this.models.image.services.get.fetch()
-    return this
-  }
-  deleteImageModel() {
-    this.models.image.services.delete.fetch()
+  onViewButtonCloseClick(event, view) {
+    Channels.channel('Application').request('router').navigate('/photos')
     return this
   }
   renderView() {
     this.views.view.render()
     return this
   }
-  startImageModel() {
-    this.models.image = new ImageModel({}, {
+  startImageDeleteOneModel() {
+    console.log('startImageDeleteOneModel')
+    this.models.ui.set('loading', true)
+    this.models.imageDeleteOne = new ImageDeleteOneModel({}, {
       user: this.models.user,
       ui: this.models.ui,
     })
-    return this
-      .resetEvents('model')
-      .getImageModel()
-  }
-  renderNavigationController() {
-    this.views.view.renderElement('main', 'beforeend', this.controllers.navigation.views.view.element)
+    this.resetEvents('model')
+    this.models.imageDeleteOne.services.delete.fetch()
     return this
   }
-  renderMediaItemController() {
-    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
+  startImageGetOneModel() {
+    this.models.ui.set('loading', true)
+    this.models.imageGetOne = new ImageGetOneModel({}, {
+      user: this.models.user,
+      ui: this.models.ui,
+    })
+    this.resetEvents('model')
+    this.models.imageGetOne.services.get.fetch()
     return this
   }
   startMediaItemController() {
@@ -185,20 +179,21 @@ export default class extends AsyncController {
         image: {
           models: {
             ui: {
-              defaults: this.models.image.parse(),
+              defaults: this.models.imageGetOne.parse(),
             }
           },
         },
       }
     })).start()
     this.resetEvents('controller')
+    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaItem.views.view.element)
     return this
   }
   startInfoController(info) {
     this.controllers.info = new InfoController({
       models: {
         ui: new Model({
-          defaults: this.models.image.parse(),
+          defaults: this.models.imageGetOne.parse(),
         }),
       },
     }).start()
@@ -209,8 +204,7 @@ export default class extends AsyncController {
     if(isAuthenticated(this)) {
       this
         .renderView()
-        .renderNavigationController()
-        .startImageModel()
+        .startImageGetOneModel()
     } else {
       Channels.channel('Application').request('router')
         .navigate(this.models.ui.get('redirect'))

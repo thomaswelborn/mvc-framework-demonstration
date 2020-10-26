@@ -10,5 +10,12 @@
         "loading": false
       }
     }
+  },
+  "views": {
+    "view": {
+      "attributes": {
+        "id": "favorite"
+      }
+    }
   }
 }

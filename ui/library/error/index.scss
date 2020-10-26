@@ -20,6 +20,8 @@
       color: rgb(255, 255, 255);
     }
     & > * {
+      display: flex;
+      justify-content: center;
       margin: {
         top: 0.25rem;
         bottom: 0.25rem;

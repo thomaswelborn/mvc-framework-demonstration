@@ -7,7 +7,11 @@ export default class extends Service {
       method: 'DELETE',
       url: `https://api.thecatapi.com/v1/images/${options.ui.get('id')}`,
       headers: {
+        'Content-Type': 'application/json',
         'x-api-key': options.user.get('apiKey'),
+      },
+      parameters: {
+        image_id: options.ui.get('id'),
       },
     }, settings), mergeDeep({}, options))
   }

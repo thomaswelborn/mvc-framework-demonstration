@@ -1,6 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Favorites as FavoritesModel } from 'api/the-cat-api/models/favorites'
+import { GetAll as FavoritesGetAllModel } from 'api/the-cat-api/models/favorites'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
@@ -21,17 +21,17 @@ export default class extends AsyncController {
         mediaGrid: new Model({
           defaults: MediaGridDefaults,
         }),
-        // favorites: FavoritesModel,
+        // favorites: FavoritesGetAllModel,
       },
       modelEvents: {
-        'favorites ready': 'onFavoritesModelReady',
-        'favorites set': 'onFavoritesModelSet',
-        'favorites error': 'onFavoritesModelError',
+        'favoritesGetAll ready': 'onFavoritesGetAllModelReady',
+        'favoritesGetAll set': 'onFavoritesGetAllModelSet',
+        'favoritesGetAll error': 'onFavoritesGetAllModelError',
       },
       modelCallbacks: {
-        onFavoritesModelReady: (event, favoriteModel) => this.onFavoritesModelReady(event, favoriteModel),
-        onFavoritesModelSet: (event, favoritesModel) => this.onFavoritesModelSet(event, favoritesModel),
-        onFavoritesModelError: (event, favoritesModel) => this.onFavoritesModelError(event, favoritesModel),
+        onFavoritesGetAllModelReady: (event, favoriteModel) => this.onFavoritesGetAllModelReady(event, favoriteModel),
+        onFavoritesGetAllModelSet: (event, favoritesModel) => this.onFavoritesGetAllModelSet(event, favoritesModel),
+        onFavoritesGetAllModelError: (event, favoritesModel) => this.onFavoritesGetAllModelError(event, favoritesModel),
       },
       views: {
         view: new View(),
@@ -55,8 +55,8 @@ export default class extends AsyncController {
     settings: this.models.ui.parse(),
   } }
   
-  onFavoritesModelReady(event, favoriteModel) {
-    this.models.favorites.set('favorites', event.data)
+  onFavoritesGetAllModelReady(event, favoriteModel) {
+    this.models.favoritesGetAll.set('favorites', event.data)
     return this
   }
   onErrorControllerButtonClick(event, errorController) {
@@ -68,11 +68,11 @@ export default class extends AsyncController {
         break
     }
   }
-  onFavoritesModelSet(event, favoritesModel) {
+  onFavoritesGetAllModelSet(event, favoritesModel) {
     this.models.ui.set('loading', false)
     return this.startMediaGridController()
   }
-  onFavoritesModelError(event, favoritesModel) {
+  onFavoritesGetAllModelError(event, favoritesModel) {
     this.models.ui.set('loading', false)
     this.startErrorController(event.data, () => {
       Channels.channel('Application').request('router')
@@ -82,25 +82,20 @@ export default class extends AsyncController {
   }
   onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
     Channels.channel('Application').request('router').navigate(
-      `/favorites/${this.models.favorites.get('favorites').find(
+      `/favorites/${this.models.favoritesGetAll.get('favorites').find(
         (favorite) => favorite.image.id === mediaGridItemController.controllers.image.models.ui.get('id')
       ).id}`
     )
     return this
   }
-  getFavoritesModel() {
-    this.models.ui.set('loading', true)
-    this.models.favorites.services.get.fetch()
-    return this
-  }
-  startFavoritesModel() {
-    this.models.favorites = new FavoritesModel({}, {
+  startFavoritesGetAllModel() {
+    this.models.favoritesGetAll = new FavoritesGetAllModel({}, {
       ui: this.models.ui,
       user: this.models.user,
     })
+    this.resetEvents('model')
+    this.models.favoritesGetAll.services.get.fetch()
     return this
-      .resetEvents('model')
-      .getFavoritesModel()
   }
   startMediaGridController() {
     if(this.controllers.mediaGrid) this.controllers.mediaGrid.stop()
@@ -109,7 +104,7 @@ export default class extends AsyncController {
         user: this.models.user,
         images: new Model({
           defaults: {
-            images: Object.values(this.models.favorites.get('favorites')).map((favorite) => favorite.image),
+            images: Object.values(this.models.favoritesGetAll.get('favorites')).map((favorite) => favorite.image),
           },
         }),
       },
@@ -126,7 +121,7 @@ export default class extends AsyncController {
     if(isAuthenticated(this)) {
       this
         .renderView()
-        .startFavoritesModel()
+        .startFavoritesGetAllModel()
     } else {
       Channels.channel('Application').request('router')
         .navigate(this.models.ui.get('redirect'))

@@ -10,11 +10,13 @@
       display: flex;
       width: 100%;
       justify-content: space-between;
+      padding: 1rem;
       label {
         display: flex;
         background: {
           color: gainsboro;
         }
+        justify-content: center;
       }
       input[type="file"] {
         display: none;
@@ -24,7 +26,11 @@
       .button-group {
         margin: 0;
       }
+      label,
       button {
+        font: {
+          size: 1rem;
+        }
         &:before {
           margin: {
             right: 0.75rem;

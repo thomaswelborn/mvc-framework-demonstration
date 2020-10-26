@@ -49,7 +49,7 @@
                 "defaults": {
                   "auth": true,
                   "noAuth": false,
-                  "textContent": "Profile"
+                  "textContent": "PROFILE"
                 }
               }
             },
@@ -69,7 +69,7 @@
                 "defaults": {
                   "auth": true,
                   "noAuth": false,
-                  "textContent": "My Photos"
+                  "textContent": "MY PHOTOS"
                 }
               }
             },
@@ -89,7 +89,7 @@
                 "defaults": {
                   "auth": true,
                   "noAuth": false,
-                  "textContent": "My Favorites"
+                  "textContent": "MY FAVORITES"
                 }
               }
             },
@@ -109,7 +109,7 @@
                 "defaults": {
                   "auth": true,
                   "noAuth": false,
-                  "textContent": "Upload"
+                  "textContent": "UPLOAD"
                 }
               }
             },
@@ -129,7 +129,7 @@
                 "defaults": {
                   "auth": false,
                   "noAuth": true,
-                  "textContent": "Login"
+                  "textContent": "LOGIN"
                 }
               }
             },
@@ -149,7 +149,7 @@
                 "defaults": {
                   "auth": true,
                   "noAuth": false,
-                  "textContent": "Logout"
+                  "textContent": "LOGOUT"
                 }
               }
             },

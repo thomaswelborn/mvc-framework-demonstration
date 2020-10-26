@@ -16,6 +16,22 @@
             }
           }
         }
+      },
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "textContent": "Photos"
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "data-action": "photos"
+            }
+          }
+        }
       }
     ]
   }

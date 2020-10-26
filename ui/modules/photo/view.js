@@ -12,8 +12,22 @@ export default class extends RenderView {
       template: Template,
       uiElements: {
         header: ':scope > header',
+        buttonClose: ':scope > header > nav > button[data-action="close"]',
         main: ':scope > main',
       },
+      uiElementEvents: {
+        'buttonClose click': 'onButtonCloseClick',
+      },
+      uiElementCallbacks: {
+        onButtonCloseClick: (event) => this.onButtonCloseClick(event),
+      },
     }, settings), mergeDeep({}, options))
+  }
+  onButtonCloseClick(event) {
+    return this.emit(
+      'buttonClose:click',
+      {},
+      this,
+    )
   }
 }

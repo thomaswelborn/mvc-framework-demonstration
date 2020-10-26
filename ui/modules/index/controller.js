@@ -3,7 +3,7 @@ import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
 import { Search as ImageSearchModel } from 'api/the-cat-api/models/images'
 import { UI as UIModel } from './models'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
-import { Save as SaveFavoriteModel } from 'api/the-cat-api/models/favorites'
+import { PostOne as PostOneFavoriteModel } from 'api/the-cat-api/models/favorites'
 import { Model } from 'mvc-framework/source/MVC'
 import Channels from 'modules/channels'
 import {
@@ -25,24 +25,24 @@ export default class extends AsyncController {
       models: {
         // user: settings.models.user,
         // imageSearch: ImageSearchModel,
-        // saveFavorite: FavoriteModel,
+        // postOneFavorite: FavoriteModel,
         ui: new Model(OptionsDefaults.models.ui)
           .set('page', 0, true),
       },
       modelEvents: {
+        'ui set:infoSelected': 'onUIModelSetInfoSelected',
         'imageSearch set': 'onImageSearchModelSet',
         'imageSearch ready': 'onImageSearchModelReady',
         'imageSearch error': 'onImageSearchModelError',
-        'saveFavorite ready': 'onSaveFavoriteReady',
-        'saveFavorite set': 'onSaveFavoriteModelSet',
-        'ui set:infoSelected': 'onUIModelSetInfoSelected',
+        'postOneFavorite ready': 'onPostOneFavoriteModelReady',
+        'postOneFavorite set': 'onPostOneFavoriteModelSet',
       },
       modelCallbacks: {
         onImageSearchModelSet: (event, imageSearchModel) => this.onImageSearchModelSet(event, imageSearchModel),
         onImageSearchModelReady: (event, imageSearchModel) => this.onImageSearchModelReady(event, imageSearchModel),
         onImageSearchModelError: (event, imageSearchModel) => this.onImageSearchModelError(event, imageSearchModel),
-        onSaveFavoriteReady: (event, imageSearchModel) => this.onSaveFavoriteReady(event, imageSearchModel),
-        onSaveFavoriteModelSet: (event, imageSearchModel) => this.onSaveFavoriteModelSet(event, imageSearchModel),
+        onPostOneFavoriteModelReady: (event, imageSearchModel) => this.onPostOneFavoriteModelReady(event, imageSearchModel),
+        onPostOneFavoriteModelSet: (event, imageSearchModel) => this.onPostOneFavoriteModelSet(event, imageSearchModel),
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
       },
       views: {
@@ -83,11 +83,11 @@ export default class extends AsyncController {
         .navigate('/')
     })
   }
-  onSaveFavoriteReady(event, imageSearchModel) {
-    this.models.saveFavorite.set(event.data)
+  onPostOneFavoriteModelReady(event, imageSearchModel) {
+    this.models.postOneFavorite.set(event.data)
     return this
   }
-  onSaveFavoriteModelSet(event, imageSearchModel) {
+  onPostOneFavoriteModelSet(event, imageSearchModel) {
     this.controllers.mediaItem.stopButton('index-media-item-navigation-favorite-button')
     return this
   }
@@ -126,7 +126,7 @@ export default class extends AsyncController {
         this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
         break
       case 'favorite':
-        this.startSaveFavoriteModel()
+        this.startPostOneFavoriteModel()
         break
     }
     return this
@@ -146,7 +146,7 @@ export default class extends AsyncController {
     return this
   }
   postFavoriteModel() {
-    this.models.saveFavorite.services.post.fetch()
+    this.models.postOneFavorite.services.post.fetch()
     return this
   }
   advancePage(pages) {
@@ -213,17 +213,17 @@ export default class extends AsyncController {
       .resetEvents('model')
       .getImageSearchModel()
   }
-  startSaveFavoriteModel() {
-    this.models.saveFavorite = new SaveFavoriteModel({}, {
+  startPostOneFavoriteModel() {
+    this.models.postOneFavorite = new PostOneFavoriteModel({}, {
       user: this.models.user,
       ui: this.models.ui,
       image: new Model({
         defaults: this.models.imageSearch.get('images').slice(-1)[0],
       }),
     })
+    this.resetEvents('model')
+    this.models.postOneFavorite.services.post.fetch()
     return this
-      .resetEvents('model')
-      .postFavoriteModel()
   }
   start() {
     if(isAuthenticated(this)) {

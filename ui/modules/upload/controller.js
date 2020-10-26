@@ -6,7 +6,7 @@ import {
   POSTServiceError as POSTServiceErrorDefaults,
   Options as OptionsDefaults,
 } from './defaults'
-import { Upload as ImageUploadModel } from 'api/the-cat-api/models/images'
+import { PostOne as ImagePostOneModel } from 'api/the-cat-api/models/images'
 import View from './view'
 import Channels from 'modules/channels'
 
@@ -15,21 +15,21 @@ export default class extends AsyncController {
     super(mergeDeep({
       models: {
         ui: new Model(OptionsDefaults.models.ui),
-        imageUpload: new ImageUploadModel({}, {
+        imagePostOne: new ImagePostOneModel({}, {
           user: settings.models.user,
         }),
       },
       modelEvents: {
         'ui set:imageReady': 'onUIModelSetImageReady',
-        'imageUpload ready': 'onImageUploadReady',
-        'imageUpload set': 'onImageUploadModelSet',
-        'imageUpload error': 'onImageUploadModelError',
+        'imagePostOne ready': 'onImageUploadReady',
+        'imagePostOne set': 'onImagePostOneModelSet',
+        'imagePostOne error': 'onImagePostOneModelError',
       },
       modelCallbacks: {
         onUIModelSetImageReady: (event, settingsModel) => this.onUIModelSetImageReady(event, settingsModel),
-        onImageUploadReady: (event, imageUploadModel) => this.onImageUploadReady(event, imageUploadModel),
-        onImageUploadModelSet: (event, imageUploadModel) => this.onImageUploadModelSet(event, imageUploadModel),
-        onImageUploadModelError: (event, imageUploadModel) => this.onImageUploadModelError(event, imageUploadModel),
+        onImageUploadReady: (event, imagePostOneModel) => this.onImageUploadReady(event, imagePostOneModel),
+        onImagePostOneModelSet: (event, imagePostOneModel) => this.onImagePostOneModelSet(event, imagePostOneModel),
+        onImagePostOneModelError: (event, imagePostOneModel) => this.onImagePostOneModelError(event, imagePostOneModel),
       },
       views: {
         view: new View(),
@@ -65,7 +65,7 @@ export default class extends AsyncController {
     this.models.ui.set('loading', false)
     return this.renderView()
   }
-  onImageUploadModelError(event, imageUploadModel) {
+  onImagePostOneModelError(event, imagePostOneModel) {
     this.models.ui.set('loading', false)
     return this.startErrorController(event.data, () => {
       Channels.channel('Application').request('router')
@@ -73,11 +73,11 @@ export default class extends AsyncController {
         .navigate('/upload')
     })
   }
-  onImageUploadReady(event, imageUploadModel) {
-    this.models.imageUpload.set(event.data)
+  onImageUploadReady(event, imagePostOneModel) {
+    this.models.imagePostOne.set(event.data)
     return this
   }
-  onImageUploadModelSet(event, imageUploadModel) {
+  onImagePostOneModelSet(event, imagePostOneModel) {
     Channels.channel('Application').request('router').navigate(`/photos/${event.data.id}`)
     return this
   }
@@ -88,12 +88,12 @@ export default class extends AsyncController {
     this.models.ui.set('imageReady', true)
     this.views.view
       .renderElement('uploadImagePreview', 'afterbegin', event.data.image)
-    this.models.imageUpload.services.post.body = data
+    this.models.imagePostOne.services.post.body = data
     return this
   }
   onViewUploadButtonClick(event, view) {
     this.models.ui.set('loading', true)
-    this.models.imageUpload.services.post.fetch()
+    this.models.imagePostOne.services.post.fetch()
     return this
   }
   renderView() {

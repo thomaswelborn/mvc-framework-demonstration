@@ -1,18 +1,19 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Favorite as FavoriteModel } from 'api/the-cat-api/models/favorites'
-import { Image as ImageModel } from 'api/the-cat-api/models/images'
+import {
+  DeleteOne as FavoriteDeleteOneModel,
+  GetOne as FavoriteGetOneModel,
+} from 'api/the-cat-api/models/favorites'
+import { GetOne as ImageGetOneModel } from 'api/the-cat-api/models/images'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
   GETServiceError as GETServiceErrorDefaults,
-  Navigation as NavigationDefaults,
   MediaItem as MediaItemDefaults,
   Options as OptionsDefaults,
 } from './defaults'
 import View from './view'
 import {
-  Navigation as NavigationController,
   MediaItem as MediaItemController,
   Info as InfoController,
 } from 'library'
@@ -25,25 +26,32 @@ export default class extends AsyncController {
         // user: settings.models.user,
         // route: settings.models.route,
         ui: new Model(OptionsDefaults.models.ui),
-        // favorite: FavoriteModel,
-        // favoriteDelete: FavoriteDeleteModel,
+        // favorite: FavoriteGetOneModel,
+        // favoriteDelete: FavoriteDeleteOneModel,
       },
       modelEvents: {
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
-        'favorite ready': 'onFavoriteModelReady',
-        'favorite set': 'onFavoriteModelSet',
-        'favorite error': 'onFavoriteModelGETError',
-        'favorite delete:success': 'onFavoriteModelDELETESuccess',
+        'favoriteGetOne ready': 'onFavoriteGetOneModelReady',
+        'favoriteGetOne set': 'onFavoriteGetOneModelSet',
+        'favoriteGetOne error': 'onFavoriteGetOneModelError',
+        'favoriteDeleteOne ready': 'onFavoriteDeleteOneModelReady',
+        'favoriteDeleteOne error': 'onFavoriteDeleteOneModelReady',
       },
       modelCallbacks: {
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
-        onFavoriteModelReady: (event, favoriteModel) => this.onFavoriteModelReady(event, favoriteModel),
-        onFavoriteModelSet: (event, favoriteModel) => this.onFavoriteModelSet(event, favoriteModel),
-        onFavoriteModelGETError: (event, favoriteModel) => this.onFavoriteModelGETError(event, favoriteModel),
-        onFavoriteModelDELETESuccess: (event, favoriteModel) => this.onFavoriteModelDELETESuccess(event, favoriteModel),
+        onFavoriteGetOneModelReady: (event, favoriteModel) => this.onFavoriteGetOneModelReady(event, favoriteModel),
+        onFavoriteGetOneModelSet: (event, favoriteModel) => this.onFavoriteGetOneModelSet(event, favoriteModel),
+        onFavoriteGetOneModelError: (event, favoriteModel) => this.onFavoriteGetOneModelError(event, favoriteModel),
+        onFavoriteDeleteOneModelReady: (event, imageModel) => this.onFavoriteDeleteOneModelReady(event, imageModel),
       },
       views: {
         view: new View(),
+      },
+      viewEvents: {
+        'view buttonClose:click': 'onViewButtonCloseClick',
+      },
+      viewCallbacks: {
+        onViewButtonCloseClick: (event, view) => this.onViewButtonCloseClick(event, view),
       },
       controllers: {
         // mediaItem: MediaItemController,
@@ -53,11 +61,9 @@ export default class extends AsyncController {
       },
       controllerEvents: {
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
-        'navigation click': 'onNavigationClick',
       },
       controllerCallbacks: {
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
-        onNavigationClick: (event, navigationController) => this.onNavigationClick(event, navigationController),
       },
     }, settings), mergeDeep({
       controllers: {
@@ -65,8 +71,8 @@ export default class extends AsyncController {
       },
     }, options))
   }
-  onFavoriteModelReady(event, favoriteModel) {
-    this.models.favorite.set(event.data)
+  onFavoriteGetOneModelReady(event, favoriteModel) {
+    this.models.favoriteGetOne.set(event.data)
     return this
   }
   onErrorControllerButtonClick(event, errorController) {
@@ -75,6 +81,9 @@ export default class extends AsyncController {
         Channels.channel('Application').request('router')
           .navigate('')
           .navigate(this.models.route.get('location').hash.string)
+        break
+      case 'favorites':
+        Channels.channel('Application').request('router').navigate('/favorites')
         break
     }
   }
@@ -90,11 +99,11 @@ export default class extends AsyncController {
     }
     return this
   }
-  onFavoriteModelSet(event, favoriteModel) {
+  onFavoriteGetOneModelSet(event, favoriteModel) {
     this.models.ui.set('loading', false)
     return this.startMediaItemController()
   }
-  onFavoriteModelGETError(event, favoriteModel, getService) {
+  onFavoriteGetOneModelError(event, favoriteModel, getService) {
     this.models.ui.set('loading', false)
     this.startErrorController(event.data, () => {
       Channels.channel('Application').request('router')
@@ -102,73 +111,63 @@ export default class extends AsyncController {
     })
     return this
   }
-  onFavoriteModelDELETESuccess(event, favoriteModel, deleteService) {
+  onFavoriteDeleteOneModelReady(event, imageModel) {
+    this.models.ui.set('loading', false)
     Channels.channel('Application').request('router').navigate('/favorites')
     return this
   }
   onMediaItemControllerClickNavigation(event, mediaItemController) {
     switch(event.data.action) {
       case 'new':
-        this.getFavoriteModel()
+        this.startFavoriteGetOneModel()
         break
       case 'info':
         this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
         break
-    }
-    return this
-  }
-  onNavigationClick(event, navigationController) {
-    switch(event.data.action) {
-      case 'close':
-        Channels.channel('Application').request('router').navigate('/favorites')
-        break
       case 'delete':
-        this.deleteFavoriteModel()
+        this.startFavoriteDeleteOneModel()
         break
     }
     return this
   }
-  getFavoriteModel() {
+  onViewButtonCloseClick(event, view) {
+    Channels.channel('Application').request('router').navigate('/favorites')
+    return this
+  }
+  startFavoriteGetOneModel() {
     this.models.ui.set('loading', true)
-    this.models.favorite.services.get.fetch()
-    return this
-  }
-  deleteFavoriteModel() {
-    this.models.favorite.services.delete.fetch()
-    return this
-  }
-  startFavoriteModel() {
-    this.models.favorite = new FavoriteModel({}, {
+    this.models.favoriteGetOne = new FavoriteGetOneModel({}, {
       user: this.models.user,
       route: this.models.route,
       ui: this.models.ui,
     })
+    this.resetEvents('model')
+    this.models.favoriteGetOne.services.get.fetch()
     return this
-      .resetEvents('model')
-      .getFavoriteModel()
   }
-  startImageModel() {
-    this.models.image = new ImageModel({}, {
+  startFavoriteDeleteOneModel() {
+    this.models.ui.set('loading', true)
+    this.models.favoriteDeleteOne = new FavoriteDeleteOneModel({}, {
+      user: this.models.user,
+      route: this.models.route,
+      ui: this.models.ui,
+    })
+    this.resetEvents('model')
+    this.models.favoriteDeleteOne.services.delete.fetch()
+    return this
+  }
+  startImageGetOneModel() {
+    this.models.image = new ImageGetOneModel({}, {
       user: this.models.user,
       ui: new Model({
         defaults: {
-          id: this.models.favorite.get('image_id')
+          id: this.models.favoriteGetOne.get('image_id')
         },
       })
     })
   }
   startView() {
     this.views.view.render()
-    return this
-  }
-  startNavigationController() {
-    if(this.controllers.navigation) this.controllers.navigation.stop()
-    this.controllers.navigation = new NavigationController({
-      models: {
-        user: this.models.user,
-      }
-    }, NavigationDefaults).start()
-    this.views.view.renderElement('main', 'beforeend', this.controllers.navigation.views.view.element)
     return this
   }
   startMediaItemController() {
@@ -182,7 +181,7 @@ export default class extends AsyncController {
         image: {
           models: {
             ui: {
-              defaults: this.models.favorite.get('image'),
+              defaults: this.models.favoriteGetOne.get('image'),
             }
           },
         },
@@ -196,7 +195,7 @@ export default class extends AsyncController {
     this.controllers.info = new InfoController({
       models: {
         ui: new Model({
-          defaults: this.models.favorite.parse(),
+          defaults: this.models.favoriteGetOne.parse(),
         }),
       },
     }).start()
@@ -207,11 +206,10 @@ export default class extends AsyncController {
     if(isAuthenticated(this)) {
       this
         .startView()
-        .startNavigationController()
-        .startFavoriteModel()
+        .startFavoriteGetOneModel()
     } else {
-      // Channels.channel('Application').request('router')
-      //   .navigate(this.models.ui.get('redirect'))
+      Channels.channel('Application').request('router')
+        .navigate(this.models.ui.get('redirect'))
     }
     return this
   }

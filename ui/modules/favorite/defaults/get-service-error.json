@@ -16,6 +16,22 @@
             }
           }
         }
+      },
+      {
+        "models": {
+          "ui": {
+            "defaults": {
+              "textContent": "Favorites"
+            }
+          }
+        },
+        "views": {
+          "view": {
+            "attributes": {
+              "data-action": "favorites"
+            }
+          }
+        }
       }
     ]
   }

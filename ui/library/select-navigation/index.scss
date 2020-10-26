@@ -3,8 +3,14 @@
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
+  background: {
+    color: gainsboro;
+  }
   select {
     width: 10rem;
+    background: {
+      color: gainsboro;
+    }
   }
   nav {
     display: flex;

@@ -19,6 +19,7 @@ export default class extends Model {
     switch(service.response.status) {
       case 200: 
       case 202: 
+      case 204: 
       default: 
         this.emit(
           'ready',
@@ -38,12 +39,9 @@ export default class extends Model {
     return this
   }
   onServiceError(event, service) {
-    this.emit(
+    return this.emit(
       'error',
-      {
-        status: -1,
-        message: event.data,
-      },
+      event.data,
       this,
     )
   }

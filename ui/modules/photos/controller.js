@@ -1,6 +1,6 @@
 import { mergeDeep } from 'utilities/scripts'
 import { isAuthenticated } from 'utilities/scripts/mvc-framework/methods'
-import { Images as ImagesModel } from 'api/the-cat-api/models/images'
+import { GetAll as ImagesGetAllModel } from 'api/the-cat-api/models/images'
 import { AsyncController } from 'utilities/scripts/mvc-framework/controllers'
 import { Model } from 'mvc-framework/source/MVC'
 import {
@@ -26,19 +26,19 @@ export default class extends AsyncController {
         mediaGrid: new Model({
           defaults: MediaGridDefaults,
         }),
-        // images: ImagesModel,
+        // imagesGetAll: ImagesGetAllModel,
       },
       modelEvents: {
         'ui set:page': 'onUIModelSetPage',
-        'images ready': 'onImagesModelReady',
-        'images set': 'onImagesModelSet',
-        'images error': 'onImagesModelError',
+        'imagesGetAll ready': 'onImagesGetAllModelReady',
+        'imagesGetAll set': 'onImagesGetAllModelSet',
+        'imagesGetAll error': 'onImagesGetAllModelError',
       },
       modelCallbacks: {
         onUIModelSetPage: (event, uiModel) => this.onUIModelSetPage(event, uiModel),
-        onImagesModelReady: (event, imagesModel) => this.onImagesModelReady(event, imagesModel),
-        onImagesModelSet: (event, imagesModel) => this.onImagesModelSet(event, imagesModel),
-        onImagesModelError: (event, imageSearchModel) => this.onImagesModelError(event, imageSearchModel),
+        onImagesGetAllModelReady: (event, imagesModel) => this.onImagesGetAllModelReady(event, imagesModel),
+        onImagesGetAllModelSet: (event, imagesModel) => this.onImagesGetAllModelSet(event, imagesModel),
+        onImagesGetAllModelError: (event, imageSearchModel) => this.onImagesGetAllModelError(event, imageSearchModel),
       },
       views: {
         view: new View(),
@@ -90,20 +90,17 @@ export default class extends AsyncController {
     return this
   }
   onUIModelSetPage(event, uiModel) {
-    return this.getImagesModel()
+    return this.startImagesGetAllModel()
   }
-  onImagesModelReady(event, imagesModel) {
-    this.models.images.set('images', event.data)
+  onImagesGetAllModelReady(event, imagesModel) {
+    this.models.imagesGetAll.set('images', event.data)
     return this
   }
-  onImagesModelSet(event, imagesModel) {
+  onImagesGetAllModelSet(event, imagesModel) {
     this.models.ui.set('loading', false)
-    return this
-      .startControllers()
-      .renderSelectNavigationController()
-      .renderMediaGridController()
+    return this.startControllers()
   }
-  onImagesModelError(event, imageSearchModel) {
+  onImagesGetAllModelError(event, imageSearchModel) {
     this.models.ui.set('loading', false)
     return this.startErrorController(event.data, () => {
       Channels.channel('Application').request('router')
@@ -131,27 +128,16 @@ export default class extends AsyncController {
     )
     return this
   }
-  getImagesModel() {
+  startImagesGetAllModel() {
     this.models.ui.set('loading', true)
-    this.models.images.services.get.fetch()
-    return this
-  }
-  renderSelectNavigationController() {
-    this.views.view.renderElement('main', 'afterbegin', this.controllers.selectNavigation.views.view.element)
-    return this
-  }
-  renderMediaGridController() {
-    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaGrid.views.view.element)
-    return this
-  }
-  startImagesModel() {
-    this.models.images = new ImagesModel({}, {
+    this.models.imagesGetAll = new ImagesGetAllModel({}, {
       ui: this.models.ui,
       user: this.models.user,
     })
+    this.models.imagesGetAll.services.get.fetch()
+    this.resetEvents('model')
+    this.models.imagesGetAll.services.get.fetch()
     return this
-      .resetEvents('model')
-      .getImagesModel()
   }
   startSelectNavigationController() {
     if(this.controllers.selectNavigation) this.controllers.selectNavigation.stop()
@@ -161,6 +147,7 @@ export default class extends AsyncController {
       },
     }, SelectNavigationDefaults).start()
     this.resetEvents('controller')
+    this.views.view.renderElement('main', 'beforeend', this.controllers.selectNavigation.views.view.element)
     return this
   }
   startMediaGridController() {
@@ -168,27 +155,28 @@ export default class extends AsyncController {
     this.controllers.mediaGrid = new MediaGridController({
       models: {
         user: this.models.user,
-        images: this.models.images,
+        images: this.models.imagesGetAll,
       },
     }, MediaGridDefaults).start()
     this.resetEvents('controller')
+    this.views.view.renderElement('main', 'beforeend', this.controllers.mediaGrid.views.view.element)
     return this
   }
   
   startControllers() {
     return this
-      .startSelectNavigationController()
       .startMediaGridController()
+      .startSelectNavigationController()
   }
-  renderView() {
+  startView() {
     this.views.view.render()
     return this
   }
   start() {
     if(isAuthenticated(this)) {
       this
-        .renderView()
-        .startImagesModel()
+        .startView()
+        .startImagesGetAllModel()
     } else {
       Channels.channel('Application').request('router')
         .navigate(this.models.ui.get('redirect'))

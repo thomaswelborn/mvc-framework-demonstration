@@ -1,25 +1,17 @@
 import { mergeDeep } from 'utilities/scripts'
 import { AsyncModel } from 'utilities/scripts/mvc-framework/models'
-import {
-  GET,
-  DELETE,
-} from './services'
-import { ImageDefaults } from 'api/the-cat-api/defaults'
+import { DELETE } from './services'
 
 export default class extends AsyncModel {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       services: {
-        get: new GET({}, {
-          user: options.user,
-          ui: options.ui,
-        }),
         delete: new DELETE({}, {
           user: options.user,
           ui: options.ui,
+          route: options.route,
         }),
       },
-      defaults: ImageDefaults,
     }, settings), mergeDeep({}, options))
   }
 }

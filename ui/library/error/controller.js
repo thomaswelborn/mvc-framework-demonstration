@@ -3,7 +3,7 @@ import {
   Model,
   Controller,
 } from 'mvc-framework/source/MVC'
-import { Button as ButtonController } from 'library'
+import ButtonController from '../button'
 import View from './view'
 
 export default class extends Controller {

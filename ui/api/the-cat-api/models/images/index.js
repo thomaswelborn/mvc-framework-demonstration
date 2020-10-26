@@ -1,11 +1,13 @@
-import Image from './image'
-import Images from './images'
+import DeleteOne from './delete-one'
+import GetOne from './get-one'
+import GetAll from './get-all'
 import Search from './search'
-import Upload from './upload'
+import PostOne from './post-one'
 
 export {
-  Image,
-  Images,
+  DeleteOne,
+  GetOne,
+  GetAll,
   Search,
-  Upload,
+  PostOne,
 }
