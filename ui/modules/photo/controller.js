@@ -120,7 +120,6 @@ export default class extends AsyncController {
     return this
   }
   onImageDeleteOneModelReady(event, imageModel) {
-    console.log('onImageDeleteOneModelReady')
     this.models.ui.set('loading', false)
     Channels.channel('Application').request('router').navigate('/photos')
     return this
@@ -148,7 +147,6 @@ export default class extends AsyncController {
     return this
   }
   startImageDeleteOneModel() {
-    console.log('startImageDeleteOneModel')
     this.models.ui.set('loading', true)
     this.models.imageDeleteOne = new ImageDeleteOneModel({}, {
       user: this.models.user,

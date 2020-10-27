@@ -27,7 +27,8 @@ export default class extends AsyncController {
         // imageSearch: ImageSearchModel,
         // postOneFavorite: FavoriteModel,
         ui: new Model(OptionsDefaults.models.ui)
-          .set('page', 0, true),
+          .set('page', 0, true)
+          .set('infoSelected', false, true),
       },
       modelEvents: {
         'ui set:infoSelected': 'onUIModelSetInfoSelected',

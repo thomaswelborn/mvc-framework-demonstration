@@ -6,7 +6,6 @@ export default class extends Service {
     super(mergeDeep({
       method: 'GET',
       url: (() => {
-        console.log(options)
         return `https://api.thecatapi.com/v1/favourites/${Object(options.route.get('location')).hash.fragments.slice(-1)[0]}`
       })(),
       headers: {

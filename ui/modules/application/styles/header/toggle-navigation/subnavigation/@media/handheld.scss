@@ -1,0 +1,25 @@
+@media (max-width: 639px) {
+  .subnavigation {
+    width: 100vw;
+    height: 100vh;
+    flex: 1;
+    background: {
+      color: gray;
+    }
+    & > button {
+      border: {
+        bottom: 0.1rem solid black;
+      }
+      &:first-child {
+        border: {
+          top: 0.05rem solid black;
+        }
+      }
+      &:last-child {
+        border: {
+          bottom: 0.05rem solid black;
+        }
+      }
+    }
+  }
+}

@@ -110,9 +110,6 @@ export default class extends Controller {
     }, {})
     return this
   }
-  stopButtonController() {
-    console.log(this.buttons)
-  }
   stop() {
     this.views.view.autoRemove()
     return this

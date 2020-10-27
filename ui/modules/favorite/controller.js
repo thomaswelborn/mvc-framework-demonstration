@@ -25,12 +25,16 @@ export default class extends AsyncController {
       models: {
         // user: settings.models.user,
         // route: settings.models.route,
-        ui: new Model(OptionsDefaults.models.ui),
+        ui: new Model(OptionsDefaults.models.ui)
+          .set('infoSelected', false, true),
+        // imageGetOne: ImageGetOne,
         // favorite: FavoriteGetOneModel,
         // favoriteDelete: FavoriteDeleteOneModel,
       },
       modelEvents: {
         'ui set:infoSelected': 'onUIModelSetInfoSelected',
+        'imageGetOne ready': 'onImageGetOneModelReady',
+        'imageGetOne set': 'onImageGetOneModelSet',
         'favoriteGetOne ready': 'onFavoriteGetOneModelReady',
         'favoriteGetOne set': 'onFavoriteGetOneModelSet',
         'favoriteGetOne error': 'onFavoriteGetOneModelError',
@@ -39,6 +43,8 @@ export default class extends AsyncController {
       },
       modelCallbacks: {
         onUIModelSetInfoSelected: (event, uiModel) => this.onUIModelSetInfoSelected(event, uiModel),
+        onImageGetOneModelSet: (event, imageGetOneModel) => this.onImageGetOneModelSet(event, imageGetOneModel),
+        onImageGetOneModelReady: (event, imageGetOneModel) => this.onImageGetOneModelReady(event, imageGetOneModel),
         onFavoriteGetOneModelReady: (event, favoriteModel) => this.onFavoriteGetOneModelReady(event, favoriteModel),
         onFavoriteGetOneModelSet: (event, favoriteModel) => this.onFavoriteGetOneModelSet(event, favoriteModel),
         onFavoriteGetOneModelError: (event, favoriteModel) => this.onFavoriteGetOneModelError(event, favoriteModel),
@@ -56,8 +62,6 @@ export default class extends AsyncController {
       controllers: {
         // mediaItem: MediaItemController,
         // navigation: NavigationController,
-        
-        info: new InfoController(),
       },
       controllerEvents: {
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
@@ -70,6 +74,14 @@ export default class extends AsyncController {
         error: GETServiceErrorDefaults,
       },
     }, options))
+  }
+  onImageGetOneModelReady(event, imageGetOneModel) {
+    this.models.imageGetOne.set(event.data)
+    return this
+  }
+  onImageGetOneModelSet(event, imageGetOneModel) {
+    this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
+    return this
   }
   onFavoriteGetOneModelReady(event, favoriteModel) {
     this.models.favoriteGetOne.set(event.data)
@@ -122,7 +134,7 @@ export default class extends AsyncController {
         this.startFavoriteGetOneModel()
         break
       case 'info':
-        this.models.ui.set('infoSelected', !this.models.ui.get('infoSelected'))
+        this.startImageGetOneModel()
         break
       case 'delete':
         this.startFavoriteDeleteOneModel()
@@ -157,7 +169,7 @@ export default class extends AsyncController {
     return this
   }
   startImageGetOneModel() {
-    this.models.image = new ImageGetOneModel({}, {
+    this.models.imageGetOne = new ImageGetOneModel({}, {
       user: this.models.user,
       ui: new Model({
         defaults: {
@@ -165,6 +177,9 @@ export default class extends AsyncController {
         },
       })
     })
+    this.resetEvents('model')
+    this.models.imageGetOne.services.get.fetch()
+    return this
   }
   startView() {
     this.views.view.render()
@@ -192,13 +207,17 @@ export default class extends AsyncController {
     return this
   }
   startInfoController(info) {
-    this.controllers.info = new InfoController({
-      models: {
-        ui: new Model({
-          defaults: this.models.favoriteGetOne.parse(),
-        }),
-      },
-    }).start()
+    if(!this.controllers.info) {
+      this.controllers.info = new InfoController({
+        models: {
+          ui: new Model({
+            defaults: this.models.imageGetOne.parse(),
+          }),
+        },
+      }).start()
+    } else {
+      this.controllers.info.stop()
+    }
     this.views.view.renderElement('main', 'afterbegin', this.controllers.info.views.view.element)
     return this
   }
