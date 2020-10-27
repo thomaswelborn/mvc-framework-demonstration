@@ -22,7 +22,6 @@ main {
       }
       nav {
         button {
-          padding: 0;
           font: {
             size: 1rem;
           }
@@ -49,4 +48,5 @@ main {
   @import "../../photo/index.scss";
   @import "../../favorite/index.scss";
   @import "../../login/index.scss";
+  @import "../../profile/index.scss";
 }

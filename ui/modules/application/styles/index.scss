@@ -11,7 +11,7 @@
     color: white;
   }
   & > {
-    @import "./header.scss";
+    @import "./header/index.scss";
     @import "./main.scss";
   }
 }

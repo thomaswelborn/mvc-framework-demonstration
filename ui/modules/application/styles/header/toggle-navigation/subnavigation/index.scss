@@ -1,0 +1,54 @@
+.subnavigation {
+  flex-direction: column;
+  position: absolute;
+  margin: {
+    top: 3rem;
+  }
+  min-width: 14rem;
+  top: 0;
+  right: 0;
+  background: {
+    color: white;
+  }
+  margin: {
+    right: 0rem;
+  }
+  button {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: right;
+    padding: 0.5rem 0.5rem;
+    min-height: 3rem;
+    font: {
+      size: 1rem;
+      family: inherit;
+    }
+    border: {
+      right: none;
+      left: none;
+      radius: 0;
+    }
+    &:before {
+      margin: {
+        left: 0.75rem;
+      }
+      font: {
+        size: 1.5rem;
+        family: inherit;
+      }
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    &[data-active="true"] {
+      background: {
+        color: darkgray;
+      }
+      color: white;
+    }
+  }
+}

@@ -91,8 +91,25 @@ export default class extends Controller {
   onApplicationRouterChange(event, router) {
     return this
   }
+  setToggleNavigationButtonActive(route) {
+    Object.values(
+      this
+        .controllers.toggleNavigation
+        .controllers.subnavigation
+        .controllers
+    ).forEach((buttonController) => {
+      const buttonView = buttonController.views.view
+      if(buttonView.ui.$element.getAttribute('data-name') === route.route.name) {
+        buttonView.renderElementAttribute('$element', 'data-active', true)
+      } else {
+        buttonView.renderElementAttribute('$element', 'data-active', false)
+      }
+    })
+    return this
+  }
   loadModule(route) {
     if(this.currentModule) this.currentModule.stop()
+    this.setToggleNavigationButtonActive(route)
     this.currentModule = new Modules[route.route.name]({
       models: {
         user: this.models.user,

@@ -20,6 +20,10 @@ button {
   }
   padding: 0.5rem 1rem;
 }
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
 .input-group {
   display: flex;
   flex-direction: column;

@@ -1,1 +1,11 @@
-#login {}
+#login {
+  & > main {
+    & .form {
+      padding: 1rem;
+      .button-group,
+      .input-group {
+        margin: 0.5rem 0;
+      }
+    }
+  }
+}
