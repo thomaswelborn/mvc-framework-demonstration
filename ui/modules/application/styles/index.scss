@@ -12,7 +12,7 @@
   }
   & > {
     @import "./header/index.scss";
-    @import "./main.scss";
+    @import "./main/index.scss";
   }
 }
 @import "./@media/index.scss";

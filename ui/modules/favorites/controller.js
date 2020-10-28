@@ -7,17 +7,22 @@ import {
   GETServiceError as GETServiceErrorDefaults,
   MediaGrid as MediaGridDefaults,
   Options as OptionsDefaults,
+  Pagination as PaginationDefaults,
 } from './defaults'
 import View from './view'
 import Channels from 'modules/channels'
-import { MediaGrid as MediaGridController } from 'library'
+import {
+  MediaGrid as MediaGridController,
+  Pagination as PaginationController,
+} from 'library'
 
 export default class extends AsyncController {
   constructor(settings = {}, options = {}) {
     super(mergeDeep({
       models: {
         // user: settings.models.user,
-        ui: new Model(OptionsDefaults.models.ui),
+        ui: new Model(OptionsDefaults.models.ui)
+          .set('page', 0),
         mediaGrid: new Model({
           defaults: MediaGridDefaults,
         }),
@@ -40,9 +45,13 @@ export default class extends AsyncController {
         // mediaGrid: MediaGrid,
       },
       controllerEvents: {
+        'pagination newPage': 'onPaginationControllerNewPage',
+        'pagination advancePage': 'onPaginationControllerAdvancePage',
         'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
+        onPaginationControllerNewPage: (event, paginationController) => this.onPaginationControllerNewPage(event, paginationController),
+        onPaginationControllerAdvancePage: (event, paginationController) => this.onPaginationControllerAdvancePage(event, paginationController),
         onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
       },
     }, settings), mergeDeep({
@@ -54,7 +63,15 @@ export default class extends AsyncController {
   get viewData() { return {
     settings: this.models.ui.parse(),
   } }
-  
+  onPaginationControllerNewPage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    this.models.ui.set('page', event.data.newPage)
+    return this
+  }
+  onPaginationControllerAdvancePage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    return this.advancePage(event.data.advance)
+  }
   onFavoritesGetAllModelReady(event, favoriteModel) {
     this.models.favoritesGetAll.set('favorites', event.data)
     return this
@@ -70,7 +87,9 @@ export default class extends AsyncController {
   }
   onFavoritesGetAllModelSet(event, favoritesModel) {
     this.models.ui.set('loading', false)
-    return this.startMediaGridController()
+    return this
+      .startMediaGridController()
+      .startPaginationController()
   }
   onFavoritesGetAllModelError(event, favoritesModel) {
     this.models.ui.set('loading', false)
@@ -115,6 +134,23 @@ export default class extends AsyncController {
   }
   renderView() {
     this.views.view.render()
+    return this
+  }
+  startPaginationController() {
+    if(this.controllers.pagination) this.controllers.pagination.stop()
+    this.controllers.pagination = new PaginationController({}, mergeDeep({
+      models: {
+        ui: {
+          defaults: {
+            count: this.models.favoritesGetAll.services.get.response.headers.get('pagination-count'),
+            limit: this.models.favoritesGetAll.services.get.response.headers.get('pagination-limit'),
+            page: this.models.favoritesGetAll.services.get.response.headers.get('pagination-page'),
+          },
+        },
+      },
+    }, PaginationDefaults)).start()
+    this.resetEvents('controller')
+    this.views.view.renderElement('footer', 'beforeend', this.controllers.pagination.views.view.element)
     return this
   }
   start() {

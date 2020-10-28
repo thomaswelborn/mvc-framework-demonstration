@@ -16,11 +16,10 @@ export default class extends Service {
         'sub_id': options.user.get('subID'),
       },
     }, settings), mergeDeep({}, options))
-    this.options.user
-      .on('set:apiKey', (event) => this.headers['x-api-key'] = event.data.value)
     this.options.ui
       .on('set:order', (event) => {
         this.parameters.order = event.data.value
+        this.parameters.page = 0
         this.fetch()
       })
       .on('set:page', (event) => {

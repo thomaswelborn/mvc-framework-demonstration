@@ -10,4 +10,21 @@
     }
   }
   & > main {}
+  & > footer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    .select-navigation,
+    .pagination {
+      height: 3rem;
+    }
+    .select-navigation {
+      justify-content: center;
+    }
+    .pagination {
+      flex: 1;
+      width: 100%;
+    }
+  }
 }

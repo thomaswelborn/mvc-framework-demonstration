@@ -13,6 +13,7 @@ export default class extends RenderView {
       uiElements: {
         header: ':scope > header',
         main: ':scope > main',
+        footer: ':scope > footer',
       },
     }, settings), mergeDeep({}, options))
   }

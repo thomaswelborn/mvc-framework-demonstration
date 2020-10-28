@@ -15,5 +15,10 @@ export default class extends Service {
         limit: options.ui.get('limit'),
       }
     }, settings), mergeDeep({}, options))
+    this.options.ui
+      .on('set:page', (event) => {
+        this.parameters.page = event.data.value
+        this.fetch()
+      })
   }
 }

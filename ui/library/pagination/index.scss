@@ -1,0 +1,54 @@
+.pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background: {
+    color: gainsboro;
+  }
+  font: {
+    size: 1.25rem;
+  }
+  & > button {
+    width: 3rem;
+    &[data-action="refreshPage"] {
+      &:before {
+        align-items: center;
+        margin: {
+          right: 1rem;
+        }
+      }
+    }
+  }
+  & > .pagination-page {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    label,
+    input,
+    span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 3rem;
+      font: inherit;
+    }
+    label,
+    span {
+      width: auto;
+      margin: 0 0.5rem;
+    }
+    input {
+      width: 5rem;
+      text-align: center;
+      & #pagination-page-input {
+        width: auto;
+      }
+      & #pagination-total {
+        width: 4rem;
+      }
+    }
+  }
+}
+@import "./styles/index.scss";

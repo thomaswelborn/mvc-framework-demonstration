@@ -41,8 +41,6 @@ export default class extends Controller {
   } }
   onUIModelSetSelectedOption(event, uiModel) {
     return this
-      .stopButtonControllers()
-      .startButtonControllers()
       .emit(
         'select:change',
         event.data,
@@ -62,32 +60,6 @@ export default class extends Controller {
         view,
       )
   }
-  startButtonControllers() {
-    this.controllers = this.options.controllers.buttons.reduce((controllers, controller, controllerIndex) => {
-      if(
-        (
-          (controller.models.ui.defaults.auth && this.models.user.get('isAuthenticated')) || 
-          (controller.models.ui.defaults.noAuth)
-        ) && (
-          controller.models.ui.defaults.associatedOptions.indexOf(this.models.ui.get('selectedOption')) !== -1
-        )
-      ) {
-        controllers[`button-${controllerIndex}`] = new ButtonController({
-          models: {
-            user: this.models.user,
-          },
-        }, controller).start()
-        this.views.view.renderElement(
-          'subnavigation',
-          'beforeend',
-          controllers[`button-${controllerIndex}`].views.view.element,
-        )
-      }
-      return controllers
-    }, {})
-    this.resetEvents('controller')
-    return this
-  }
   startView() {
     this.views.view
       .render()
@@ -95,20 +67,7 @@ export default class extends Controller {
     return this
   }
   start() {
-    return this
-      .startView()
-      .startButtonControllers()
-  }
-  stopButtonControllers() {
-    this.controllers = Object.entries(this.controllers).reduce((_controllers, [controllerName, controller]) => {
-      if(controllerName.match(new RegExp(/^button-/))) {
-        controller.stop()
-      } else {
-        _controllers[controllerName] = controller
-      }
-      return _controllers
-    }, {})
-    return this
+    return this.startView()
   }
   stop() {
     this.views.view.autoRemove()

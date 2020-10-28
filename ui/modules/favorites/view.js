@@ -7,13 +7,14 @@ export default class extends RenderView {
     super(mergeDeep({
       elementName: 'section',
       attributes: {
-        id: 'photos',
+        id: 'favorites',
       },
       template: Template,
       uiElements: {
         header: ':scope > header',
         headerNavButton: ':scope > header > nav > button[data-action]',
         main: ':scope > main',
+        footer: ':scope > footer',
       },
       uiElementEvents: {
         'headerNavButton click': 'onHeaderNavButtonClick',

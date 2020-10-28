@@ -14,6 +14,7 @@ export default class extends RenderView {
         header: ':scope > header',
         headerNavButton: ':scope > header > nav > button[data-action]',
         main: ':scope > main',
+        footer: ':scope > footer',
       },
       uiElementEvents: {
         'headerNavButton click': 'onHeaderNavButtonClick',

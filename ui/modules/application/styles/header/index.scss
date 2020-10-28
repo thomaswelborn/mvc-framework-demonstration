@@ -16,6 +16,9 @@ header {
       left: 0.5rem;
     }
     line-height: 2rem;
+    a {
+      cursor: pointer;
+    }
   }
   @import "./toggle-navigation/index.scss";
 }

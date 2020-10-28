@@ -1,0 +1,7 @@
+@media (max-width: 639px) {
+  .pagination {
+    & > button[data-action="refreshPage"] {
+      width: 100%;
+    }
+  }
+}

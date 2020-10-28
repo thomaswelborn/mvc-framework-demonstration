@@ -9,12 +9,14 @@ import Channels from 'modules/channels'
 import {
   GETServiceError as GETServiceErrorDefaults,
   Options as OptionsDefaults,
+  Pagination as PaginationDefaults,
   SelectNavigation as SelectNavigationDefaults,
   MediaItem as MediaItemDefaults,
 } from './defaults'
 import View from './view'
 import {
   SelectNavigation as SelectNavigationController,
+  Pagination as PaginationController,
   MediaItem as MediaItemController,
   Info as InfoController,
 } from 'library'
@@ -52,11 +54,15 @@ export default class extends AsyncController {
       controllers: {},
       controllerEvents: {
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
-        'selectNavigation subnavigationButton:click': 'onSelectNavigationControllerSubnavigationButtonClick',
+        'pagination newPage': 'onPaginationControllerNewPage',
+        'pagination advancePage': 'onPaginationControllerAdvancePage',
+        'pagination refreshPage': 'onPaginationControllerRefreshPage',
         'mediaItem click:navigation': 'onMediaItemControllerClickNavigation',
       },
       controllerCallbacks: {
-        onSelectNavigationControllerSubnavigationButtonClick: (event, view) => this.onSelectNavigationControllerSubnavigationButtonClick(event, view),
+        onPaginationControllerNewPage: (event, paginationController) => this.onPaginationControllerNewPage(event, paginationController),
+        onPaginationControllerAdvancePage: (event, paginationController) => this.onPaginationControllerAdvancePage(event, paginationController),
+        onPaginationControllerRefreshPage: (event, paginationController) => this.onPaginationControllerRefreshPage(event, paginationController),
         onSelectNavigationControllerSelectChange: (event, view) => this.onSelectNavigationControllerSelectChange(event, view),
         onMediaItemControllerClickNavigation: (event, mediaItemController) => this.onMediaItemControllerClickNavigation(event, mediaItemController),
       },
@@ -70,6 +76,7 @@ export default class extends AsyncController {
     this.models.ui.set('loading', false)
     return this
       .startMediaItemController()
+      .startPaginationController()
   }
   onImageSearchModelReady(event, imageSearchModel) {
     this.models.imageSearch.set({
@@ -103,22 +110,23 @@ export default class extends AsyncController {
     }
     return this
   } 
-  onSelectNavigationControllerSelectChange(event, view) {
-    this.models.ui.set('order', event.data.value)
+  onPaginationControllerNewPage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    this.models.ui.set('page', event.data.newPage)
     return this
   }
-  onSelectNavigationControllerSubnavigationButtonClick(event, view) {
-    switch(event.data.action) {
-      case 'new':
-        this.getImageSearchModel()
-        break
-      case 'next':
-        this.advancePage(1)
-        break
-      case 'previous':
-        this.advancePage(-1)
-        break
-    }
+  onPaginationControllerAdvancePage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    return this.advancePage(event.data.advance)
+  }
+  onPaginationControllerRefreshPage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    return this.refreshPage()
+  }
+  onSelectNavigationControllerSelectChange(event, selectNavigationController) {
+    this.models.ui.set('loading', true)
+    this.models.ui.set('order', event.data.value)
+    this.models.ui.set('page', 0)
     return this
   }
   onMediaItemControllerClickNavigation(event, mediaItemController) {
@@ -150,6 +158,10 @@ export default class extends AsyncController {
     this.models.postOneFavorite.services.post.fetch()
     return this
   }
+  refreshPage(event) {
+    this.getImageSearchModel()
+    return this
+  }
   advancePage(pages) {
     let currentPage = this.models.ui.get('page')
     let nextPage = (currentPage + pages < 0)
@@ -165,7 +177,24 @@ export default class extends AsyncController {
         user: this.models.user,
       }
     }, SelectNavigationDefaults).start()
-    this.views.view.renderElement('header', 'afterbegin', this.controllers.selectNavigation.views.view.element)
+    this.views.view.renderElement('footer', 'beforeend', this.controllers.selectNavigation.views.view.element)
+    return this
+  }
+  startPaginationController() {
+    if(this.controllers.pagination) this.controllers.pagination.stop()
+    this.controllers.pagination = new PaginationController({}, mergeDeep({
+      models: {
+        ui: {
+          defaults: {
+            count: this.models.imageSearch.services.get.response.headers.get('pagination-count'),
+            limit: this.models.imageSearch.services.get.response.headers.get('pagination-limit'),
+            page: this.models.imageSearch.services.get.response.headers.get('pagination-page'),
+          },
+        },
+      },
+    }, PaginationDefaults)).start()
+    this.resetEvents('controller')
+    this.views.view.renderElement('footer', 'beforeend', this.controllers.pagination.views.view.element)
     return this
   }
   startMediaItemController() {

@@ -10,21 +10,27 @@
       }
     }
   }
-  .media-grid {
-    flex: 1;
-    overflow: {
-      y: scroll;
+  & > main {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  & > footer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    .select-navigation,
+    .pagination {
+      height: 3rem;
     }
-    &::-webkit-scrollbar {
-      display: none;
+    .select-navigation {
+      justify-content: center;
     }
-    .media-item {
-      flex: none;
-      margin: 0.25rem 0.5rem;
-      .image {
-        width: 8rem;
-        height: 8rem;
-      }
+    .pagination {
+      flex: 1;
+      width: 100%;
     }
   }
 }

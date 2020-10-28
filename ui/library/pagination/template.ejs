@@ -1,0 +1,50 @@
+<% ((data) => { %>
+  <% if(
+    data.ui.count === null &&
+    data.ui.limit === null &&
+    data.ui.page === null
+  ) { %>
+    <button
+      type="button"
+      class="button icon-spinner11"
+      data-action="refreshPage"
+    >New</button>
+  <% } else { %>
+    <% const currentPage = Number(data.ui.page) + 1 %>
+    <% const totalPages = Math.ceil(Number(data.ui.count) / Number(data.ui.limit)) %>
+    <% if(currentPage !== 1) { %>
+      <button
+        type="button"
+        class="button icon-circle-left"
+        data-action="advancePage"
+        data-advance="-1"
+      ></button>
+    <% } %>
+    <div class="pagination-page">
+      <label for="pagination-page-input">Page</label>
+      <input
+        type="number"
+        id="pagination-page-input"
+        value="<%= currentPage %>"
+        min="1"
+        max="<%= totalPages %>"
+      >
+      <span>/</span>
+      <input
+        type="text"
+        id="pagination-total"
+        value="<%= totalPages %>"
+        disabled
+      >
+    </div>
+    
+    <% if(currentPage < totalPages) { %>
+      <button
+        type="button"
+        class="button icon-circle-right"
+        data-action="advancePage"
+        data-advance="1"
+      ></button>
+    <% } %>
+  <% } %>
+<% })(data) %>

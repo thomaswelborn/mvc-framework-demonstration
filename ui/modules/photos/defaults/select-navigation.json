@@ -34,7 +34,7 @@
                 "id": "photos-select-navigation-option-ascending",
                 "value": "ASC"
               },
-              "innerText": "Ascending"
+              "innerText": "Oldest"
               },
             {
               "tag": {
@@ -45,7 +45,7 @@
                 "id": "photos-select-navigation-option-descending",
                 "value": "DESC"
               },
-              "innerText": "Descending"
+              "innerText": "Newest"
             }
           ]
         },
@@ -61,54 +61,5 @@
       ]
     }
   },
-  "controllers": {
-    "buttons": [
-      {
-        "models": {
-          "ui": {
-            "defaults": {
-              "auth": false,
-              "noAuth": true,
-              "associatedOptions": [
-                "ASC",
-                "DESC"
-              ]
-            }
-          }
-        },
-        "views": {
-          "view": {
-            "attributes": {
-              "id": "photos-select-navigation-button-previous",
-              "class": "button icon-circle-left",
-              "data-action": "previous"
-            }
-          }
-        }
-      },
-      {
-        "models": {
-          "ui": {
-            "defaults": {
-              "auth": false,
-              "noAuth": true,
-              "associatedOptions": [
-                "ASC",
-                "DESC"
-              ]
-            }
-          }
-        },
-        "views": {
-          "view": {
-            "attributes": {
-              "id": "photos-select-navigation-button-next",
-              "class": "button icon-circle-right",
-              "data-action": "next"
-            }
-          }
-        }
-      }
-    ]
-  }
+  "controllers": {}
 }

@@ -7,12 +7,14 @@ import {
   GETServiceError as GETServiceErrorDefaults,
   MediaGrid as MediaGridDefaults,
   SelectNavigation as SelectNavigationDefaults,
+  Pagination as PaginationDefaults,
   Options as OptionsDefaults,
 } from './defaults'
 import View from './view'
 import Channels from 'modules/channels'
 import {
   SelectNavigation as SelectNavigationController,
+  Pagination as PaginationController,
   MediaGrid as MediaGridController,
 } from 'library'
 
@@ -22,14 +24,13 @@ export default class extends AsyncController {
       models: {
         // user: settings.models.user,
         ui: new Model(OptionsDefaults.models.ui)
-          .set('page', 0, true),
+          .set('page', 0),
         mediaGrid: new Model({
           defaults: MediaGridDefaults,
         }),
         // imagesGetAll: ImagesGetAllModel,
       },
       modelEvents: {
-        'ui set:page': 'onUIModelSetPage',
         'imagesGetAll ready': 'onImagesGetAllModelReady',
         'imagesGetAll set': 'onImagesGetAllModelSet',
         'imagesGetAll error': 'onImagesGetAllModelError',
@@ -51,16 +52,19 @@ export default class extends AsyncController {
       },
       controllers: {
         // selectNavigation: SelectNavigation,
+        // pagination: Pagination,
         // mediaGrid: MediaGrid,
       },
       controllerEvents: {
         'selectNavigation select:change': 'onSelectNavigationControllerSelectChange',
-        'selectNavigation subnavigationButton:click': 'onSelectNavigationSubnavigationButtonClick',
+        'pagination newPage': 'onPaginationControllerNewPage',
+        'pagination advancePage': 'onPaginationControllerAdvancePage',
         'mediaGrid click': 'onMediaGridControllerClick',
       },
       controllerCallbacks: {
         onSelectNavigationControllerSelectChange: (event, selectNavigationController) => this.onSelectNavigationControllerSelectChange(event, selectNavigationController),
-        onSelectNavigationSubnavigationButtonClick: (event, selectNavigationController) => this.onSelectNavigationSubnavigationButtonClick(event, selectNavigationController),
+        onPaginationControllerNewPage: (event, paginationController) => this.onPaginationControllerNewPage(event, paginationController),
+        onPaginationControllerAdvancePage: (event, paginationController) => this.onPaginationControllerAdvancePage(event, paginationController),
         onMediaGridControllerClick: (event, mediaGridController, mediaGridItemController) => this.onMediaGridControllerClick(event, mediaGridController, mediaGridItemController),
       },
     }, settings), mergeDeep({
@@ -89,9 +93,6 @@ export default class extends AsyncController {
     }
     return this
   }
-  onUIModelSetPage(event, uiModel) {
-    return this.startImagesGetAllModel()
-  }
   onImagesGetAllModelReady(event, imagesModel) {
     this.models.imagesGetAll.set('images', event.data)
     return this
@@ -108,24 +109,32 @@ export default class extends AsyncController {
     })
   }
   onSelectNavigationControllerSelectChange(event, selectNavigationController) {
+    this.models.ui.set('loading', true)
     this.models.ui.set('order', event.data.value)
+    this.models.ui.set('page', 0)
     return this
   }
-  onSelectNavigationSubnavigationButtonClick(event, selectNavigationController) {
-    switch(event.data.action) {
-      case 'next':
-        this.advancePage(1)
-        break
-      case 'previous':
-        this.advancePage(-1)
-        break
-    }
+  onPaginationControllerNewPage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    this.models.ui.set('page', event.data.newPage)
     return this
+  }
+  onPaginationControllerAdvancePage(event, paginationController) {
+    this.models.ui.set('loading', true)
+    return this.advancePage(event.data.advance)
   }
   onMediaGridControllerClick(event, mediaGridController, mediaGridItemController) {
     Channels.channel('Application').request('router').navigate(
       `/photos/${mediaGridItemController.controllers.image.models.ui.get('id')}`
     )
+    return this
+  }
+  advancePage(pages) {
+    let currentPage = this.models.ui.get('page')
+    let nextPage = (currentPage + pages < 0)
+      ? 0
+      : currentPage + pages
+    this.models.ui.set('page', nextPage)
     return this
   }
   startImagesGetAllModel() {
@@ -134,7 +143,6 @@ export default class extends AsyncController {
       ui: this.models.ui,
       user: this.models.user,
     })
-    this.models.imagesGetAll.services.get.fetch()
     this.resetEvents('model')
     this.models.imagesGetAll.services.get.fetch()
     return this
@@ -147,7 +155,24 @@ export default class extends AsyncController {
       },
     }, SelectNavigationDefaults).start()
     this.resetEvents('controller')
-    this.views.view.renderElement('main', 'beforeend', this.controllers.selectNavigation.views.view.element)
+    this.views.view.renderElement('footer', 'beforeend', this.controllers.selectNavigation.views.view.element)
+    return this
+  }
+  startPaginationController() {
+    if(this.controllers.pagination) this.controllers.pagination.stop()
+    this.controllers.pagination = new PaginationController({}, mergeDeep({
+      models: {
+        ui: {
+          defaults: {
+            count: this.models.imagesGetAll.services.get.response.headers.get('pagination-count'),
+            limit: this.models.imagesGetAll.services.get.response.headers.get('pagination-limit'),
+            page: this.models.imagesGetAll.services.get.response.headers.get('pagination-page'),
+          },
+        },
+      },
+    }, PaginationDefaults)).start()
+    this.resetEvents('controller')
+    this.views.view.renderElement('footer', 'beforeend', this.controllers.pagination.views.view.element)
     return this
   }
   startMediaGridController() {
@@ -162,11 +187,11 @@ export default class extends AsyncController {
     this.views.view.renderElement('main', 'beforeend', this.controllers.mediaGrid.views.view.element)
     return this
   }
-  
   startControllers() {
     return this
       .startMediaGridController()
       .startSelectNavigationController()
+      .startPaginationController()
   }
   startView() {
     this.views.view.render()
@@ -184,14 +209,6 @@ export default class extends AsyncController {
   }
   stop() {
     this.views.view.autoRemove()
-    return this
-  }
-  advancePage(pages) {
-    let currentPage = this.models.ui.get('page')
-    let nextPage = (currentPage + pages < 0)
-    ? 0
-    : currentPage + pages
-    this.models.ui.set('page', nextPage)
     return this
   }
 }

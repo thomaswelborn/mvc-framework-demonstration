@@ -8,6 +8,7 @@ import SelectNavigation from './select-navigation'
 import Loader from './loader'
 import Error from './error'
 import Info from './info'
+import Pagination from './pagination'
 
 export {
   Button,
@@ -20,4 +21,5 @@ export {
   Loader,
   Error,
   Info,
+  Pagination,
 }
